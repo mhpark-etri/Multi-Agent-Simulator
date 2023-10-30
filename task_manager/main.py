@@ -13,6 +13,9 @@ upt = Point(150,168)
 tf_lpt = transform_point(lpt, scale=scale)
 tf_upt = transform_point(upt,  scale=scale)
 
+
+
+'''
 x_init = tf_lpt.x
 y_init = tf_lpt.y
 width =  tf_lpt.x  - tf_upt.x + 1
@@ -47,3 +50,4 @@ for idx, (i,j) in enumerate(goal_list):
 plt.imshow(gmap, cmap='gray')
 plt.scatter(y=goal_list2[:,0], x=goal_list2[:,1])
 plt.show()
+'''
