@@ -38,3 +38,12 @@ def compute_area(gmap, lp, up, threshold=240):
       if gmap[i,j] > threshold: area_cnt = area_cnt + 1
   return area_cnt
 
+
+
+def split_area(gmap, lp, up, threshold=240):
+  num_agents = 3
+  area = compute_area(gmap, lp, up)
+  subarea = area / num_agents
+
+
+
