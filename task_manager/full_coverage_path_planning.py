@@ -1,5 +1,5 @@
 ### naive full coverage path planning algorithm
-def naive_path_planning(tf_lpt, width, inc, x_init, y_init, gmap):
+def naive_path_planning(x_init, y_init, tf_lpt, width, inc, gmap):
   goal_list = []
   for y_cnt in range(0, width, inc):
     if y_cnt % 2==0: x_init = tf_lpt.x
@@ -24,3 +24,4 @@ def naive_path_planning(tf_lpt, width, inc, x_init, y_init, gmap):
             break
         if gmap[di,dj]>=240: break
       print(i,j, di, dj, gmap[i,j],  gmap[di,dj])
+
