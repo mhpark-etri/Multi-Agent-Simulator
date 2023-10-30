@@ -13,6 +13,7 @@ y_init = tf_lpt.y
 width =  tf_lpt.x  - tf_upt.x + 1
 inc = 2
 
+### full coverage path ###
 goal_list = []
 for y_cnt in range(0, width, inc):
   if y_cnt % 2==0: x_init = tf_lpt.x
@@ -23,4 +24,3 @@ for y_cnt in range(0, width, inc):
     else: x = x_init +x_cnt
     y= y_init - y_cnt
     goal_list.append((x,y)) 
-
