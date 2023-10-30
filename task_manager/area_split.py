@@ -10,6 +10,8 @@ mapfile = 'map.pgm'
 with open(mapfile, 'rb') as imap:
     gmap = plt.imread(imap)
 
+num_agents = 3
+
 def transform_map(gmap, pixels=10):
   rows = int(np.ceil(gmap.shape[0] / pixels))
   cols = int(np.ceil(gmap.shape[1] / pixels)) 
