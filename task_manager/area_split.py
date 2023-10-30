@@ -3,7 +3,6 @@ import seaborn as sns
 import os
 import numpy as np
 
-
 os.chdir('d:/temp')
 
 mapfile = 'map.pgm'
@@ -31,8 +30,6 @@ class Point:
     self.y = y
   def get_str(self):
     return str(self.x)+","+str(self.y)
-
-
 
 def compute_area(gmap, lp, up, threshold=240):
   area_cnt = 0
