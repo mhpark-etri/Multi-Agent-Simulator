@@ -37,5 +37,12 @@ for idx, (i,j) in enumerate(goal_list):
           goal_list2[idx, :] = [di, dj]
           break
       if gmap[di,dj]>=240: break
-    print(i,j, di, dj, gmap[i,j],  gmap[di,dj])    
+    print(i,j, di, dj, gmap[i,j],  gmap[di,dj])
+
+
+
+plt.imshow(gmap, cmap='gray')
+plt.scatter(y=goal_list2[:,0], x=goal_list2[:,1])
+
+
 
