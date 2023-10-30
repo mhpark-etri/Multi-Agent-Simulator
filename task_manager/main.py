@@ -41,3 +41,4 @@ for idx, (i,j) in enumerate(goal_list):
 
 plt.imshow(gmap, cmap='gray')
 plt.scatter(y=goal_list2[:,0], x=goal_list2[:,1])
+plt.show()
