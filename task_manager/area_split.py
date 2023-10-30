@@ -29,3 +29,13 @@ class Point:
     self.y = y
   def get_str(self):
     return str(self.x)+","+str(self.y)
+
+
+
+def compute_area(gmap, lp, up, threshold=240):
+  area_cnt = 0
+  for  i in range(up.x, lp.x):
+    for j in range(up.y, lp.y):
+      if gmap[i,j] > threshold: area_cnt = area_cnt + 1
+  return area_cnt
+
