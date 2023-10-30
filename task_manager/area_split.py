@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 import numpy as np
+from utils import Point
 
 os.chdir('d:/temp')
 
