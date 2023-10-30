@@ -24,21 +24,12 @@ def transform_point(p, scale=1):
   pixels = scale
   return Point(int(p.x/pixels), int(p.y/pixels))
 
-class Point:
-  def __init__(self, x=0, y=0):
-    self.x = x
-    self.y = y
-  def get_str(self):
-    return str(self.x)+","+str(self.y)
-
 def compute_area(gmap, lp, up, threshold=240):
   area_cnt = 0
   for  i in range(up.x, lp.x):
     for j in range(up.y, lp.y):
       if gmap[i,j] > threshold: area_cnt = area_cnt + 1
   return area_cnt
-
-
 
 def split_area(gmap, lp, up, threshold=240):
   num_agents = 3
