@@ -1,5 +1,6 @@
 from area_split import transform_point
 from area_split import Point
+from area_split import transform_map
 
 
 ### main ###
