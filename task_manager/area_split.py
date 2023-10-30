@@ -55,5 +55,3 @@ def split_area(gmap, lp, up, threshold=240):
       new_up = Point(up.x, new_lp.y)
 
   return split_line
-
-
