@@ -45,5 +45,15 @@ def split_area(gmap, lp, up, threshold=240):
   area = compute_area(gmap, lp, up)
   subarea = area / num_agents
 
+  split_line = []
+  new_up = up
+  for  j in range(up.y, lp.y):
+      new_lp = Point(lp.x, j)
+      ar = compute_area(gmap, new_lp, new_up, threshold)
+      if ar < subarea: continue
+      split_line.append(new_lp)
+      new_up = Point(up.x, new_lp.y)
+
+  return split_line
 
 
