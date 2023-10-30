@@ -1,5 +1,5 @@
 ### naive full coverage path planning algorithm
-def naive_path_planning():
+def naive_path_planning(tf_lpt, width, inc):
   goal_list = []
   for y_cnt in range(0, width, inc):
     if y_cnt % 2==0: x_init = tf_lpt.x
