@@ -1,4 +1,6 @@
 from area_split import transform_point
+from area_split import Point
+
 
 ### main ###
 scale = 10
