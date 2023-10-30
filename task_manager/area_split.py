@@ -18,3 +18,9 @@ def transform_map(gmap, pixels=10):
       for j in range(0, cols):
         new_map[i, j] = gmap[i*pixels:i*pixels+pixels, j*pixels:j*pixels+pixels].mean()
   return new_map
+
+
+
+def transform_point(p, scale=1):
+  pixels = scale
+  return Point(int(p.x/pixels), int(p.y/pixels))
