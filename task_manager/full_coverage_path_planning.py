@@ -24,4 +24,4 @@ def naive_path_planning(x_init, y_init, tf_lpt, width, inc, gmap):
             break
         if gmap[di,dj]>=240: break
       print(i,j, di, dj, gmap[i,j],  gmap[di,dj])
-
+  return glist2
