@@ -36,7 +36,7 @@ cd
 cd tesla
 source init.sh
 ```
-<br><br><br>
+<br><br>
 
 ---
 # 사용 방법
