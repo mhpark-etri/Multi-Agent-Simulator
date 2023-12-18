@@ -43,11 +43,11 @@ source init.sh
 ### 프로그램 실행
   - 터미널을 열고 아래의 명령어를 차례대로 입력.
 ```
-  cd
-  cd tesla
-  cd code
-  cd Multi-Agent-Simulator
-  python3 main.py
+cd
+cd tesla
+cd code
+cd Multi-Agent-Simulator
+python3 main.py
 ```
 
 <details>
