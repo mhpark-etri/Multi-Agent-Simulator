@@ -36,7 +36,6 @@ cd
 cd tesla
 source init.sh
 ```
-- 15 ~ 20분 정도의 시간 소요.
 <br><br><br>
 
 ---
