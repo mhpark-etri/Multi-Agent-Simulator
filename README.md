@@ -71,6 +71,7 @@ source init.sh
   </pre>
   - 이후 다시 프로그램 실행
 </details>
+<br>
 
 ### 프로그램 사용 방법
 <img src="https://github.com/etri-clara2/Multi-Agent-Simulator/assets/147698192/60ad5330-c16f-46b5-9c6a-64409329adde" width="70%" height="70%"/>
