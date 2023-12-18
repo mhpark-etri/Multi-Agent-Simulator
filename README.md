@@ -1,3 +1,4 @@
+<div style="text-align: left;">
 
 # Multi-Agent-Simulator v1.0
   <img src="https://github.com/etri-clara2/Multi-Agent-Simulator/assets/147698192/302eb4a3-75df-4144-9007-56de4f4c202a" width="70%" height="70%"/>
@@ -80,3 +81,5 @@ source init.sh
    - Robot 패널에서 Add를 눌러 에이전트 생성
 ### 3. 시작
    - 우측 하단 Start 버튼을 눌러 가상 환경 실행
+
+</div>
