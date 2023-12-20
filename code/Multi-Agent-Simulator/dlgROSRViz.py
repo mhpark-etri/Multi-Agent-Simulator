@@ -54,7 +54,7 @@ class DialogRViz(QtWidgets.QDialog):
         # 현재는 로봇 모델의 대수가 각각 10대를 넘어가지 않는다는 가정 하에 아래 조건을 실행 한다.
         robotName = label[:len(label) - 1]
         robotIdx = label[-1:]
-
+        '''
         # 로봇별 RViz 생성
         if robotName == CMD_LOCOBOT_MODEL:
              # 로코봇 RViz 생성
@@ -67,6 +67,6 @@ class DialogRViz(QtWidgets.QDialog):
              pass
         elif robotName == CMD_JETBOT_DEFAULT_NAME:
              pass
-        
+        '''
     def showModal(self):
         return super().exec_()
