@@ -1085,7 +1085,8 @@ class MainWindow(QtWidgets.QMainWindow):
             shutil.copy(backupFile, worldPath)
         except FileNotFoundError:
             print(f"복사할 파일이 없습니다: {backupFile}")
-        except Exception as e:
+        # except Exception as e:
+        except OSError as e:    
             print(f"오류 발생: {e}")
         
     # Person Model의 색상을 랜덤하게 지정한다
