@@ -86,28 +86,28 @@ class DialogTeleop(QtWidgets.QDialog):
 
         # 로봇별 텔레오프 실행
         if robotName == CMD_LOCOBOT_MODEL:
-             # 로코봇 텔레오프 실행
-             command = CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_LOCOBOT_TELEOP_TWIST_KEYBOARD_PKG + CMD_COMMON_SPACE + CMD_ROS_LOCOBOT_TELEOP_TWIST_KEYBOARD_PY + CMD_COMMON_SPACE
-             command = command + CMD_ROS_COMMON_CMD_VEL + CMD_COMMON_PARAM_INSERT + label + CMD_COMMON_SLASH + CMD_ROS_COMMON_CMD_VEL + CMD_COMMON_SPACE
-             command = command + CMD_ROS_COMMON_NODE_NAME + CMD_COMMON_PARAM_INSERT + label
-             os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
-             pass
+            # 로코봇 텔레오프 실행
+            command = CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_LOCOBOT_TELEOP_TWIST_KEYBOARD_PKG + CMD_COMMON_SPACE + CMD_ROS_LOCOBOT_TELEOP_TWIST_KEYBOARD_PY + CMD_COMMON_SPACE
+            command = command + CMD_ROS_COMMON_CMD_VEL + CMD_COMMON_PARAM_INSERT + label + CMD_COMMON_SLASH + CMD_ROS_COMMON_CMD_VEL + CMD_COMMON_SPACE
+            command = command + CMD_ROS_COMMON_NODE_NAME + CMD_COMMON_PARAM_INSERT + label
+            os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
+            pass
         elif robotName == CMD_TURTLEBOT3_DEFAULT_NAME:
-                # Buger
-                if self.m_simulator.robots[int(robotIdx)].type == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER:
-                    # 터틀봇 버거 텔레오프 실행
-                    command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
-                    command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP_KEY
-                    os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
-                # Waffle
-                elif self.m_simulator.robots[int(robotIdx)].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE:
-                    # 터틀봇 와플 텔레오프 실행
-                    command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
-                    command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP_KEY
-                    os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
+            # Buger
+            if self.m_simulator.robots[int(robotIdx)].type == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER:
+                # 터틀봇 버거 텔레오프 실행
+                command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
+                command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP_KEY
+                os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
+            # Waffle
+            elif self.m_simulator.robots[int(robotIdx)].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE:
+                # 터틀봇 와플 텔레오프 실행
+                command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
+                command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP_KEY
+                os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
         elif robotName == CMD_JETBOT_DEFAULT_NAME:
-             # TODO : jetbot...
-             pass
+            # TODO : jetbot...
+            pass
         
     def showModal(self):
         return super().exec_()
