@@ -3,11 +3,23 @@
 # Multi-Agent-Simulator v1.0
   <img src="https://github.com/etri-clara2/Multi-Agent-Simulator/assets/147698192/302eb4a3-75df-4144-9007-56de4f4c202a" width="70%" height="70%"/>
 
-- 가상환경에서의 멀티에이전트 학습을 위한 3D 기반 에이전트 시뮬레이터.
-### 프로젝트 실행 환경
+- Copyright (C) ETRI. All rights reserved.
+- This software is a 3D simulator software for learning multi-agents in virtual environments (가상환경에서의 멀티에이전트 학습을 위한 3D 기반 에이전트 시뮬레이터).
+- You can download worlds or models at the following sites. After that, you should move them to "worlds" or "models" directory.
+  - https://github.com/gazebosim/gazebo-classic/tree/gazebo11/worlds
+  - https://github.com/chaolmu/gazebo_models_worlds_collection
+  - https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps
+  - https://github.com/osrf/gazebo_models
+  - https://dev.px4.io/v1.11_noredirect/en/simulation/gazebo_worlds.html
+  - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
+  - https://data.nvision2.eecs.yorku.ca/3DGEMS/
+  - https://github.com/eliabntt/gazebo_resources
+- Any questions about our use of licensed work can be sent to ch.lee@etri.re.kr
+
+---
+# 프로젝트 실행 환경
 - Ubuntu 20.04.
 - Docker v24.0.7 이상.
-<br><br><br>
 
 ---
 # 설치 방법
