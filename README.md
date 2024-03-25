@@ -14,7 +14,7 @@
   - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
   - https://data.nvision2.eecs.yorku.ca/3DGEMS/
   - https://github.com/eliabntt/gazebo_resources
-- Any questions about our use of licensed work can be sent to ch.lee@etri.re.kr
+- Any questions about our use of licensed work can be sent to roger618@etri.re.kr
 
 ---
 # 프로젝트 실행 환경
