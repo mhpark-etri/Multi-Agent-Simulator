@@ -55,6 +55,7 @@ source init.sh
 <br>
 <br>
 - 설치가 완료되면 y를 입력해 도커를 종료.
+<br>
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="50%" height="50%"/>
 <br><br>
 
