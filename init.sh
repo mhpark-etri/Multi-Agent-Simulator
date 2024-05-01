@@ -33,6 +33,13 @@ echo 'LANG=en_US.UTF-8' | sudo tee -a /etc/default/locale
 # colcon build
 # source install/setup.sh
 
+## Interbotix 설치
+sudo chmod 1777 /tmp
+sudo apt-get update
+cd /root/tesla
+sudo chmod a+x xslocobot_amd64_install4.sh
+source xslocobot_amd64_install4.sh -b create3 -d noetic
+
 ## Copy gazebo models & world
 mkdir -p ~/.gazebo/models
 cd /root/tesla/models/

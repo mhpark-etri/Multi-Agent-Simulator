@@ -35,7 +35,7 @@ RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8   
-RUN apt-get install -y gnome-terminal
+RUN sudo apt-get install -y gnome-terminal
 
 ############################
 ###### Turtlebot3 설치 ######
@@ -95,25 +95,6 @@ RUN sudo apt install -y python3-colcon-common-extensions
 # 3. AWS Robomaker 관련 복사 및 빌드
 # COPY models_aws/ /root/tesla/models_aws/
 
-# 4. Locobot - xslocobot 설치
-# 차후 구현 예정
-
-# 5. 프로그램 필요 초기화
+# 3. 프로그램 필요 패키지 복사
 COPY init.sh /root/tesla/
-
-
-#######################################################
-###### PyLobot 설치 (기본적으로 Gazebo 같이 설치 됨 ######
-#######################################################
-# 1. PyLobot 설치
-# RUN mkdir -p /mnt/temp2/
-# COPY code/pyrobot/ /mnt/temp2/
-# COPY code/pyrobot/ /root/
-# RUN chmod +x /root/locobot_install_all_focal_p3.sh 
-# RUN bash ./root/locobot_install_all_focal_p3.sh -t sim_only -p 3 -l interbotix
-
-#############################
-##### 여기까지 pashse 2 ######
-#############################
-
-
+COPY xslocobot_amd64_install4.sh /root/tesla/
