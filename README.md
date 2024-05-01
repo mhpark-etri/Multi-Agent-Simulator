@@ -50,7 +50,7 @@ source init.sh
 ```
 
 ### 4.1 Interbotix 설치
-- Interbotix 설치 화면이 나오면 차례대로 y를 입력.
+- 필수패키지 설치 도중 Interbotix 설치 화면이 나오면 차례대로 y를 입력.
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/871c7299-c07c-4e2d-8f92-1d1770b40e7d" width="50%" height="50%"/>
 <br>
 <br>
@@ -62,7 +62,7 @@ source init.sh
 ---
 # 사용 방법
 ### 프로그램 실행
-  - 터미널을 열고 아래의 명령어를 차례대로 입력.
+  - 터미널을 열고 도커를 실행한 후 아래의 명령어를 차례대로 입력.
 ```
 cd
 cd tesla
