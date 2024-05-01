@@ -1,6 +1,6 @@
 <div style="text-align: left;">
 
-# Multi-Agent-Simulator v1.0
+# Multi-Agent-Simulator v1.1
   <img src="https://github.com/etri-clara2/Multi-Agent-Simulator/assets/147698192/302eb4a3-75df-4144-9007-56de4f4c202a" width="70%" height="70%"/>
 
 - Copyright (C) ETRI. All rights reserved.
