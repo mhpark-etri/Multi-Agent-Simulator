@@ -48,6 +48,14 @@ cd
 cd tesla
 source init.sh
 ```
+
+### 4.1 Interbotix 설치
+- Interbotix 설치 화면이 나오면 차례대로 y를 입력
+- 설치가 완료되면 아래 명령어를 차례로 입력해 Docker를 재시작
+```
+exit
+sudo docker start -i ct_mas
+```
 <br><br>
 
 ---
