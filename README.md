@@ -50,14 +50,11 @@ source init.sh
 ```
 
 ### 4.1 Interbotix 설치
-- Interbotix 설치 화면이 나오면 차례대로 y를 입력
+- Interbotix 설치 화면이 나오면 차례대로 y를 입력.
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/871c7299-c07c-4e2d-8f92-1d1770b40e7d" width="70%" height="70%"/>
 <br>
-- 설치가 완료되면 아래 명령어를 차례로 입력해 Docker를 재시작
-```
-exit
-sudo docker start -i ct_mas
-```
+- 설치가 완료되면 y를 입력해 도커를 종료.
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="70%" height="70%"/>
 <br><br>
 
 ---
