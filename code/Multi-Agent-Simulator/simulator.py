@@ -1,9 +1,9 @@
 ########################################################
 ## Teslasystem Co.,Ltd.                               ##
-## 제작 : 박태순                                       ## 
-## 설명 : 시뮬레이터에서 사용 될 데이터가 정의된 스크립트 ##
-## 시뮬레이터 구조체 형태 ################################
-## Simulator                                          ##
+## 제작 : 박태순                                        ## 
+## 설명 : 시뮬레이터에서 사용 될 데이터가 정의된 스크립트       ##
+## 시뮬레이터 구조체 형태 ##################################
+## Simulator                                         ##
 #### └ World                                         ##
 #### └ Robot [n]                                   ####
 ####     └ Id                                      ####
@@ -24,6 +24,8 @@ CONST_TURTLEBOT3_WAFFLE_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot
 CONST_TURTLEBOT3_WAFFLE_NAME = "Turtlebot3 - Waffle"
 CONST_JETBOT_PATH = ""
 CONST_JETBOT_NAME = "Jetbot"
+CONST_INTERBOTIX_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_interbotix_wx250s.png"
+CONST_INTERBOTIX_NAME = "Locobot - wx250s"
 
 CONST_EXTENTION_WORLD = ".world"
 CONST_EXTENTION_MODEL = ".model"
@@ -42,7 +44,7 @@ class ENUM_WORLD_CATEGORY_MAIN(Enum):
 # 주석 처리된 맵들은 현재 동작하지 않는 맵
 class ENUM_WORLD_CATEGORY_SUB(Enum):
     CAFE = "cafe"
-    # SMALL_HOUSE = "small_house"
+    SMALL_HOUSE = "small_house"
     # HOUSE = "house"
     OFFICE_CPR = "office_cpr"
     OFFICE_CPR_CONSTRUCTION = "office_cpr_construction"
@@ -97,6 +99,7 @@ class ENUM_ROBOT_TYPE(Enum):
     TURTLEBOT3_BURGER = 1                   ## Type : Turtlebot3 Burger    
     TURTLEBOT3_WAFFLE = 2                   ## Type : Turtlebot3 Waffle
     JETBOT = 3                              ## Type : Jetbot
+    INTERBOTIX = 4                          ## Type : Interbotix
 
 ## ENUM : ROS Type ##
 class ENUM_ROS_TYPE(Enum):

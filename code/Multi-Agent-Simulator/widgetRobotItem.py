@@ -43,12 +43,22 @@ class WidgetRobotItem(QtWidgets.QWidget):
         self.lstThumbs.append(thumb)
         # thumb.thumbPath = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_jetbot.png"
         # thumb.thumbName = "Jetbot"
-        # self.lstThumbs.append(thumb)        
+        # self.lstThumbs.append(thumb)    
+        thumb = Thumb()
+        thumb.thumbPath = CONST_INTERBOTIX_PATH
+        thumb.thumbName = CONST_INTERBOTIX_NAME
+        self.lstThumbs.append(thumb)  
 
         # Set thumb image and robot name
         pixmap = QtGui.QPixmap(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbPath))
         self.ui.lbRobotThumb.setPixmap(pixmap)
         self.ui.lbRobotName.setText(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbName))
+
+    # 선택 인덱스 변경 (idx)
+    def ChangeCurrentThumbIdx(self, idx):
+        self.m_nCurrentThumbIdx = idx
+        self.SetThumbAndName()
+
 
     # 썸네일 이미지 변경 (왼쪽)
     def ChangeRobotToLeft(self):
@@ -75,9 +85,10 @@ class WidgetRobotItem(QtWidgets.QWidget):
         self.ui.lbRobotName.setText(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbName))
 
     # 초기 위치 설정
-    def SetStartPosition(self, x, y):
+    def SetStartPosition(self, x, y, z):
         self.ui.dsbRobotStartPosX.setValue(x)
         self.ui.dsbRobotStartPosY.setValue(y)
+        self.ui.dsbRobotStartPosZ.setValue(z)
 
     # # UI 정보를 로봇 정보로 추출하여 반환(기술적 문제로 현재 사용되지 않음)
     # def GetRobotInfo(self):

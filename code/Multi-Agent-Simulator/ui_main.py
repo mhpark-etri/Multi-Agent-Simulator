@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainmUtoJn.ui'
+## Form generated from reading UI file 'mainguHyBG.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.2.4
 ##
@@ -31,6 +31,18 @@ class Ui_MainWindow(object):
         MainWindow.setEnabled(True)
         MainWindow.resize(1135, 1018)
         MainWindow.setMinimumSize(QSize(0, 0))
+        self.actionSave = QAction(MainWindow)
+        self.actionSave.setObjectName(u"actionSave")
+        self.actionSave_as = QAction(MainWindow)
+        self.actionSave_as.setObjectName(u"actionSave_as")
+        self.actionExis = QAction(MainWindow)
+        self.actionExis.setObjectName(u"actionExis")
+        self.actionExit = QAction(MainWindow)
+        self.actionExit.setObjectName(u"actionExit")
+        self.actionOpen = QAction(MainWindow)
+        self.actionOpen.setObjectName(u"actionOpen")
+        self.actionOpenDB = QAction(MainWindow)
+        self.actionOpenDB.setObjectName(u"actionOpenDB")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setAutoFillBackground(False)
@@ -486,7 +498,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 234, 555))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 234, 560))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -692,9 +704,11 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1135, 27))
+        self.menubar.setGeometry(QRect(0, 0, 1135, 22))
         self.menuFIle = QMenu(self.menubar)
         self.menuFIle.setObjectName(u"menuFIle")
+        self.menuDB = QMenu(self.menubar)
+        self.menuDB.setObjectName(u"menuDB")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -702,6 +716,13 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.scrollArea, self.btnStartSimulator)
 
         self.menubar.addAction(self.menuFIle.menuAction())
+        self.menubar.addAction(self.menuDB.menuAction())
+        self.menuFIle.addAction(self.actionOpen)
+        self.menuFIle.addAction(self.actionSave)
+        self.menuFIle.addAction(self.actionSave_as)
+        self.menuFIle.addSeparator()
+        self.menuFIle.addAction(self.actionExit)
+        self.menuDB.addAction(self.actionOpenDB)
 
         self.retranslateUi(MainWindow)
 
@@ -710,6 +731,12 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"3DAgent Simulator", None))
+        self.actionSave.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.actionSave_as.setText(QCoreApplication.translate("MainWindow", u"Save as", None))
+        self.actionExis.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
+        self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
+        self.actionOpen.setText(QCoreApplication.translate("MainWindow", u"Open", None))
+        self.actionOpenDB.setText(QCoreApplication.translate("MainWindow", u"Open", None))
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"World", None))
         self.lbWorldImage.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Option", None))
@@ -732,5 +759,6 @@ class Ui_MainWindow(object):
         self.btnROSNavigationEdit.setText(QCoreApplication.translate("MainWindow", u"edit", None))
         self.btnStartSimulator.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.menuFIle.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
+        self.menuDB.setTitle(QCoreApplication.translate("MainWindow", u"DB", None))
     # retranslateUi
 

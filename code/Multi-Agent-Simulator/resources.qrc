@@ -8,6 +8,7 @@
     <file>Resources/thumbnail/icon_thumb_robot_locobot.png</file>
     <file>Resources/thumbnail/icon_thumb_robot_turtlebot_burger.png</file>
     <file>Resources/thumbnail/icon_thumb_robot_turtlebot_waffle.png</file>
+    <file>Resources/thumbnail/icon_thumb_robot_interbotix_wx250s.png</file>
   </qresource>
   <qresource prefix="ui">
     <file>main.ui</file>

@@ -857,7 +857,7 @@ QGroupBox::title {
                <x>0</x>
                <y>0</y>
                <width>234</width>
-               <height>555</height>
+               <height>560</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1203,17 +1203,59 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
      <x>0</x>
      <y>0</y>
      <width>1135</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_as"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuDB">
+    <property name="title">
+     <string>DB</string>
+    </property>
+    <addaction name="actionOpenDB"/>
    </widget>
    <addaction name="menuFIle"/>
+   <addaction name="menuDB"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>Save as</string>
+   </property>
+  </action>
+  <action name="actionExis">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionOpenDB">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
  </widget>
  <tabstops>
   <tabstop>scrollArea</tabstop>
