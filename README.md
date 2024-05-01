@@ -48,7 +48,6 @@ cd
 cd tesla
 source init.sh
 ```
-<br><br>
 
 ### 4.1 Interbotix 설치
 - Interbotix 설치 화면이 나오면 차례대로 y를 입력
@@ -57,6 +56,7 @@ source init.sh
 exit
 sudo docker start -i ct_mas
 ```
+<br><br>
 
 ---
 # 사용 방법
