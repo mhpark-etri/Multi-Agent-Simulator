@@ -53,7 +53,7 @@ class DialogDBOpen(
                 password=password,
                 database=database,
             )
-            print("Database 연결 성공!")
+            print("Database 연결 성공")
             mydb.close()
             return True
         
