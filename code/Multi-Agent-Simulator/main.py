@@ -253,7 +253,7 @@ class MainWindow(QtWidgets.QMainWindow):
         ### Simulator 정보를 이용해 launch 파일 작성 시작 ##    
         ###################################################
         ## <Launch>
-        f.write(CMD_COMMON_OPEN_LAUNCH + CMD_COMMON_ENTER)
+        f.write(CMD_COMMON_OPEN_LAUNCH + CMD_COMMON_ENTER)  
         f.write(CMD_COMMON_ENTER)
 
         # 먼저 Interbotix Arguments 입력
@@ -722,7 +722,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if  self.ui.rbWorldWarehouse.isChecked() == True:
             self.m_simulator.worldType = ENUM_WORLD.WAREHOUSE
         elif self.ui.rbWorldHospital.isChecked() == True:
-            self.m_simulator.worldType = ENUM_WORLD.HOSPITAL
+            self.m_simulator.worldType = ENUM_WORLD.HOSPITAL    
         elif self.ui.rbWorldSmallHouse.isChecked() == True:
             self.m_simulator.worldType = ENUM_WORLD.SMALLHOUSE
         elif self.ui.rbWorldBookStore.isChecked() == True:
@@ -915,6 +915,110 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.m_worlds.append(world)
 
+        ## Warehouse
+        world = World()
+        world.categoryMain = ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE
+        # Warehouse : fetchit_challenge_arena_montreal2019
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_arena_montreal2019_highlights
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019_HIGHTLIGHTS
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019_HIGHTLIGHTS.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019_HIGHTLIGHTS.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_arena_montreal2019_onlylights
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019_ONLYLIGHTS
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019_ONLYLIGHTS.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ARENA_MONTREAL2019_ONLYLIGHTS.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_assembly
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ASSEMBLY
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ASSEMBLY.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ASSEMBLY.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_atrezzo
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ATREZZO
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ATREZZO.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_ATREZZO.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_simple
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_SIMPLE
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_SIMPLE.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_SIMPLE.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_simple_highlights
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_SIMPLE_HIGHLIGHTS
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_SIMPLE_HIGHLIGHTS.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_SIMPLE_HIGHLIGHTS.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_tests
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_TESTS
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_TESTS.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_TESTS.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : fetchit_challenge_tests_lowlights
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_TESTS_LOWLIGHTS
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_TESTS_LOWLIGHTS.value + "/" + ENUM_WORLD_CATEGORY_SUB.FETCHIT_CHALLENGE_TESTS_LOWLIGHTS.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : inventory
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.INVENTORY
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.INVENTORY.value + "/" + ENUM_WORLD_CATEGORY_SUB.INVENTORY.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Warehouse : warehouse
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.WAREHOUSE
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.WAREHOUSE.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.WAREHOUSE.value + "/" + ENUM_WORLD_CATEGORY_SUB.WAREHOUSE.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        self.m_worlds.append(world)
+
         ## Factory
         world = World()
         world.categoryMain = ENUM_WORLD_CATEGORY_MAIN.FACTORY
@@ -987,6 +1091,33 @@ class MainWindow(QtWidgets.QMainWindow):
         defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.FACTORY.value + "/")
         world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.POWERPLANT.value + "/" + ENUM_WORLD_CATEGORY_SUB.POWERPLANT.value + ".png"
         world_sub.robotStartXYZ = [1, 1, 0,	 0, 1, 0]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Factory : workshop_example
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.WORKSHOP_EXAMPLE
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.FACTORY.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.WORKSHOP_EXAMPLE.value + "/" + ENUM_WORLD_CATEGORY_SUB.WORKSHOP_EXAMPLE.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,	 0, 1, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Factory : workshop_example
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.WORKSHOP_EXAMPLE
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.FACTORY.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.WORKSHOP_EXAMPLE.value + "/" + ENUM_WORLD_CATEGORY_SUB.WORKSHOP_EXAMPLE.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,	 0, 1, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        # Factory : factory
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.FACTORY
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.FACTORY.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.FACTORY.value + "/" + ENUM_WORLD_CATEGORY_SUB.FACTORY.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,	 0, 1, 0.5]
         world_sub.extention = CONST_EXTENTION_WORLD
         world.arrCategorySubs.append(world_sub)
 
@@ -1529,6 +1660,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # DB Open
     def OpenDBDialog(self):
+        req = QtWidgets.QMessageBox.question(self, 'Execution error', 'Service is being prepared.',QtWidgets.QMessageBox.Ok)
+        return
         # dlg = DialogDBOpen()
         # dlg.showModal()
         pass
