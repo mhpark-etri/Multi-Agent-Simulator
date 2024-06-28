@@ -38,17 +38,20 @@ PATH_SOURCE_WAREHOUSE = "source /root/tesla/models/aws-robomaker-small-warehouse
 PATH_SOURCE_HOSPITAL = "source /root/tesla/models/aws-robomaker-hospital-world-ros1/install/setup.sh"
 PATH_SOURCE_SMALL_HOUSE = "source /root/tesla/models/aws-robomaker-small-house-world-ros1/install/setup.sh"
 PATH_SOURCE_BOOK_STORE = "source /root/tesla/models/aws-robomaker-bookstore-world-ros1/install/setup.sh"
-MAX_MODEL_COUNT_ROBOT = 2  # Max robot model count
+MAX_MODEL_COUNT_ROBOT = 5  # Max robot model count
 MAX_MODEL_COUNT_PERSON = 3 # Max person model count
 
 PATH_DEFAULT_MODEL_PERSON = "/usr/local/share/gazebo-11/media/models"
 PATH_DEFAULT_MODEL_PERSON_OTHER = "/usr/share/gazebo-11/media/models"
+PATH_DEFAULT_MODEL = ".gazebo/models"
 NAME_MODEL_PERSON = "walk.dae"
 NAME_MODEL_PERSON_CLOTH_TOP = "sweater-green-effect"
 NAME_MODEL_PERSON_CLOTH_BOTTOM = "jeans-blue-effect"
 PATH_DEFAULT_WORLDS = "/usr/local/share/gazebo-11/worlds"
 PATH_DEFAULT_WORLDS_OTHER = "/usr/share/gazebo-11/worlds"
 NAME_BACKUP_WORLD = "backup_world"
+
+ICON_THUMBNAIL_NONE = "Resources/thumbnail/icon_noworld.png"
 
 FLOAT_COLOR_X_MIN = 0.0000001               # Minimum x value of random color
 FLOAT_COLOR_Y_MIN = 0.0000001               # Minimum y value of random color
@@ -63,9 +66,10 @@ class MainWindow(QtWidgets.QMainWindow):
    
     # member
     m_simulator = Simulator()               # Simulator
-    m_worlds = []                           # Worlds
+    m_worlds = []                           # Worlds    
     m_orgPersonColorSweater = []            # OrgPersonSwaterColor x,y,z
     m_orgPersonColorJeans = []              # OrgPersonJeansColor x,y,z    
+    m_exeSimulator = None                   # 현재 실핼중인 Gazebo Process
 
     # Init
     def __init__(self):
@@ -93,9 +97,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lstwWorldSubCategory.itemSelectionChanged.connect(self.on_item_selection_changed_sub_category)
         self.ui.sbWorldOptionPersonCount.setMaximum(MAX_MODEL_COUNT_PERSON)
         self.ui.chkWorldOptionPerson.stateChanged.connect(self.ChangedWolrdOptionPersonCheckbox)
-        self.ui.actionSave.triggered.connect(self.saveFile)
+        self.ui.actionSave.triggered.connect(self.saveFile) 
         self.ui.actionOpen.triggered.connect(self.loadFile)
         self.ui.actionOpenDB.triggered.connect(self.OpenDBDialog)
+        self.ui.btnAddModel.setVisible(False)
+        self.ui.btnAddModel.clicked.connect(self.AddModel)
 
         # ROS
         self.ui.btnROSTeleop.clicked.connect(self.StartTeleopDialog)
@@ -113,12 +119,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.m_simulator.ros = ENUM_ROS_TYPE.NONE
         # World
         self.SetWorld()
-       
 
     # DeInit
     def CleanUp(self):
         os.system("killall gzserver")
         os.system("pkill gnome-terminal")
+
+    # Check world file
+    def CheckWorldFile(self, worldFileName):
+        # check..
+        path = PATH_DEFAULT_WORLDS_OTHER + "/" + worldFileName
+        if os.path.exists(path) :
+            return True
+        else :
+            return False
 
     # 시뮬레이터 시작
     def StartSimualtor(self):
@@ -215,8 +229,9 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write("#!/bin/bash" + CMD_COMMON_ENTER)
         cmdLine = ""
         # world model 설정
+        # AWS Robomaker의 world 설정 부분 이므로 현재는 사실상 사용하지 않음
         if self.m_simulator.worldType == ENUM_WORLD.WAREHOUSE :
-            cmdLine = PATH_SOURCE_WAREHOUSE
+            cmdLine  = PATH_SOURCE_WAREHOUSE
         elif self.m_simulator.worldType == ENUM_WORLD.HOSPITAL :
             cmdLine = PATH_SOURCE_HOSPITAL
         elif self.m_simulator.worldType == ENUM_WORLD.SMALLHOUSE :
@@ -230,7 +245,18 @@ class MainWindow(QtWidgets.QMainWindow):
         # Executable 권한 설정
         os.system('chmod 777 ' + tmpFile)  
         # roslaunch (shell)
+
+        # Gazebo 실행
         exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
+        if exeSimulator.poll() is None:
+            print("Gazebo 실행 성공.")
+            self.disableRobotList()
+            m_exeSimulator = exeSimulator
+            self.ui.btnStartSimulator.setEnabled(False)
+            self.m_simulator.launchFileName = launchFile
+            self.disableRobotList()
+        else:
+            print("Gazebo 실행 실패.")
 
         # 만약 Person 추가된 상태라면 원본 파일을 변경 한다
         # if self.ui.chkWorldOptionPerson.isChecked():
@@ -282,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # external_urdf_loc
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_EXTERNAL_URDF_LOC + "\"                 " + CMD_COMMON_DEFAULT + "\"" + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
             # use_rviz
-            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_USE_RVIZ + "\"                          " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_TRUE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_USE_RVIZ + "\"                          " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_FALSE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
             # rviz_frame
             for j in range(0, interbotixRobotCount) :
                 f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_RVIZ_FRAME + "_" + str(j) + "\"                      " + CMD_INTERBOTIX_RVIZ_FRAME_VALUE_OPEN + CMD_INTERBOTIX_ROBOT_NAME +"_" + str(j) + CMD_INTERBOTIX_RVIZ_FRAME_VALUE_CLOSE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
@@ -305,6 +331,9 @@ class MainWindow(QtWidgets.QMainWindow):
             f.write(CMD_COMMON_ENTER)
 
         ## World 정보 입력
+    	# gazebo resources path
+        f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_ENV_GAZEBO_RESOURCE_PATH + CMD_COMMON_ENTER)
+        f.write(CMD_COMMON_ENTER)
         f.write(CMD_COMMON_SPACE_DOUBLE + CMD_WORLD_COMMENT_START + CMD_COMMON_ENTER)
         # <Inlcude
         f.write(CMD_COMMON_SPACE_DOUBLE + CMD_WORLD_INCLUDE_OPEN + CMD_COMMON_ENTER)
@@ -668,6 +697,322 @@ class MainWindow(QtWidgets.QMainWindow):
         f.close()
         return tmpFile
     
+    # 실행중인 Gazebo에 로봇 모델 추가
+    def AddModel(self):
+        lstRobots = []
+        lstAddedRobots = []
+        self.saveRobotInfoToRobots(lstRobots)
+        arrInterbotixRobotIndex = []
+
+        for idx in range(len(lstRobots)):
+            item = self.ui.lstwRobots.item(idx)
+            widget = self.ui.lstwRobots.itemWidget(item)
+
+            # 새로 추가된 로봇 모델만 확인
+            if widget.isEnabled():
+                item = self.ui.lstwRobots.item(idx)
+                widget = self.ui.lstwRobots.itemWidget(item)
+                robot = Robot()
+                # Check robot type and set id
+                if widget.ui.lbRobotName.text() == CONST_LOCOBOT_NAME:
+                    # TEST : 1차 릴리즈 버전에서는 Locobot 제외
+                    pass
+                    robot.type = ENUM_ROBOT_TYPE.LOCOBOT
+                    robot.id = lstRobots[idx].id
+                elif widget.ui.lbRobotName.text() == CONST_TURTLEBOT3_BUTGER_NAME:
+                    robot.type = ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER  
+                    robot.id = lstRobots[idx].id
+                elif widget.ui.lbRobotName.text() == CONST_TURTLEBOT3_WAFFLE_NAME:
+                    robot.type = ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE
+                    robot.id = lstRobots[idx].id
+                elif widget.ui.lbRobotName.text() == CONST_JETBOT_NAME:
+                    robot.type = ENUM_ROBOT_TYPE.JETBOT
+                    robot.id = lstRobots[idx].id
+                elif widget.ui.lbRobotName.text() == CONST_INTERBOTIX_NAME:
+                    robot.type = ENUM_ROBOT_TYPE.INTERBOTIX
+                    robot.id = lstRobots[idx].id
+                    arrInterbotixRobotIndex.append(robot.id)
+
+                robot.startX = lstRobots[idx].startX
+                robot.startY = lstRobots[idx].startY
+                robot.startZ = lstRobots[idx].startZ
+
+                # Check robot option
+                robot.option.camera = widget.ui.ckbRobotOptionCamera.isChecked()
+                robot.option.arm = widget.ui.ckbRobotOptionUseArm.isChecked()
+                robot.option.base = widget.ui.ckbRobotOptionBase.isChecked()
+                lstAddedRobots.append(robot)
+                self.m_simulator.robots.append(robot)
+
+        # Launch 파일 제작
+        PATH_SYSTEM_ROOT = os.getcwd() + "/" + PATH_LAUNCH_FOLDER_NAME
+        if os.path.isdir(PATH_SYSTEM_ROOT) == False :
+            req = QtWidgets.QMessageBox.question(self, 'Add a model', 'There is no path to the last saved launch file.',QtWidgets.QMessageBox.Ok)
+            return
+
+        ## launch 파일 제작
+        base_name, ext = os.path.splitext(self.m_simulator.launchFileName)
+        launchFile = f"{base_name}_{self.m_simulator.addedLunchFileNumber}{ext}"
+        f = open(launchFile, 'w')
+   
+        ##############################################
+        ### Simulator 정보를 이용해 launch 파일 작성 시작 ##    
+        ##############################################
+        sim = Simulator()
+        sim.robots = copy.deepcopy(lstAddedRobots)
+        ## <Launch>
+        f.write(CMD_COMMON_OPEN_LAUNCH + CMD_COMMON_ENTER)  
+        f.write(CMD_COMMON_ENTER)
+
+        # 먼저 Interbotix Arguments 입력
+        # Interbotix Resources 설정 때문에 World 호출보다 먼저 해줘야한다
+        interbotixRobotCount = 0
+        robotCount = len(sim.robots)
+        for i in range(0, robotCount):
+            if sim.robots[i].type == ENUM_ROBOT_TYPE.INTERBOTIX :
+                interbotixRobotCount = interbotixRobotCount + 1
+        
+        if interbotixRobotCount > 0 :
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_COMMENT_ARGUMENTS_START + CMD_COMMON_ENTER)
+            # robot model
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_ROBOT_MODEL + "\"                       " + CMD_COMMON_DEFAULT + "\"" + CMD_INTERBOTIX_ROBOT_MODEL_LOCOBOT_WX250S + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # robot name
+            for robotIdx in arrInterbotixRobotIndex:
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_ROBOT_NAME + "_" + str(robotIdx) + "\"                      " + CMD_COMMON_DEFAULT + "\"" + CMD_INTERBOTIX_ROBOT_NAME_DEFAULT + str(robotIdx) + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # arm_model
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_ARM_MODEL + "\"                         " + CMD_INTERBOTIX_ARM_MODEL_VALUE + CMD_COMMON_ENTER)
+            # show_lidar
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_SHOW_LIDAR + "\"                        " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_TRUE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # show_gripper_bar
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_SHOW_GRIPPER_BAR + "\"                  " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_TRUE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # show_gripper_fingers
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_SHOW_GRIPPER_FINGERS + "\"              " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_TRUE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # external_urdf_loc
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_EXTERNAL_URDF_LOC + "\"                 " + CMD_COMMON_DEFAULT + "\"" + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # use_rviz
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_USE_RVIZ + "\"                          " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_FALSE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # rviz_frame
+            for robotIdx in arrInterbotixRobotIndex:
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_RVIZ_FRAME + "_" + str(robotIdx) + "\"                      " + CMD_INTERBOTIX_RVIZ_FRAME_VALUE_OPEN + CMD_INTERBOTIX_ROBOT_NAME +"_" + str(robotIdx) + CMD_INTERBOTIX_RVIZ_FRAME_VALUE_CLOSE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # use_position_controllers
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_USE_POSITION_CONTROLLERS + "\"          " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_FALSE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # use_trajectory_controllers
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_USE_TRAJECTORY_CONTROLLERS + "\"        " + CMD_COMMON_DEFAULT + "\"" + CMD_COMMON_TRUE + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            # dof
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + CMD_COMMON_SPACE + "\"" + CMD_INTERBOTIX_DOF + "\"                               " + CMD_COMMON_DEFAULT + "\"" + CMD_INTERBOTIX_DOF_VALUE_DEFAULT + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+            f.write(CMD_COMMON_ENTER)
+            # gazebo resources path
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_ENV_GAZEBO_RESOURCE_PATH + CMD_COMMON_ENTER)
+            f.write(CMD_COMMON_ENTER)
+            # locobot_gazebo_controllers.yaml
+            for robotIdx in arrInterbotixRobotIndex:
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_ROSPARAM_FILE_LOCOBOT_GAZEBO_CONTROLLERS_OPEN + CMD_INTERBOTIX_ROBOT_NAME + "_" + str(robotIdx) + CMD_INTERBOTIX_ROSPARAM_FILE_LOCOBOT_GAZEBO_CONTROLLERS_CLOSE + CMD_COMMON_ENTER)
+
+            # Interbotix Arguments end..
+            f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_COMMENT_ARGUMENTS_END + CMD_COMMON_ENTER)
+            f.write(CMD_COMMON_ENTER)
+
+        ## 로봇 정보 입력 시작
+        for i in range(0, robotCount):
+            ## 1. Locobot
+            if sim.robots[i].type == ENUM_ROBOT_TYPE.LOCOBOT :
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_LOCOBOT_COMMENT_START + CMD_COMMON_ENTER)
+                # Model names
+                robotName = CMD_LOCOBOT_MODEL + str(sim.robots[i].id)
+                robotName = "\"" + robotName + "\""
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                # Model Position
+                posX = sim.robots[i].startX
+                posY = sim.robots[i].startY
+                posZ = sim.robots[i].startZ
+                robotName = CMD_LOCOBOT_MODEL + str(sim.robots[i].id)
+                # Group
+                robotNameRef = CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_NS + robotNameRef + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
+                # Static transform to make camera work in sim
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_NODE_PKG_TF + CMD_COMMON_ENTER)
+                # nodel info
+                sim.robots[i].rosNamespace = robotName
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_PARAM_NAME_ROBOT_DESCRIPTION + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_INCLUDE_FILE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_SIX + CMD_LOCOBOT_ARG_LOAD_ROBOT + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_COMMON_CLOSE_INCLUDE + CMD_COMMON_ENTER)
+                # model의 속성 작성 구문(문법 제작 방식이 복잡한 관계로 sim 객체에서 필요 정보들을 가져와 직접 정적인 구문을 만든다)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_OPEN_GROUP_NODE_NAME_SPAWN_URDF + " -x " + str(posX) + " -y " + str(posY) + " -z " + CMD_LOCOBOT_POSITION_Z_DEFAULT + CMD_COMMON_SPACE + CMD_LOCOBOT_OPEN_GROUP_MODEL + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET+ CMD_LOCOBOT_CLOSE_GROUP_NODE_NAME_SPAWN_URDF + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+
+                # locobot end
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_LOCOBOT_COMMENT_END + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                continue
+            ## 2. Turtlebot3 - burger
+            if sim.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER :
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_BURGER_COMMENT_START + CMD_COMMON_ENTER)
+                # Model names
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                robotName = "\"" + robotName + "\""
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # Model Position
+                posX = sim.robots[i].startX
+                posY = sim.robots[i].startY
+                posZ = sim.robots[i].startZ
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                sim.robots[i].rosNamespace = robotName
+                robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X + "\""
+                robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y + "\""
+                robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Z + "\""
+                robotNameYaw = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_YAW + "\""
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosX + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posX) + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosY + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posY) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosZ + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posZ) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNameYaw + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + CMD_COMMON_DEFAULT_POS + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # Group
+                robotNameRef = CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_NS + robotNameRef + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_OPEN_GROUP_PARAM_NAME_ROBOT_DESCRIPTION + CMD_TURTLEBOT3_MODEL_BURGER + CMD_TURTLEBOT3_CLOSE_GROUP_PARAM_NAME_ROBOT_DESCRIPTION + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_GROUP_PARAM_NAME_TF_PREFIX + robotNameRef + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_GROUP_NODE_PKG_ROBOT_STATE_PUBLISHER + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_SIX + CMD_TURTLEBOT3_GROUP_PARAM_NAME_PUBLISH_FREQUENCY + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_COMMON_CLOSE_NODE + CMD_COMMON_ENTER)
+                # model의 속성 작성 구문(문법 제작 방식이 복잡한 관계로 sim 객체에서 필요 정보들을 가져와 직접 정적인 구문을 만든다)
+                robotNamePosX = robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X
+                robotNamePosY = robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y
+                robotNamePosZ = robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Z
+                robotNameYaw = robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_YAW
+                modelProf = "args=\"-urdf -model $(arg " + robotName + ") -x $(arg " + robotNamePosX + ") -y $(arg " + robotNamePosY + ") -z $(arg " + robotNamePosZ + ") -Y $(arg " + robotNameYaw + ")"
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_OPEN_GROUP_NODE_NAME_SPAWN_URDF + modelProf + CMD_TURTLEBOT3_CLOSE_GROUP_NODE_NAME_SPAWN_URDF + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                # Turtlebot3 - burger end
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_BURGER_COMMENT_END + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                continue
+            ## 3. Turtlebot3 - waffle
+            if sim.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE :
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_WAFFLE_COMMENT_START + CMD_COMMON_ENTER)
+                # Model names
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                robotName = "\"" + robotName + "\""
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # Model Position
+                posX = sim.robots[i].startX
+                posY = sim.robots[i].startY
+                posZ = sim.robots[i].startZ
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                sim.robots[i].rosNamespace = robotName
+                robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X + "\""
+                robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y + "\""
+                robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z + "\""
+                robotNameYaw = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_YAW + "\""
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosX + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posX) + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosY + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posY) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosZ + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posZ) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNameYaw + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + CMD_COMMON_DEFAULT_POS + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # Group
+                robotNameRef = CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_NS + robotNameRef + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_OPEN_GROUP_PARAM_NAME_ROBOT_DESCRIPTION + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_TURTLEBOT3_CLOSE_GROUP_PARAM_NAME_ROBOT_DESCRIPTION + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_GROUP_PARAM_NAME_TF_PREFIX + robotNameRef + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_GROUP_NODE_PKG_ROBOT_STATE_PUBLISHER + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_SIX + CMD_TURTLEBOT3_GROUP_PARAM_NAME_PUBLISH_FREQUENCY + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_COMMON_CLOSE_NODE + CMD_COMMON_ENTER)
+                # model의 속성 작성 구문(문법 제작 방식이 복잡한 관계로 sim 객체에서 필요 정보들을 가져와 직접 정적인 구문을 만든다)
+                robotNamePosX = robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X
+                robotNamePosY = robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y
+                robotNamePLaunchosZ = robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z
+                robotNameYaw = robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_YAW
+                modelProf = "args=\"-urdf -model $(arg " + robotName + ") -x $(arg " + robotNamePosX + ") -y $(arg " + robotNamePosY + ") -z $(arg " + robotNamePosZ + ") -Y $(arg " + robotNameYaw + ")"
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_OPEN_GROUP_NODE_NAME_SPAWN_URDF + modelProf + CMD_TURTLEBOT3_CLOSE_GROUP_NODE_NAME_SPAWN_URDF + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                # Turtlebot3 - burger end
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_WAFFLE_COMMENT_END + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                continue
+
+            ## 4. Jetbot
+            if sim.robots[i].type == ENUM_ROBOT_TYPE.JETBOT :                                       # TODO : Jetbot
+                continue
+
+            ## 5. Interbotix
+            if sim.robots[i].type == ENUM_ROBOT_TYPE.INTERBOTIX :
+                # default value
+                robotName = CMD_INTERBOTIX_ROBOT_NAME + "_" + str(sim.robots[i].id)
+                rvizFrameName = CMD_INTERBOTIX_RVIZ_FRAME + "_" + str(sim.robots[i].id)
+                posX = sim.robots[i].startX
+                posY = sim.robots[i].startY
+                posZ = sim.robots[i].startZ
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_COMMENT_START + CMD_COMMON_ENTER)
+                # group open
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_GROUP_ROBOT_MODEL + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # group open - use_trajectory_controllers
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_INTERBOTIX_GROUP_USE_TRAJECTORY_CONTROLLERS + CMD_COMMON_ENTER)
+                # ros param - trajectory_controllers.yaml
+                f.write(CMD_COMMON_SPACE_SIX + CMD_INTERBOTIX_ROSPARAM_FILE_TRAJECTORY_CONTROLLERS_OPEN + robotName + CMD_INTERBOTIX_ROSPARAM_FILE_TRAJECTORY_CONTROLLERS_CLOSE + CMD_COMMON_ENTER)
+                # node - controller_spawner
+                f.write(CMD_COMMON_SPACE_SIX + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_OPEN + robotName + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # group open - use_position_controllers
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_INTERBOTIX_GROUP_USE_POSITION_CONTROLLERS + CMD_COMMON_ENTER)
+                # ros param - position_controllers.yaml
+                f.write(CMD_COMMON_SPACE_SIX + CMD_INTERBOTIX_ROSPARAM_POSITION_CONTROLLERS_OPEN + robotName + CMD_INTERBOTIX_ROSPARAM_POSITION_CONTROLLERS_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # node - controller_spawner dof 4
+                f.write(CMD_COMMON_SPACE_SIX + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_DOF_4_OPEN + robotName + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_DOF_4_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # node - controller_spawner dof 5
+                f.write(CMD_COMMON_SPACE_SIX + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_DOF_5_OPEN + robotName + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_DOF_5_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # node - controller_spawner dof 6
+                f.write(CMD_COMMON_SPACE_SIX + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_DOF_6_OPEN + robotName + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_DOF_6_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # node - controller_spawner unless locobot_base
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_UNLSESS_LOCOBOT_BASE_OPEN + robotName + CMD_INTERBOTIX_NODE_CONTROLLER_SPAWNER_UNLSESS_LOCOBOT_BASE_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # include - xslocobot_description.launch
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_INCLUDE_FILE_XSLOCOBOT_DESCRIPTION_OPEN + robotName + CMD_INTERBOTIX_INCLUDE_FILE_XSLOCOBOT_DESCRIPTION_MIDDLE + rvizFrameName + CMD_INTERBOTIX_INCLUDE_FILE_XSLOCOBOT_DESCRIPTION_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # node - urdf_spawner
+                # xyz position
+                posXYZ = " -x " + str(posX) + " -y " + str(posY) + " -z " + str(posZ)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_NODE_URDF_SPAWNER_OPEN + robotName + CMD_INTERBOTIX_NODE_URDF_SPAWNER_MIDDLE + robotName + posXYZ + CMD_INTERBOTIX_NODE_URDF_SPAWNER_CLOSE + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+
+                # Interbotix end
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_COMMENT_END + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                continue
+
+        # </Launch>
+        f.write(CMD_COMMON_CLOSE_LAUNCH)
+        f.close()
+       
+        # 6. Launch 파일 실행
+        PATH_SYSTEM_ROOT = os.getcwd() + "/" + PATH_LAUNCH_FOLDER_NAME
+        tmpFile = PATH_SYSTEM_ROOT + "/shelltemp.sh"
+        f = open(tmpFile, 'w+')
+        f.write("#!/bin/bash" + CMD_COMMON_ENTER)
+        f.write("roslaunch " + launchFile)
+        f.close
+        # Executable 권한 설정
+        os.system('chmod 777 ' + tmpFile)  
+
+        # Gazebo 실행
+        exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
+        if exeSimulator.poll() is None:
+            print("Gazebo 실행 성공.")
+            self.disableRobotList()
+            m_exeSimulator = exeSimulator
+            self.ui.btnStartSimulator.setEnabled(False)
+        else:
+            print("Gazebo 실행 실패.")
 
     #######################################
     ############### ROS ###################
@@ -739,6 +1084,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # 로봇 추가
     def AddRobot(self):
+        # 실행 후 로봇 추가 형태라면 Add model 버튼 활성화
+        for idx in range(self.ui.lstwRobots.count()):
+            item = self.ui.lstwRobots.item(idx)
+            widget = self.ui.lstwRobots.itemWidget(item)
+            if not widget.isEnabled():
+                self.ui.btnAddModel.setVisible(True)
+                break
+
         # 최대 로봇 허용개수 초과
         if self.ui.lstwRobots.count() >= MAX_MODEL_COUNT_ROBOT :
             req = QtWidgets.QMessageBox.question(self, 'Add Robot', 'The maximum number of allowed robots has been exceeded. (Max : ' + str(MAX_MODEL_COUNT_ROBOT) + ')',QtWidgets.QMessageBox.Ok)
@@ -770,8 +1123,25 @@ class MainWindow(QtWidgets.QMainWindow):
         listItems=self.ui.lstwRobots.selectedItems()
         if not listItems: return        
         for item in listItems:
-            self.ui.lstwRobots.takeItem(self.ui.lstwRobots.row(item))
-            self.ui.lstwRobots.clearSelection()
+            # 로봇이 이미 로딩 된 상태라면 삭제 거부
+            widget = self.ui.lstwRobots.itemWidget(item)
+            if widget.isEnabled():
+                self.ui.lstwRobots.takeItem(self.ui.lstwRobots.row(item))
+                self.ui.lstwRobots.clearSelection()
+            else:
+                QtWidgets.QMessageBox.question(self, 'Execution error', 'It\'s already a spawned model.',QtWidgets.QMessageBox.Ok)
+
+        # 실행 후 추가 로봇이 없다면 Add model 버튼 비활성화
+        for idx in range(self.ui.lstwRobots.count()):
+            isExistAddedModel = False
+            item = self.ui.lstwRobots.item(idx)
+            widget = self.ui.lstwRobots.itemWidget(item)
+            if widget.isEnabled():
+                isExistAddedModel = True
+                break
+            
+        if not isExistAddedModel:
+            self.ui.btnAddModel.setVisible(False)
 
     # 로봇 위치가 겹치는 곳이 있는지 확인
     def CheckRobotPosition(self, robots):
@@ -1193,12 +1563,24 @@ class MainWindow(QtWidgets.QMainWindow):
             for world in self.m_worlds:
                 for world_sub in world.arrCategorySubs:
                     if world_sub.categorySub.value == selected_items[0].text():
-                        thumbPath = world_sub.thumbPath
-                        pixmap = QPixmap(thumbPath)
-                        scaled_pixmap = pixmap.scaledToWidth(self.ui.lbWorldImage.width())
-                        self.ui.lbWorldImage.setPixmap(scaled_pixmap)
-                        self.setCurrentWorld(world.categoryMain, world_sub.categorySub.value)
-                        self.m_simulator.worldFileType = world_sub.extention
+                        fileName = world_sub.categorySub.value + world_sub.extention
+                        if self.CheckWorldFile(fileName):
+                            # Thumb 변경
+                            thumbPath = world_sub.thumbPath
+                            pixmap = QPixmap(thumbPath)
+                            scaled_pixmap = pixmap.scaledToWidth(self.ui.lbWorldImage.width())
+                            self.ui.lbWorldImage.setPixmap(scaled_pixmap)
+                            self.setCurrentWorld(world.categoryMain, world_sub.categorySub.value)
+                            self.m_simulator.worldFileType = world_sub.extention
+                            # Start 버튼 활성화
+                            self.ui.btnStartSimulator.setEnabled(True)
+                        else :
+                            thumbPath = ICON_THUMBNAIL_NONE
+                            pixmap = QPixmap(thumbPath)
+                            scaled_pixmap = pixmap.scaledToHeight(self.ui.lbWorldImage.height())
+                            self.ui.lbWorldImage.setPixmap(scaled_pixmap)
+                            self.ui.lbWorldImage.setAlignment(Qt.AlignHCenter)
+                            self.ui.btnStartSimulator.setEnabled(False)
 
     # 현재 world탭에서 선택한 world 정보를 simulator 메인 world에 입력
     def setCurrentWorld(self, categoryMain, categorySub):
@@ -1486,26 +1868,39 @@ class MainWindow(QtWidgets.QMainWindow):
                 robot.id = idxInterbotix
                 idxInterbotix = idxInterbotix + 1
 
-
-            # Check starting position
-            # robot.startX = widget.ui.dsbRobotStartPosX.value()
-            # robot.startY = widget.ui.dsbRobotStartPosY.value()
-            # robot.startZ = widget.ui.dsbRobotStartPosZ.value()
             # TODO : Check starting position 현재 버전에선 일단 로봇의 위치는 미리 지정된 고정 위치로 지정한다
+            lastPosOffset = 0.5
             for world in self.m_worlds:
                 for world_sub in world.arrCategorySubs:
                     if world_sub.categorySub.value == self.m_simulator.categorySub:
-                        pos = idx * 3
-                        robot.startX = world_sub.robotStartXYZ[pos]
-                        robot.startY = world_sub.robotStartXYZ[pos + 1]
-                        robot.startZ = world_sub.robotStartXYZ[pos + 2]
-                        break
+                        # 만약 현재 world_sub의 저장된 고정 위치보다 많은수의 로봇이 올 경우 마지막 위치값에 계속 0.5를 더해 추가한다
+                        if idx >= len(world_sub.robotStartXYZ) / 3:
+                            pos = int((len(world_sub.robotStartXYZ) / 3 -1) * 3)
+                            robot.startX = world_sub.robotStartXYZ[int(pos)] + lastPosOffset
+                            robot.startY = world_sub.robotStartXYZ[int(pos + 1)] + lastPosOffset
+                            robot.startZ = 0.1
+                            lastPosOffset = lastPosOffset + 0.5
+                            break
+                        else:
+                            pos = idx * 3
+                            robot.startX = world_sub.robotStartXYZ[pos]
+                            robot.startY = world_sub.robotStartXYZ[pos + 1]
+                            robot.startZ = world_sub.robotStartXYZ[pos + 2]
+                            break
 
             # Check robot option
             robot.option.camera = widget.ui.ckbRobotOptionCamera.isChecked()
             robot.option.arm = widget.ui.ckbRobotOptionUseArm.isChecked()
             robot.option.base = widget.ui.ckbRobotOptionBase.isChecked()
             lstRobots.append(robot)
+
+    # 로봇 리스트의 활성화 로봇들을 편집 불가 상태로 비활성화 시킨다
+    def disableRobotList(self):
+        for idx in range(self.ui.lstwRobots.count()):
+            item = self.ui.lstwRobots.item(idx)
+            widget = self.ui.lstwRobots.itemWidget(item)
+            if widget:
+                widget.setEnabled(False)
 
     # XML 저장
     def saveFile(self):
@@ -1608,7 +2003,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         fStartY = float(startY)
                         strStartY = "{:.1f}".format(fStartY)
                         robot.startY = strStartY
-                        #  로봇 startZ
+                        #  로봇 startZ  
                         startZ = xmlRobot.find("startZ").text
                         fStartZ = float(startZ)
                         strStartZ = "{:.1f}".format(fStartZ)

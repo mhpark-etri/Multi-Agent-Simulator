@@ -439,6 +439,34 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_12.addItem(self.horizontalSpacer_2)
 
+        self.btnAddModel = QPushButton(self.frame_21)
+        self.btnAddModel.setObjectName(u"btnAddModel")
+        self.btnAddModel.setMinimumSize(QSize(94, 40))
+        self.btnAddModel.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.horizontalLayout_12.addWidget(self.btnAddModel)
+
 
         self.verticalLayout_7.addWidget(self.frame_21)
 
@@ -750,6 +778,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Robot", None))
         self.btnAddRobot.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.btnDeleteRobot.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
+        self.btnAddModel.setText(QCoreApplication.translate("MainWindow", u"Add model", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"ROS", None))
         self.btnROSTeleop.setText(QCoreApplication.translate("MainWindow", u"Teleop", None))
         self.rbROSNone.setText(QCoreApplication.translate("MainWindow", u"None", None))

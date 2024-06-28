@@ -755,6 +755,43 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                </property>
               </spacer>
              </item>
+             <item>
+              <widget class="QPushButton" name="btnAddModel">
+               <property name="minimumSize">
+                <size>
+                 <width>94</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+               </property>
+               <property name="text">
+                <string>Add model</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>

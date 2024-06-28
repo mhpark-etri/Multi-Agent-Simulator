@@ -27,6 +27,7 @@ CONST_JETBOT_NAME = "Jetbot"
 CONST_INTERBOTIX_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_interbotix_wx250s.png"
 CONST_INTERBOTIX_NAME = "Locobot - wx250s"
 
+# extention
 CONST_EXTENTION_WORLD = ".world"
 CONST_EXTENTION_MODEL = ".model"
 
@@ -39,6 +40,7 @@ class ENUM_WORLD_CATEGORY_MAIN(Enum):
     FACTORY = "Factory"
     BOOKSTORE = "Bookstore"
     OTHERS = "Others"
+    NONE = "None"
 
 ## ENUM : World type : sub category ##
 # 주석 처리된 맵들은 현재 동작하지 않는 맵
@@ -84,6 +86,7 @@ class ENUM_WORLD_CATEGORY_SUB(Enum):
     # EXPERIMENT_ROOM = "experiment_room"
     # RANDOM_WORLD = "random_world"
     DISTRIBUTION_CENTER = "distribution_center"
+    NONE = "None"
 
 ## ENUM : World Type ##
 class ENUM_WORLD(Enum):
@@ -151,7 +154,7 @@ class Robot:
     startX = 0                              ## Robot : Start Posotion X (Default 0)
     startY = 0                              ## Robot : Start Position Y (Default 0)
     startZ = 0                              ## Robot : Start Position Z (Default 0, Fixed...)
-    option = Option()                       ## Option : Robot options..
+    option = Option()                       ## Robot : Robot options..
 
 ## Class : Worlds
 ## Class : Simulator
@@ -162,6 +165,8 @@ class Simulator:
     categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE              ## 현재 선택된 World의 하위 카테고리
     robots = []                                             ## 사용할 로봇들
     ros = ENUM_ROS_TYPE.NONE                                ## 사용할 ROS
+    launchFileName = ""                                     ## 현재 실행중인 launchFile의 이름
+    addedLunchFileNumber = 0                                ## 실행 이후 추가된 launchFile의 번호
     def __init__(self):
         self.worldType = ENUM_WORLD.GAZEBO_DEFAULT
         self.worldFileType = ".world"
