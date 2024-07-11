@@ -59,6 +59,22 @@ source init.sh
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="50%" height="50%"/>
 <br><br>
 
+### 4.2 Jnp 설치
+- 우분투 터미널에서 아래의 명령어를 입력하여 docker에 다시 접속.(ct_mas는 위에서 설치했던 docker 컨테이너 이름)
+```
+sudo docker start ct_mas
+```
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/641dd3a6-f908-4120-be77-02f07c291f39" width="50%" height="50%"/>
+<br>
+<br>
+- docker 접속 후에 아래의 명령어를 차례대로 입력하여 Jnp make 실행
+```
+cd /root/catkin_ws_jnp
+catkin_make
+```
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
+<br><br>
+
 ---
 # 사용 방법
 ### 프로그램 실행
