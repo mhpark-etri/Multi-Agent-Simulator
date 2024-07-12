@@ -36,6 +36,7 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8   
 RUN sudo apt-get install -y gnome-terminal
+RUN ln -s /usr/bin/python3 /usr/bin/python
 
 ############################
 ###### Turtlebot3 설치 ######
@@ -95,6 +96,8 @@ RUN sudo apt install -y python3-colcon-common-extensions
 # 3. AWS Robomaker 관련 복사 및 빌드
 # COPY models_aws/ /root/tesla/models_aws/
 
-# 3. 프로그램 필요 패키지 복사
+# 3. 프로그램 필요 패키지 복사 (Interbotix, Jnp...)
 COPY init.sh /root/tesla/
 COPY xslocobot_amd64_install4.sh /root/tesla/
+RUN sudo mkdir -p /root/tesla/jnp
+COPY jnp /root/tesla/jnp/

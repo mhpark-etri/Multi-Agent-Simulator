@@ -40,6 +40,11 @@ cd /root/tesla
 sudo chmod a+x xslocobot_amd64_install4.sh
 source xslocobot_amd64_install4.sh -b create3 -d noetic
 
+## Jnp 세팅(개별 빌드 필요 - 페이지 설치 메뉴얼 참고)
+sudo mkdir -p /root/catkin_ws_jnp/src/jnp
+cd /root/catkin_ws_jnp/src/jnp
+sudo cp -r /root/tesla/jnp/jnp_0.2.1/* /root/catkin_ws_jnp/src/jnp
+
 ## Copy gazebo models & world
 mkdir -p ~/.gazebo/models
 cd /root/tesla/models/
