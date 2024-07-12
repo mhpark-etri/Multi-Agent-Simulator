@@ -369,8 +369,9 @@ QGroupBox::title {
     border-radius : 5px;
     background-color: #eeeeee;
     subcontrol-position: top center;
+	padding: 4px;
     left: -5px;
-	top: 10px;
+	top: 7px;
 }</string>
            </property>
            <property name="title">
@@ -848,9 +849,13 @@ QGroupBox::title {
     border-radius : 5px;
     background-color: #eeeeee;
     subcontrol-position: top center;
+	padding: 4px;
     left: -5px;
-	top: 10px;
-}</string>
+	top: 7px;
+}
+
+
+</string>
            </property>
            <property name="title">
             <string>Option</string>
@@ -944,6 +949,9 @@ QGroupBox::title {
                        </item>
                        <item>
                         <widget class="QCheckBox" name="ckbRobotOptionCamera">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -957,13 +965,17 @@ QGroupBox::title {
                           </size>
                          </property>
                          <property name="styleSheet">
-                          <string notr="true">    border: 1px solid 	#444444;
-    border-radius : 0px;
+                          <string notr="true">  border: 1px solid 	#444444;
+    border-radius : 5px;
     background-color: #eeeeee;
-    color : #444444;</string>
+    color : #444444;
+</string>
                          </property>
                          <property name="text">
                           <string/>
+                         </property>
+                         <property name="checked">
+                          <bool>false</bool>
                          </property>
                         </widget>
                        </item>
@@ -975,7 +987,7 @@ QGroupBox::title {
                   <item>
                    <widget class="QFrame" name="frame_18">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="frameShape">
                      <enum>QFrame::StyledPanel</enum>
@@ -1022,6 +1034,9 @@ QGroupBox::title {
                        </item>
                        <item>
                         <widget class="QCheckBox" name="ckbRobotOptionUseArm">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -1035,10 +1050,11 @@ QGroupBox::title {
                           </size>
                          </property>
                          <property name="styleSheet">
-                          <string notr="true">    border: 1px solid 	#444444;
+                          <string notr="true">  border: 1px solid 	#444444;
     border-radius : 5px;
     background-color: #eeeeee;
-    color : #444444;</string>
+    color : #444444;
+</string>
                          </property>
                          <property name="text">
                           <string/>
@@ -1053,7 +1069,7 @@ QGroupBox::title {
                   <item>
                    <widget class="QFrame" name="frame_17">
                     <property name="enabled">
-                     <bool>false</bool>
+                     <bool>true</bool>
                     </property>
                     <property name="frameShape">
                      <enum>QFrame::StyledPanel</enum>
@@ -1101,7 +1117,7 @@ QGroupBox::title {
                        <item>
                         <widget class="QCheckBox" name="ckbRobotOptionBase">
                          <property name="enabled">
-                          <bool>false</bool>
+                          <bool>true</bool>
                          </property>
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -1116,10 +1132,11 @@ QGroupBox::title {
                           </size>
                          </property>
                          <property name="styleSheet">
-                          <string notr="true">    border: 1px solid 	#444444;
+                          <string notr="true">  border: 1px solid 	#444444;
     border-radius : 5px;
     background-color: #eeeeee;
-    color : #444444;</string>
+    color : #444444;
+</string>
                          </property>
                          <property name="text">
                           <string/>

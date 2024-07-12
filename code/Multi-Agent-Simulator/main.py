@@ -24,6 +24,8 @@ from PySide6.QtGui import QPixmap
 import xml.etree.ElementTree as ET
 import tkinter as tk
 from tkinter import filedialog
+import time
+import atexit
 
 from constant import *
 from simulator import *
@@ -40,6 +42,7 @@ PATH_SOURCE_SMALL_HOUSE = "source /root/tesla/models/aws-robomaker-small-house-w
 PATH_SOURCE_BOOK_STORE = "source /root/tesla/models/aws-robomaker-bookstore-world-ros1/install/setup.sh"
 MAX_MODEL_COUNT_ROBOT = 5  # Max robot model count
 MAX_MODEL_COUNT_PERSON = 3 # Max person model count
+PATH_SOURCE_JNP_SETUP = "source /root/catkin_ws_jnp/devel/setup.sh"
 
 PATH_DEFAULT_MODEL_PERSON = "/usr/local/share/gazebo-11/media/models"
 PATH_DEFAULT_MODEL_PERSON_OTHER = "/usr/share/gazebo-11/media/models"
@@ -70,6 +73,7 @@ class MainWindow(QtWidgets.QMainWindow):
     m_orgPersonColorSweater = []            # OrgPersonSwaterColor x,y,z
     m_orgPersonColorJeans = []              # OrgPersonJeansColor x,y,z    
     m_exeSimulator = None                   # 현재 실핼중인 Gazebo Process
+    m_arrJnpProcess = []                    # Jnp sub proecess
 
     # Init
     def __init__(self):
@@ -113,6 +117,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btnGroupROS.addButton(self.ui.rbROSSlam)
         self.btnGroupROS.addButton(self.ui.rbROSNavigation)
         self.btnGroupROS.buttonToggled.connect(self.ROSRadioButtonItemSelected)
+        self.ui.cbROSJnpOptionsEnable.stateChanged.connect(self.ToggleJnpWidgets)
+        self.ui.cbROSJnpOptionTerminal.setVisible(False)
 
         # Set Default Init
         # ROS = None
@@ -405,7 +411,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     # Static transform to make camera work in sim
                     f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_NODE_PKG_TF + CMD_COMMON_ENTER)
                     # nodel info
-                    sim.robots[i].rosNamespace = robotName
+                    sim.robots[i].name = robotName
                     f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_PARAM_NAME_ROBOT_DESCRIPTION + CMD_COMMON_ENTER)
                     f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_INCLUDE_FILE + CMD_COMMON_ENTER)
                     f.write(CMD_COMMON_SPACE_SIX + CMD_LOCOBOT_ARG_LOAD_ROBOT + CMD_COMMON_ENTER)
@@ -431,7 +437,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     posY = sim.robots[i].startY
                     posZ = sim.robots[i].startZ
                     robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
-                    sim.robots[i].rosNamespace = robotName
+                    sim.robots[i].name = robotName
                     robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X + "\""
                     robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y + "\""
                     robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Z + "\""
@@ -474,7 +480,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     posY = sim.robots[i].startY
                     posZ = sim.robots[i].startZ
                     robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
-                    sim.robots[i].rosNamespace = robotName
+                    sim.robots[i].name = robotName
                     robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X + "\""
                     robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y + "\""
                     robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z + "\""
@@ -513,6 +519,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.INTERBOTIX :
                     # default value
                     robotName = CMD_INTERBOTIX_ROBOT_NAME + "_" + str(sim.robots[i].id)
+                    sim.robots[i].name = robotName
                     rvizFrameName = CMD_INTERBOTIX_RVIZ_FRAME + "_" + str(sim.robots[i].id)
                     posX = sim.robots[i].startX
                     posY = sim.robots[i].startY
@@ -586,7 +593,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     posY = sim.robots[i].startY
                     posZ = sim.robots[i].startZ
                     robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
-                    sim.robots[i].rosNamespace = robotName
+                    sim.robots[i].name = robotName
                     robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X + "\""
                     robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y + "\""
                     robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Z + "\""
@@ -638,7 +645,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     posY = sim.robots[i].startY
                     posZ = sim.robots[i].startZ
                     robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
-                    sim.robots[i].rosNamespace = robotName
+                    sim.robots[i].name = robotName
                     robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X + "\""
                     robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y + "\""
                     robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z + "\""
@@ -832,7 +839,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Static transform to make camera work in sim
                 f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_NODE_PKG_TF + CMD_COMMON_ENTER)
                 # nodel info
-                sim.robots[i].rosNamespace = robotName
+                sim.robots[i].name = robotName
                 f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_PARAM_NAME_ROBOT_DESCRIPTION + CMD_COMMON_ENTER)
                 f.write(CMD_COMMON_SPACE_FOUR + CMD_LOCOBOT_INCLUDE_FILE + CMD_COMMON_ENTER)
                 f.write(CMD_COMMON_SPACE_SIX + CMD_LOCOBOT_ARG_LOAD_ROBOT + CMD_COMMON_ENTER)
@@ -858,7 +865,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 posY = sim.robots[i].startY
                 posZ = sim.robots[i].startZ
                 robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
-                sim.robots[i].rosNamespace = robotName
+                sim.robots[i].name = robotName
                 robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X + "\""
                 robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y + "\""
                 robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Z + "\""
@@ -901,7 +908,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 posY = sim.robots[i].startY
                 posZ = sim.robots[i].startZ
                 robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
-                sim.robots[i].rosNamespace = robotName
+                sim.robots[i].name = robotName
                 robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X + "\""
                 robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y + "\""
                 robotNamePosZ = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z + "\""
@@ -940,6 +947,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if sim.robots[i].type == ENUM_ROBOT_TYPE.INTERBOTIX :
                 # default value
                 robotName = CMD_INTERBOTIX_ROBOT_NAME + "_" + str(sim.robots[i].id)
+                sim.robots[i].name = robotName
                 rvizFrameName = CMD_INTERBOTIX_RVIZ_FRAME + "_" + str(sim.robots[i].id)
                 posX = sim.robots[i].startX
                 posY = sim.robots[i].startY
@@ -1057,6 +1065,56 @@ class MainWindow(QtWidgets.QMainWindow):
 
         dlg = DialogRViz(self.m_simulator)
         dlg.showModal()
+
+    # Jnp 
+    ## Jnp 활성화
+    def ToggleJnpWidgets(self):
+        state = self.ui.cbROSJnpOptionsEnable.isChecked()
+        for widget in self.ui.frmROSJnpOptions.findChildren(QtWidgets.QWidget):
+            widget.setEnabled(state)
+    
+        ## TODO : 현재 StartLaunch에서 아래 코드를 실행 할 경우 text file busy 에러를 발생하면서 실행 되지 않는다.
+        ##        때문에 일단은 여기에서 실행 되도록 한 상태인데 가급적이면 메인 스레드에서 실행되는 방안을 강구할 필요가 있다.
+        if self.ui.cbROSJnpOptionsEnable.isChecked() :
+            self.StartJnp(self.m_arrJnpProcess)
+            atexit.register(self.CloseJnp, self.m_arrJnpProcess)
+        else :
+            self.CloseJnp(self.m_arrJnpProcess)
+
+
+    ## Jnp 실행
+    def StartJnp(self, arrProcess):
+        if len(arrProcess) > 0:
+            self.CloseJnp(arrProcess)
+
+        ## 각 모델 별 Jnp 실행
+        # ns는 기본 사용
+        for i in range(0, len(self.m_simulator.robots)) :
+            # 실행 전 source 지정
+            command = PATH_SOURCE_JNP_SETUP + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
+            # 실행
+            name = self.m_simulator.robots[i].name 
+            command = command + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
+            completeCmd = CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE
+            process = subprocess.Popen([completeCmd], shell=True)
+            arrProcess.append(process)
+            time.sleep(1)
+            #cmd = subprocess.Popen(command, shell=True, executable="/bin/bash")
+
+    ## Jnp 종료
+    def CloseJnp(self, arrProcess):
+        for process in arrProcess:
+            try:
+                # 프로세스가 종료되지 않았으면 종료 시도
+                process.terminate()
+                process.wait(timeout=5)  # 5초 대기
+            except subprocess.TimeoutExpired:
+                # 강제 종료 시도
+                print("터미널 종료 실패, 강제 종료 시도")
+                process.kill()
+
+        subprocess.run(['pkill', '-f', 'gnome-terminal'])
+        arrProcess.clear()
 
     #######################################
     ############### UI Event ##############
@@ -1932,9 +1990,9 @@ class MainWindow(QtWidgets.QMainWindow):
             #  로봇 id
             id = ET.SubElement(rlRobot, "id")
             id.text = str(self.m_simulator.robots[idx].id)
-            #  로봇 nameSpace
-            rosNamespace = ET.SubElement(rlRobot, "rosNamespace")
-            rosNamespace.text = str(self.m_simulator.robots[idx].rosNamespace)
+            #  로봇 name
+            name = ET.SubElement(rlRobot, "name")
+            name.text = str(self.m_simulator.robots[idx].name)
             #  로봇 type
             type = ET.SubElement(rlRobot, "type")
             type.text = str(self.m_simulator.robots[idx].type)
@@ -1987,9 +2045,9 @@ class MainWindow(QtWidgets.QMainWindow):
                         # 로봇 id
                         id = xmlRobot.find("id").text
                         robot.id = int(id)
-                        #  로봇 nameSpace
-                        rosNamespace = xmlRobot.find("rosNamespace").text
-                        robot.rosNamespace = rosNamespace
+                        #  로봇 name
+                        name = xmlRobot.find("name").text
+                        robot.name = name
                         #  로봇 type
                         type = xmlRobot.find("type").text
                         robot.type = type

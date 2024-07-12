@@ -199,8 +199,9 @@ class Ui_WidgetRobotItem(object):
 "    border-radius : 5px;\n"
 "    background-color: #eeeeee;\n"
 "    subcontrol-position: top center;\n"
+"	padding: 4px;\n"
 "    left: -5px;\n"
-"	top: 10px;\n"
+"	top: 7px;\n"
 "}")
         self.groupBox_11.setAlignment(Qt.AlignBottom|Qt.AlignLeading|Qt.AlignLeft)
         self.groupBox_11.setFlat(False)
@@ -438,9 +439,13 @@ class Ui_WidgetRobotItem(object):
 "    border-radius : 5px;\n"
 "    background-color: #eeeeee;\n"
 "    subcontrol-position: top center;\n"
+"	padding: 4px;\n"
 "    left: -5px;\n"
-"	top: 10px;\n"
-"}")
+"	top: 7px;\n"
+"}\n"
+"\n"
+"\n"
+"")
         self.verticalLayout_20 = QVBoxLayout(self.groupBox_3)
         self.verticalLayout_20.setObjectName(u"verticalLayout_20")
         self.scrollArea_8 = QScrollArea(self.groupBox_3)
@@ -481,13 +486,16 @@ class Ui_WidgetRobotItem(object):
 
         self.ckbRobotOptionCamera = QCheckBox(self.frame_16)
         self.ckbRobotOptionCamera.setObjectName(u"ckbRobotOptionCamera")
+        self.ckbRobotOptionCamera.setEnabled(True)
         sizePolicy3.setHeightForWidth(self.ckbRobotOptionCamera.sizePolicy().hasHeightForWidth())
         self.ckbRobotOptionCamera.setSizePolicy(sizePolicy3)
         self.ckbRobotOptionCamera.setMinimumSize(QSize(30, 0))
-        self.ckbRobotOptionCamera.setStyleSheet(u"    border: 1px solid 	#444444;\n"
-"    border-radius : 0px;\n"
+        self.ckbRobotOptionCamera.setStyleSheet(u"  border: 1px solid 	#444444;\n"
+"    border-radius : 5px;\n"
 "    background-color: #eeeeee;\n"
-"    color : #444444;")
+"    color : #444444;\n"
+"")
+        self.ckbRobotOptionCamera.setChecked(False)
 
         self.horizontalLayout_30.addWidget(self.ckbRobotOptionCamera)
 
@@ -499,7 +507,7 @@ class Ui_WidgetRobotItem(object):
 
         self.frame_18 = QFrame(self.scrollAreaWidgetContents_8)
         self.frame_18.setObjectName(u"frame_18")
-        self.frame_18.setEnabled(False)
+        self.frame_18.setEnabled(True)
         self.frame_18.setFrameShape(QFrame.StyledPanel)
         self.frame_18.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_37 = QHBoxLayout(self.frame_18)
@@ -521,13 +529,15 @@ class Ui_WidgetRobotItem(object):
 
         self.ckbRobotOptionUseArm = QCheckBox(self.frame_18)
         self.ckbRobotOptionUseArm.setObjectName(u"ckbRobotOptionUseArm")
+        self.ckbRobotOptionUseArm.setEnabled(True)
         sizePolicy3.setHeightForWidth(self.ckbRobotOptionUseArm.sizePolicy().hasHeightForWidth())
         self.ckbRobotOptionUseArm.setSizePolicy(sizePolicy3)
         self.ckbRobotOptionUseArm.setMinimumSize(QSize(30, 0))
-        self.ckbRobotOptionUseArm.setStyleSheet(u"    border: 1px solid 	#444444;\n"
+        self.ckbRobotOptionUseArm.setStyleSheet(u"  border: 1px solid 	#444444;\n"
 "    border-radius : 5px;\n"
 "    background-color: #eeeeee;\n"
-"    color : #444444;")
+"    color : #444444;\n"
+"")
 
         self.horizontalLayout_33.addWidget(self.ckbRobotOptionUseArm)
 
@@ -539,7 +549,7 @@ class Ui_WidgetRobotItem(object):
 
         self.frame_17 = QFrame(self.scrollAreaWidgetContents_8)
         self.frame_17.setObjectName(u"frame_17")
-        self.frame_17.setEnabled(False)
+        self.frame_17.setEnabled(True)
         self.frame_17.setFrameShape(QFrame.StyledPanel)
         self.frame_17.setFrameShadow(QFrame.Raised)
         self.horizontalLayout_38 = QHBoxLayout(self.frame_17)
@@ -561,14 +571,15 @@ class Ui_WidgetRobotItem(object):
 
         self.ckbRobotOptionBase = QCheckBox(self.frame_17)
         self.ckbRobotOptionBase.setObjectName(u"ckbRobotOptionBase")
-        self.ckbRobotOptionBase.setEnabled(False)
+        self.ckbRobotOptionBase.setEnabled(True)
         sizePolicy3.setHeightForWidth(self.ckbRobotOptionBase.sizePolicy().hasHeightForWidth())
         self.ckbRobotOptionBase.setSizePolicy(sizePolicy3)
         self.ckbRobotOptionBase.setMinimumSize(QSize(30, 0))
-        self.ckbRobotOptionBase.setStyleSheet(u"    border: 1px solid 	#444444;\n"
+        self.ckbRobotOptionBase.setStyleSheet(u"  border: 1px solid 	#444444;\n"
 "    border-radius : 5px;\n"
 "    background-color: #eeeeee;\n"
-"    color : #444444;")
+"    color : #444444;\n"
+"")
 
         self.horizontalLayout_34.addWidget(self.ckbRobotOptionBase)
 

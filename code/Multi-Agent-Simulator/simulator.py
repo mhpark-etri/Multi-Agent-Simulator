@@ -7,7 +7,7 @@
 #### └ World                                         ##
 #### └ Robot [n]                                   ####
 ####     └ Id                                      ####
-####     └ RosNamespace                            ####
+####     └ Name                                    ####
 ####     └ Type                                    ####
 ####     └ Position                                ####
 ####     └ Option                                  ####
@@ -149,7 +149,7 @@ class Option:
 ## Class : Robot
 class Robot:
     id = 0                                  ## Robot : ID
-    rosNamespace = ""                       ## Robot : ROS Namespace
+    name = ""                               ## Robot : Model name
     type = ENUM_ROBOT_TYPE.LOCOBOT          ## Robot : Robot type
     startX = 0                              ## Robot : Start Posotion X (Default 0)
     startY = 0                              ## Robot : Start Position Y (Default 0)

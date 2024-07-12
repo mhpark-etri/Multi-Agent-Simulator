@@ -40,7 +40,7 @@ class DialogNavigation(
         # 1. 로봇 대수 별로 콤보박스 생성
         robotCount = len(self.m_simulator.robots)
         for i in range(0, robotCount):
-            item = self.m_simulator.robots[i].rosNamespace
+            item = self.m_simulator.robots[i].name
             self.ui.cbROSNaviRobots.addItem(item)
 
         # 2. Option 설정

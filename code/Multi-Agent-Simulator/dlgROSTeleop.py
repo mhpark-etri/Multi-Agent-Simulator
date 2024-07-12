@@ -66,7 +66,7 @@ class DialogTeleop(QtWidgets.QDialog):
             # elif lstRobots[i].type == ENUM_ROBOT_TYPE.JETBOT:
             #         btnName = CONST_JETBOT_NAME
             # btnName = btnName + "_" + str(lstRobots[i].id)
-            btnName = self.m_simulator.robots[i].rosNamespace
+            btnName = self.m_simulator.robots[i].name
             btnPush.setObjectName(btnName)
             btnPush.setMinimumSize(QSize(0, 40))
             btnPush.setSizeIncrement(QSize(0, 20))

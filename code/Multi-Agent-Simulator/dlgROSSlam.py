@@ -39,7 +39,7 @@ class DialogSmal(
         # 1. 로봇 대수 별로 콤보박스 생성
         robotCount = len(self.m_simulator.robots)
         for i in range(0, robotCount):
-            item = self.m_simulator.robots[i].rosNamespace
+            item = self.m_simulator.robots[i].name
             self.ui.cbSlamRobot.addItem(item)
 
         # 2. Slam Method 타입 지정
@@ -73,7 +73,7 @@ class DialogSmal(
                 # 각 터틀봇의 Slam 실행
                 for i in range(0, len(self.m_simulator.robots)) :
                     if self.m_simulator.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER :
-                         robotNamespace = self.m_simulator.robots[i].rosNamespace 
+                         robotNamespace = self.m_simulator.robots[i].name 
                          command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE 
                          command = command + CMD_ROS_COMMON_ROS_NAMESPACE + robotNamespace + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSLAUNCH + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SLAM + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_GMAPPING_LAUNCH + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SET_BASE_FRAME + CMD_COMMON_PARAM_INSERT + robotNamespace + CMD_COMMON_SLASH + CMD_ROS_SLAM_TURTLEBOT3_BASE_FOORPRINT + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SET_ODOM_FRAME + CMD_COMMON_PARAM_INSERT + robotNamespace + CMD_COMMON_SLASH + CMD_ROS_SLAM_TURTLEBOT3_ODOM + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SET_MAP_FRAME + CMD_COMMON_PARAM_INSERT + CMD_ROS_SLAM_TURTLEBOT3_MAP
                          os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
@@ -93,7 +93,7 @@ class DialogSmal(
                 # 각 터틀봇의 Slam 실행
                 for i in range(0, len(self.m_simulator.robots)) :
                     if self.m_simulator.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE :
-                         robotNamespace = self.m_simulator.robots[i].rosNamespace 
+                         robotNamespace = self.m_simulator.robots[i].name 
                          command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_WAFFLE+ CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE 
                          command = command + CMD_ROS_COMMON_ROS_NAMESPACE + robotNamespace + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSLAUNCH + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SLAM + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_GMAPPING_LAUNCH + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SET_BASE_FRAME + CMD_COMMON_PARAM_INSERT + robotNamespace + CMD_COMMON_SLASH + CMD_ROS_SLAM_TURTLEBOT3_BASE_FOORPRINT + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SET_ODOM_FRAME + CMD_COMMON_PARAM_INSERT + robotNamespace + CMD_COMMON_SLASH + CMD_ROS_SLAM_TURTLEBOT3_ODOM + CMD_COMMON_SPACE + CMD_ROS_SLAM_TURTLEBOT3_SET_MAP_FRAME + CMD_COMMON_PARAM_INSERT + CMD_ROS_SLAM_TURTLEBOT3_MAP
                          os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)

@@ -54,33 +54,34 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
-        self.groupBox = QGroupBox(self.centralwidget)
-        self.groupBox.setObjectName(u"groupBox")
+        self.gbWorld = QGroupBox(self.centralwidget)
+        self.gbWorld.setObjectName(u"gbWorld")
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
-        self.groupBox.setSizePolicy(sizePolicy)
-        self.groupBox.setMinimumSize(QSize(0, 250))
-        self.groupBox.setStyleSheet(u"QGroupBox{\n"
+        sizePolicy.setHeightForWidth(self.gbWorld.sizePolicy().hasHeightForWidth())
+        self.gbWorld.setSizePolicy(sizePolicy)
+        self.gbWorld.setMinimumSize(QSize(0, 250))
+        self.gbWorld.setStyleSheet(u"QGroupBox#gbWorld {\n"
 "    border: 1px solid 	darkgray;\n"
 "    background-color: #cccccc;\n"
 "    margin-top: 15px;\n"
 "    color: white;\n"
 "}\n"
 "\n"
-"QGroupBox::title {\n"
+"QGroupBox#gbWorld::title {\n"
 "    border: 1px solid white;\n"
+"    subcontrol-position: top left;\n"
+"	left: 30px;\n"
 "    background-color: gray;\n"
 "    padding: 5px 30px 5px 30px;\n"
 "    top: -15px;\n"
-"    left: 30px;\n"
 "}")
-        self.horizontalLayout_2 = QHBoxLayout(self.groupBox)
+        self.horizontalLayout_2 = QHBoxLayout(self.gbWorld)
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(10, 20, 10, 10)
-        self.scrollArea = QScrollArea(self.groupBox)
+        self.scrollArea = QScrollArea(self.gbWorld)
         self.scrollArea.setObjectName(u"scrollArea")
         self.scrollArea.setStyleSheet(u"background-color: #e6e6e6;\n"
 "border-radius:5px;")
@@ -163,11 +164,12 @@ class Ui_MainWindow(object):
 "\n"
 "QGroupBox::title {\n"
 "    border: 1px solid white;\n"
+"    subcontrol-position: top center;\n"
 "    background-color: gray;\n"
 "    padding: 5px 30px 5px 30px;\n"
 "    top: -15px;\n"
-"    left: 55px;\n"
 "}")
+        self.groupBox_5.setFlat(False)
         self.verticalLayout_5 = QVBoxLayout(self.groupBox_5)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalLayout_5.setContentsMargins(-1, 20, -1, -1)
@@ -330,7 +332,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.scrollArea)
 
 
-        self.verticalLayout.addWidget(self.groupBox)
+        self.verticalLayout.addWidget(self.gbWorld)
 
         self.verticalSpacer_2 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
@@ -344,32 +346,32 @@ class Ui_MainWindow(object):
         self.horizontalLayout_29.setSpacing(20)
         self.horizontalLayout_29.setObjectName(u"horizontalLayout_29")
         self.horizontalLayout_29.setContentsMargins(0, 0, 0, 0)
-        self.groupBox_2 = QGroupBox(self.frame_19)
-        self.groupBox_2.setObjectName(u"groupBox_2")
-        self.groupBox_2.setEnabled(True)
-        sizePolicy3.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
-        self.groupBox_2.setSizePolicy(sizePolicy3)
-        self.groupBox_2.setMinimumSize(QSize(850, 0))
-        self.groupBox_2.setLayoutDirection(Qt.LeftToRight)
-        self.groupBox_2.setStyleSheet(u"QGroupBox{\n"
+        self.gbRobot = QGroupBox(self.frame_19)
+        self.gbRobot.setObjectName(u"gbRobot")
+        self.gbRobot.setEnabled(True)
+        sizePolicy3.setHeightForWidth(self.gbRobot.sizePolicy().hasHeightForWidth())
+        self.gbRobot.setSizePolicy(sizePolicy3)
+        self.gbRobot.setMinimumSize(QSize(800, 0))
+        self.gbRobot.setLayoutDirection(Qt.LeftToRight)
+        self.gbRobot.setStyleSheet(u"QGroupBox#gbRobot{\n"
 "    border: 1px solid 	darkgray;\n"
 "    background-color: #cccccc;\n"
 "    margin-top: 15px;\n"
 "    color: white;\n"
 "}\n"
 "\n"
-"QGroupBox::title {\n"
+"QGroupBox#gbRobot::title {\n"
 "    border: 1px solid white;\n"
 "    background-color: gray;\n"
 "    padding: 5px 30px 5px 30px;\n"
 "    top: -15px;\n"
 "    left: 30px;\n"
 "}")
-        self.verticalLayout_7 = QVBoxLayout(self.groupBox_2)
+        self.verticalLayout_7 = QVBoxLayout(self.gbRobot)
         self.verticalLayout_7.setSpacing(0)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalLayout_7.setContentsMargins(9, 20, 9, 10)
-        self.frame_21 = QFrame(self.groupBox_2)
+        self.frame_21 = QFrame(self.gbRobot)
         self.frame_21.setObjectName(u"frame_21")
         sizePolicy.setHeightForWidth(self.frame_21.sizePolicy().hasHeightForWidth())
         self.frame_21.setSizePolicy(sizePolicy)
@@ -470,7 +472,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_7.addWidget(self.frame_21)
 
-        self.frame_8 = QFrame(self.groupBox_2)
+        self.frame_8 = QFrame(self.gbRobot)
         self.frame_8.setObjectName(u"frame_8")
         self.frame_8.setStyleSheet(u"background-color:transparent;")
         self.frame_8.setFrameShape(QFrame.StyledPanel)
@@ -489,29 +491,29 @@ class Ui_MainWindow(object):
         self.verticalLayout_7.addWidget(self.frame_8)
 
 
-        self.horizontalLayout_29.addWidget(self.groupBox_2)
+        self.horizontalLayout_29.addWidget(self.gbRobot)
 
-        self.groupBox_4 = QGroupBox(self.frame_19)
-        self.groupBox_4.setObjectName(u"groupBox_4")
-        self.groupBox_4.setStyleSheet(u"QGroupBox{\n"
+        self.gbRobotROS = QGroupBox(self.frame_19)
+        self.gbRobotROS.setObjectName(u"gbRobotROS")
+        self.gbRobotROS.setStyleSheet(u"QGroupBox#gbRobotROS{\n"
 "    border: 1px solid 	darkgray;\n"
 "    background-color: #cccccc;\n"
 "    margin-top: 15px;\n"
 "    color: white;\n"
 "}\n"
 "\n"
-"QGroupBox::title {\n"
+"QGroupBox#gbRobotROS::title {\n"
 "    border: 1px solid white;\n"
+"    subcontrol-position: top center;\n"
 "    background-color: gray;\n"
 "    padding: 5px 30px 5px 30px;\n"
 "    top: -15px;\n"
-"    left: 70px;\n"
 "}")
-        self.verticalLayout_19 = QVBoxLayout(self.groupBox_4)
+        self.verticalLayout_19 = QVBoxLayout(self.gbRobotROS)
         self.verticalLayout_19.setSpacing(0)
         self.verticalLayout_19.setObjectName(u"verticalLayout_19")
         self.verticalLayout_19.setContentsMargins(-1, 20, 0, 10)
-        self.scrollArea_9 = QScrollArea(self.groupBox_4)
+        self.scrollArea_9 = QScrollArea(self.gbRobotROS)
         self.scrollArea_9.setObjectName(u"scrollArea_9")
         sizePolicy5 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy5.setHorizontalStretch(0)
@@ -526,15 +528,41 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 234, 560))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 284, 560))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.verticalLayout_21.setContentsMargins(0, -1, -1, -1)
-        self.verticalLayout_15 = QVBoxLayout()
-        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
-        self.verticalLayout_15.setContentsMargins(9, 9, 9, 9)
-        self.btnROSTeleop = QPushButton(self.scrollAreaWidgetContents_9)
+        self.frame_20 = QFrame(self.scrollAreaWidgetContents_9)
+        self.frame_20.setObjectName(u"frame_20")
+        self.frame_20.setStyleSheet(u"background-color: #e6e6e6;\n"
+"border-radius:5px;")
+        self.frame_20.setFrameShape(QFrame.StyledPanel)
+        self.frame_20.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_30 = QVBoxLayout(self.frame_20)
+        self.verticalLayout_30.setObjectName(u"verticalLayout_30")
+        self.gbRobotROSControl = QGroupBox(self.frame_20)
+        self.gbRobotROSControl.setObjectName(u"gbRobotROSControl")
+        self.gbRobotROSControl.setStyleSheet(u"QGroupBox#gbRobotROSControl{\n"
+"    border: 1px solid 	darkgray;\n"
+"    margin-top: 15px;\n"
+"	padding-top: 15px;\n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QGroupBox#gbRobotROSControl::title {\n"
+"    subcontrol-position: top left;\n"
+"    border: 1px solid white;\n"
+"    background-color: gray;\n"
+"    padding: 5px 15px 5px 15px;\n"
+"    top: -15px;\n"
+"	left: 20px;\n"
+"}")
+        self.verticalLayout_6 = QVBoxLayout(self.gbRobotROSControl)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.verticalLayout_8 = QVBoxLayout()
+        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.btnROSTeleop = QPushButton(self.gbRobotROSControl)
         self.btnROSTeleop.setObjectName(u"btnROSTeleop")
         self.btnROSTeleop.setMinimumSize(QSize(94, 40))
         self.btnROSTeleop.setStyleSheet(u"QPushButton {\n"
@@ -560,22 +588,38 @@ class Ui_MainWindow(object):
 "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
 "}")
 
-        self.verticalLayout_15.addWidget(self.btnROSTeleop)
+        self.verticalLayout_8.addWidget(self.btnROSTeleop)
 
 
-        self.verticalLayout_21.addLayout(self.verticalLayout_15)
+        self.verticalLayout_6.addLayout(self.verticalLayout_8)
 
-        self.frame_20 = QFrame(self.scrollAreaWidgetContents_9)
-        self.frame_20.setObjectName(u"frame_20")
-        self.frame_20.setStyleSheet(u"background-color: #e6e6e6;\n"
-"border-radius:5px;")
-        self.frame_20.setFrameShape(QFrame.StyledPanel)
-        self.frame_20.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_30 = QVBoxLayout(self.frame_20)
-        self.verticalLayout_30.setObjectName(u"verticalLayout_30")
+
+        self.verticalLayout_30.addWidget(self.gbRobotROSControl)
+
+        self.gbRobotROSNavigation = QGroupBox(self.frame_20)
+        self.gbRobotROSNavigation.setObjectName(u"gbRobotROSNavigation")
+        self.gbRobotROSNavigation.setStyleSheet(u"QGroupBox#gbRobotROSNavigation{\n"
+"    border: 1px solid 	darkgray;\n"
+"    margin-top: 15px;\n"
+"	padding-top: 15px;\n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QGroupBox#gbRobotROSNavigation::title {\n"
+"    subcontrol-position: top left;\n"
+"    border: 1px solid white;\n"
+"    background-color: gray;\n"
+"    padding: 5px 15px 5px 15px;\n"
+"    top: -15px;\n"
+"	left: 20px;\n"
+"}")
+        self.verticalLayout_10 = QVBoxLayout(self.gbRobotROSNavigation)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.verticalLayout_9 = QVBoxLayout()
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.rbROSNone = QRadioButton(self.frame_20)
+        self.rbROSNone = QRadioButton(self.gbRobotROSNavigation)
         self.rbROSNone.setObjectName(u"rbROSNone")
         self.rbROSNone.setMinimumSize(QSize(0, 40))
         self.rbROSNone.setChecked(True)
@@ -583,11 +627,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9.addWidget(self.rbROSNone)
 
 
-        self.verticalLayout_30.addLayout(self.horizontalLayout_9)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_9)
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.rbROSSlam = QRadioButton(self.frame_20)
+        self.rbROSSlam = QRadioButton(self.gbRobotROSNavigation)
         self.rbROSSlam.setObjectName(u"rbROSSlam")
         self.rbROSSlam.setEnabled(False)
         self.rbROSSlam.setMinimumSize(QSize(0, 40))
@@ -595,7 +639,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7.addWidget(self.rbROSSlam)
 
-        self.btnROSSlamEdit = QPushButton(self.frame_20)
+        self.btnROSSlamEdit = QPushButton(self.gbRobotROSNavigation)
         self.btnROSSlamEdit.setObjectName(u"btnROSSlamEdit")
         sizePolicy1.setHeightForWidth(self.btnROSSlamEdit.sizePolicy().hasHeightForWidth())
         self.btnROSSlamEdit.setSizePolicy(sizePolicy1)
@@ -627,11 +671,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7.setStretch(0, 1)
 
-        self.verticalLayout_30.addLayout(self.horizontalLayout_7)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_7)
 
         self.horizontalLayout_8 = QHBoxLayout()
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.rbROSNavigation = QRadioButton(self.frame_20)
+        self.rbROSNavigation = QRadioButton(self.gbRobotROSNavigation)
         self.rbROSNavigation.setObjectName(u"rbROSNavigation")
         self.rbROSNavigation.setEnabled(False)
         self.rbROSNavigation.setMinimumSize(QSize(0, 40))
@@ -639,7 +683,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8.addWidget(self.rbROSNavigation)
 
-        self.btnROSNavigationEdit = QPushButton(self.frame_20)
+        self.btnROSNavigationEdit = QPushButton(self.gbRobotROSNavigation)
         self.btnROSNavigationEdit.setObjectName(u"btnROSNavigationEdit")
         sizePolicy1.setHeightForWidth(self.btnROSNavigationEdit.sizePolicy().hasHeightForWidth())
         self.btnROSNavigationEdit.setSizePolicy(sizePolicy1)
@@ -670,7 +714,71 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.addWidget(self.btnROSNavigationEdit)
 
 
-        self.verticalLayout_30.addLayout(self.horizontalLayout_8)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_8)
+
+
+        self.verticalLayout_10.addLayout(self.verticalLayout_9)
+
+
+        self.verticalLayout_30.addWidget(self.gbRobotROSNavigation)
+
+        self.gbRobotROSJnp = QGroupBox(self.frame_20)
+        self.gbRobotROSJnp.setObjectName(u"gbRobotROSJnp")
+        self.gbRobotROSJnp.setStyleSheet(u"QGroupBox#gbRobotROSJnp{\n"
+"    border: 1px solid 	darkgray;\n"
+"    margin-top: 15px;\n"
+"	padding-top: 15px;\n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QGroupBox#gbRobotROSJnp::title {\n"
+"    subcontrol-position: top left;\n"
+"    border: 1px solid white;\n"
+"    background-color: gray;\n"
+"    padding: 5px 15px 5px 15px;\n"
+"    top: -15px;\n"
+"	left: 20px;\n"
+"}")
+        self.gbRobotROSJnp.setCheckable(False)
+        self.gbRobotROSJnp.setChecked(False)
+        self.verticalLayout_12 = QVBoxLayout(self.gbRobotROSJnp)
+        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.verticalLayout_11 = QVBoxLayout()
+        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
+        self.cbROSJnpOptionsEnable = QCheckBox(self.gbRobotROSJnp)
+        self.cbROSJnpOptionsEnable.setObjectName(u"cbROSJnpOptionsEnable")
+        self.cbROSJnpOptionsEnable.setEnabled(True)
+        self.cbROSJnpOptionsEnable.setCheckable(True)
+        self.cbROSJnpOptionsEnable.setChecked(False)
+
+        self.verticalLayout_11.addWidget(self.cbROSJnpOptionsEnable)
+
+        self.frmROSJnpOptions = QFrame(self.gbRobotROSJnp)
+        self.frmROSJnpOptions.setObjectName(u"frmROSJnpOptions")
+        self.frmROSJnpOptions.setFrameShape(QFrame.StyledPanel)
+        self.frmROSJnpOptions.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_15 = QVBoxLayout(self.frmROSJnpOptions)
+        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
+        self.verticalLayout_15.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_14 = QVBoxLayout()
+        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
+        self.verticalLayout_14.setContentsMargins(15, -1, -1, -1)
+        self.cbROSJnpOptionTerminal = QCheckBox(self.frmROSJnpOptions)
+        self.cbROSJnpOptionTerminal.setObjectName(u"cbROSJnpOptionTerminal")
+
+        self.verticalLayout_14.addWidget(self.cbROSJnpOptionTerminal)
+
+
+        self.verticalLayout_15.addLayout(self.verticalLayout_14)
+
+
+        self.verticalLayout_11.addWidget(self.frmROSJnpOptions)
+
+
+        self.verticalLayout_12.addLayout(self.verticalLayout_11)
+
+
+        self.verticalLayout_30.addWidget(self.gbRobotROSJnp)
 
         self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -684,7 +792,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_19.addWidget(self.scrollArea_9)
 
 
-        self.horizontalLayout_29.addWidget(self.groupBox_4)
+        self.horizontalLayout_29.addWidget(self.gbRobotROS)
 
 
         self.verticalLayout.addWidget(self.frame_19)
@@ -765,7 +873,7 @@ class Ui_MainWindow(object):
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.actionOpen.setText(QCoreApplication.translate("MainWindow", u"Open", None))
         self.actionOpenDB.setText(QCoreApplication.translate("MainWindow", u"Open", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"World", None))
+        self.gbWorld.setTitle(QCoreApplication.translate("MainWindow", u"World", None))
         self.lbWorldImage.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Option", None))
         self.chkWorldOptionPerson.setText("")
@@ -775,17 +883,22 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Bulding", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Random Color", None))
         self.checkBox.setText("")
-        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Robot", None))
+        self.gbRobot.setTitle(QCoreApplication.translate("MainWindow", u"Robot", None))
         self.btnAddRobot.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.btnDeleteRobot.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         self.btnAddModel.setText(QCoreApplication.translate("MainWindow", u"Add model", None))
-        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"ROS", None))
+        self.gbRobotROS.setTitle(QCoreApplication.translate("MainWindow", u"ROS", None))
+        self.gbRobotROSControl.setTitle(QCoreApplication.translate("MainWindow", u"Control", None))
         self.btnROSTeleop.setText(QCoreApplication.translate("MainWindow", u"Teleop", None))
+        self.gbRobotROSNavigation.setTitle(QCoreApplication.translate("MainWindow", u"Navigation", None))
         self.rbROSNone.setText(QCoreApplication.translate("MainWindow", u"None", None))
         self.rbROSSlam.setText(QCoreApplication.translate("MainWindow", u"Slam", None))
         self.btnROSSlamEdit.setText(QCoreApplication.translate("MainWindow", u"edit", None))
         self.rbROSNavigation.setText(QCoreApplication.translate("MainWindow", u"Navigation", None))
         self.btnROSNavigationEdit.setText(QCoreApplication.translate("MainWindow", u"edit", None))
+        self.gbRobotROSJnp.setTitle(QCoreApplication.translate("MainWindow", u"Jnp", None))
+        self.cbROSJnpOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
+        self.cbROSJnpOptionTerminal.setText(QCoreApplication.translate("MainWindow", u"Run the script in terminal", None))
         self.btnStartSimulator.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.menuFIle.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuDB.setTitle(QCoreApplication.translate("MainWindow", u"DB", None))

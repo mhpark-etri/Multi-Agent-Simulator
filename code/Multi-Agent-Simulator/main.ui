@@ -53,7 +53,7 @@
      </spacer>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="gbWorld">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -67,19 +67,20 @@
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">QGroupBox{
+       <string notr="true">QGroupBox#gbWorld {
     border: 1px solid 	darkgray;
     background-color: #cccccc;
     margin-top: 15px;
     color: white;
 }
 
-QGroupBox::title {
+QGroupBox#gbWorld::title {
     border: 1px solid white;
+    subcontrol-position: top left;
+	left: 30px;
     background-color: gray;
     padding: 5px 30px 5px 30px;
     top: -15px;
-    left: 30px;
 }</string>
       </property>
       <property name="title">
@@ -257,14 +258,17 @@ border-radius:5px;</string>
 
 QGroupBox::title {
     border: 1px solid white;
+    subcontrol-position: top center;
     background-color: gray;
     padding: 5px 30px 5px 30px;
     top: -15px;
-    left: 55px;
 }</string>
                     </property>
                     <property name="title">
                      <string>Option</string>
+                    </property>
+                    <property name="flat">
+                     <bool>false</bool>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_5">
                      <property name="topMargin">
@@ -581,7 +585,7 @@ QGroupBox::title {
         <number>0</number>
        </property>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
+        <widget class="QGroupBox" name="gbRobot">
          <property name="enabled">
           <bool>true</bool>
          </property>
@@ -593,7 +597,7 @@ QGroupBox::title {
          </property>
          <property name="minimumSize">
           <size>
-           <width>850</width>
+           <width>800</width>
            <height>0</height>
           </size>
          </property>
@@ -601,14 +605,14 @@ QGroupBox::title {
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="styleSheet">
-          <string notr="true">QGroupBox{
+          <string notr="true">QGroupBox#gbRobot{
     border: 1px solid 	darkgray;
     background-color: #cccccc;
     margin-top: 15px;
     color: white;
 }
 
-QGroupBox::title {
+QGroupBox#gbRobot::title {
     border: 1px solid white;
     background-color: gray;
     padding: 5px 30px 5px 30px;
@@ -833,21 +837,21 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_4">
+        <widget class="QGroupBox" name="gbRobotROS">
          <property name="styleSheet">
-          <string notr="true">QGroupBox{
+          <string notr="true">QGroupBox#gbRobotROS{
     border: 1px solid 	darkgray;
     background-color: #cccccc;
     margin-top: 15px;
     color: white;
 }
 
-QGroupBox::title {
+QGroupBox#gbRobotROS::title {
     border: 1px solid white;
+    subcontrol-position: top center;
     background-color: gray;
     padding: 5px 30px 5px 30px;
     top: -15px;
-    left: 70px;
 }</string>
          </property>
          <property name="title">
@@ -893,7 +897,7 @@ QGroupBox::title {
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>234</width>
+               <width>284</width>
                <height>560</height>
               </rect>
              </property>
@@ -904,59 +908,6 @@ QGroupBox::title {
               <property name="leftMargin">
                <number>0</number>
               </property>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_15">
-                <property name="leftMargin">
-                 <number>9</number>
-                </property>
-                <property name="topMargin">
-                 <number>9</number>
-                </property>
-                <property name="rightMargin">
-                 <number>9</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>9</number>
-                </property>
-                <item>
-                 <widget class="QPushButton" name="btnROSTeleop">
-                  <property name="minimumSize">
-                   <size>
-                    <width>94</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 4px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:hover {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}</string>
-                  </property>
-                  <property name="text">
-                   <string>Teleop</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
               <item>
                <widget class="QFrame" name="frame_20">
                 <property name="styleSheet">
@@ -971,62 +922,40 @@ border-radius:5px;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_30">
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_9">
-                   <item>
-                    <widget class="QRadioButton" name="rbROSNone">
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>None</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,0">
-                   <item>
-                    <widget class="QRadioButton" name="rbROSSlam">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>Slam</string>
-                     </property>
-                     <property name="checkable">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btnROSSlamEdit">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>94</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">QPushButton {
+                  <widget class="QGroupBox" name="gbRobotROSControl">
+                   <property name="styleSheet">
+                    <string notr="true">QGroupBox#gbRobotROSControl{
+    border: 1px solid 	darkgray;
+    margin-top: 15px;
+	padding-top: 15px;
+    color: white;
+}
+
+QGroupBox#gbRobotROSControl::title {
+    subcontrol-position: top left;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px 15px 5px 15px;
+    top: -15px;
+	left: 20px;
+}</string>
+                   </property>
+                   <property name="title">
+                    <string>Control</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_6">
+                    <item>
+                     <layout class="QVBoxLayout" name="verticalLayout_8">
+                      <item>
+                       <widget class="QPushButton" name="btnROSTeleop">
+                        <property name="minimumSize">
+                         <size>
+                          <width>94</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
 color: #333;
 border: 2px solid #555;
 border-radius: 4px;
@@ -1048,51 +977,99 @@ background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
-                     </property>
-                     <property name="text">
-                      <string>edit</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                        </property>
+                        <property name="text">
+                         <string>Teleop</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
                  </item>
                  <item>
-                  <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0">
-                   <item>
-                    <widget class="QRadioButton" name="rbROSNavigation">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>0</width>
-                       <height>40</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string>Navigation</string>
-                     </property>
-                     <property name="checked">
-                      <bool>false</bool>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="btnROSNavigationEdit">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>94</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">QPushButton {
+                  <widget class="QGroupBox" name="gbRobotROSNavigation">
+                   <property name="styleSheet">
+                    <string notr="true">QGroupBox#gbRobotROSNavigation{
+    border: 1px solid 	darkgray;
+    margin-top: 15px;
+	padding-top: 15px;
+    color: white;
+}
+
+QGroupBox#gbRobotROSNavigation::title {
+    subcontrol-position: top left;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px 15px 5px 15px;
+    top: -15px;
+	left: 20px;
+}</string>
+                   </property>
+                   <property name="title">
+                    <string>Navigation</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_10">
+                    <item>
+                     <layout class="QVBoxLayout" name="verticalLayout_9">
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_9">
+                        <item>
+                         <widget class="QRadioButton" name="rbROSNone">
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>None</string>
+                          </property>
+                          <property name="checked">
+                           <bool>true</bool>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,0">
+                        <item>
+                         <widget class="QRadioButton" name="rbROSSlam">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>Slam</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QPushButton" name="btnROSSlamEdit">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>94</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">QPushButton {
 color: #333;
 border: 2px solid #555;
 border-radius: 4px;
@@ -1114,13 +1091,174 @@ background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
-                     </property>
-                     <property name="text">
-                      <string>edit</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                          </property>
+                          <property name="text">
+                           <string>edit</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0">
+                        <item>
+                         <widget class="QRadioButton" name="rbROSNavigation">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>Navigation</string>
+                          </property>
+                          <property name="checked">
+                           <bool>false</bool>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QPushButton" name="btnROSNavigationEdit">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>94</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                          </property>
+                          <property name="text">
+                           <string>edit</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="gbRobotROSJnp">
+                   <property name="styleSheet">
+                    <string notr="true">QGroupBox#gbRobotROSJnp{
+    border: 1px solid 	darkgray;
+    margin-top: 15px;
+	padding-top: 15px;
+    color: white;
+}
+
+QGroupBox#gbRobotROSJnp::title {
+    subcontrol-position: top left;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px 15px 5px 15px;
+    top: -15px;
+	left: 20px;
+}</string>
+                   </property>
+                   <property name="title">
+                    <string>Jnp</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>false</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>false</bool>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_12">
+                    <item>
+                     <layout class="QVBoxLayout" name="verticalLayout_11">
+                      <item>
+                       <widget class="QCheckBox" name="cbROSJnpOptionsEnable">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="text">
+                         <string>Enable</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="checked">
+                         <bool>false</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QFrame" name="frmROSJnpOptions">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QVBoxLayout" name="verticalLayout_15">
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                         <item>
+                          <layout class="QVBoxLayout" name="verticalLayout_14">
+                           <property name="leftMargin">
+                            <number>15</number>
+                           </property>
+                           <item>
+                            <widget class="QCheckBox" name="cbROSJnpOptionTerminal">
+                             <property name="text">
+                              <string>Run the script in terminal</string>
+                             </property>
+                            </widget>
+                           </item>
+                          </layout>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
                  </item>
                  <item>
                   <spacer name="verticalSpacer_3">

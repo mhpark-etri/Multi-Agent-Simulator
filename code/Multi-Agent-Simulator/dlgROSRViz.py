@@ -37,7 +37,7 @@ class DialogRViz(QtWidgets.QDialog):
         for i in range(0, robotCount):
             # 버튼 생성
             btnPush = QPushButton(ui.fmain)
-            btnName = self.m_simulator.robots[i].rosNamespace
+            btnName = self.m_simulator.robots[i].name
             btnPush.setObjectName(btnName)
             btnPush.setMinimumSize(QSize(0, 40))
             btnPush.setSizeIncrement(QSize(0, 20))
