@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1135</width>
+    <width>1188</width>
     <height>1018</height>
    </rect>
   </property>
@@ -116,7 +116,7 @@ border-radius:5px;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1095</width>
+            <width>1148</width>
             <height>214</height>
            </rect>
           </property>
@@ -213,7 +213,7 @@ border-radius:5px;</string>
                     <property name="minimumSize">
                      <size>
                       <width>300</width>
-                      <height>180</height>
+                      <height>190</height>
                      </size>
                     </property>
                     <property name="styleSheet">
@@ -568,7 +568,7 @@ QGroupBox::title {
       <property name="frameShadow">
        <enum>QFrame::Raised</enum>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_29">
+      <layout class="QHBoxLayout" name="horizontalLayout_29" stretch="1,0">
        <property name="spacing">
         <number>20</number>
        </property>
@@ -838,6 +838,18 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
        </item>
        <item>
         <widget class="QGroupBox" name="gbRobotROS">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>350</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">QGroupBox#gbRobotROS{
     border: 1px solid 	darkgray;
@@ -896,9 +908,9 @@ QGroupBox#gbRobotROS::title {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
-               <width>284</width>
-               <height>560</height>
+               <y>-470</y>
+               <width>323</width>
+               <height>1030</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1261,17 +1273,124 @@ QGroupBox#gbRobotROSJnp::title {
                   </widget>
                  </item>
                  <item>
-                  <spacer name="verticalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
+                  <widget class="QGroupBox" name="gbRobotROSJnl">
+                   <property name="styleSheet">
+                    <string notr="true">QGroupBox#gbRobotROSJnl{
+    border: 1px solid 	darkgray;
+    margin-top: 15px;
+	padding-top: 15px;
+    color: white;
+}
+
+QGroupBox#gbRobotROSJnl::title {
+    subcontrol-position: top left;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px 15px 5px 15px;
+    top: -15px;
+	left: 20px;
+}</string>
                    </property>
-                   <property name="sizeHint" stdset="0">
+                   <property name="title">
+                    <string>Jnl</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_13">
+                    <item>
+                     <widget class="QCheckBox" name="cbROSJnlOptionsEnable">
+                      <property name="text">
+                       <string>Enable</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="gbRobotROSI2IEnhancement">
+                   <property name="styleSheet">
+                    <string notr="true">QGroupBox#gbRobotROSI2IEnhancement{
+    border: 1px solid 	darkgray;
+    margin-top: 15px;
+	padding-top: 15px;
+    color: white;
+}
+
+QGroupBox#gbRobotROSI2IEnhancement::title {
+    subcontrol-position: top left;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px 15px 5px 15px;
+    top: -15px;
+	left: 20px;
+}</string>
+                   </property>
+                   <property name="title">
+                    <string>I2I Enhancement</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_16">
+                    <item>
+                     <widget class="QCheckBox" name="cbROSI2IOptionsEnable">
+                      <property name="text">
+                       <string>Enable</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="gbRobotROSCollaborationTasks">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
                     <size>
-                     <width>20</width>
-                     <height>40</height>
+                     <width>0</width>
+                     <height>0</height>
                     </size>
                    </property>
-                  </spacer>
+                   <property name="styleSheet">
+                    <string notr="true">QGroupBox#gbRobotROSCollaborationTasks{
+    border: 1px solid 	darkgray;
+    margin-top: 15px;
+	padding-top: 15px;
+    color: white;
+}
+
+QGroupBox#gbRobotROSCollaborationTasks::title {
+    subcontrol-position: top left;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px 15px 5px 15px;
+    top: -15px;
+	left: 20px;
+}</string>
+                   </property>
+                   <property name="title">
+                    <string>Collaboration Tasks</string>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_20">
+                    <item>
+                     <widget class="QListWidget" name="lstwRobotROSCollaborationTasks">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>400</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -1377,7 +1496,7 @@ QGroupBox#gbRobotROSJnp::title {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1135</width>
+     <width>1188</width>
      <height>22</height>
     </rect>
    </property>

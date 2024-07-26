@@ -29,7 +29,7 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(1135, 1018)
+        MainWindow.resize(1188, 1018)
         MainWindow.setMinimumSize(QSize(0, 0))
         self.actionSave = QAction(MainWindow)
         self.actionSave.setObjectName(u"actionSave")
@@ -88,7 +88,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1095, 214))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1148, 214))
         self.horizontalLayout_3 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
@@ -133,7 +133,7 @@ class Ui_MainWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.lbWorldImage.sizePolicy().hasHeightForWidth())
         self.lbWorldImage.setSizePolicy(sizePolicy1)
-        self.lbWorldImage.setMinimumSize(QSize(300, 180))
+        self.lbWorldImage.setMinimumSize(QSize(300, 190))
         self.lbWorldImage.setStyleSheet(u"QLabel{\n"
 "    border: 1px solid 	darkgray;\n"
 "    background-color: #cccccc;\n"
@@ -495,6 +495,9 @@ class Ui_MainWindow(object):
 
         self.gbRobotROS = QGroupBox(self.frame_19)
         self.gbRobotROS.setObjectName(u"gbRobotROS")
+        sizePolicy3.setHeightForWidth(self.gbRobotROS.sizePolicy().hasHeightForWidth())
+        self.gbRobotROS.setSizePolicy(sizePolicy3)
+        self.gbRobotROS.setMinimumSize(QSize(350, 0))
         self.gbRobotROS.setStyleSheet(u"QGroupBox#gbRobotROS{\n"
 "    border: 1px solid 	darkgray;\n"
 "    background-color: #cccccc;\n"
@@ -528,7 +531,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 284, 560))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, -470, 323, 1030))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -780,9 +783,92 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_30.addWidget(self.gbRobotROSJnp)
 
-        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.gbRobotROSJnl = QGroupBox(self.frame_20)
+        self.gbRobotROSJnl.setObjectName(u"gbRobotROSJnl")
+        self.gbRobotROSJnl.setStyleSheet(u"QGroupBox#gbRobotROSJnl{\n"
+"    border: 1px solid 	darkgray;\n"
+"    margin-top: 15px;\n"
+"	padding-top: 15px;\n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QGroupBox#gbRobotROSJnl::title {\n"
+"    subcontrol-position: top left;\n"
+"    border: 1px solid white;\n"
+"    background-color: gray;\n"
+"    padding: 5px 15px 5px 15px;\n"
+"    top: -15px;\n"
+"	left: 20px;\n"
+"}")
+        self.verticalLayout_13 = QVBoxLayout(self.gbRobotROSJnl)
+        self.verticalLayout_13.setObjectName(u"verticalLayout_13")
+        self.cbROSJnlOptionsEnable = QCheckBox(self.gbRobotROSJnl)
+        self.cbROSJnlOptionsEnable.setObjectName(u"cbROSJnlOptionsEnable")
 
-        self.verticalLayout_30.addItem(self.verticalSpacer_3)
+        self.verticalLayout_13.addWidget(self.cbROSJnlOptionsEnable)
+
+
+        self.verticalLayout_30.addWidget(self.gbRobotROSJnl)
+
+        self.gbRobotROSI2IEnhancement = QGroupBox(self.frame_20)
+        self.gbRobotROSI2IEnhancement.setObjectName(u"gbRobotROSI2IEnhancement")
+        self.gbRobotROSI2IEnhancement.setStyleSheet(u"QGroupBox#gbRobotROSI2IEnhancement{\n"
+"    border: 1px solid 	darkgray;\n"
+"    margin-top: 15px;\n"
+"	padding-top: 15px;\n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QGroupBox#gbRobotROSI2IEnhancement::title {\n"
+"    subcontrol-position: top left;\n"
+"    border: 1px solid white;\n"
+"    background-color: gray;\n"
+"    padding: 5px 15px 5px 15px;\n"
+"    top: -15px;\n"
+"	left: 20px;\n"
+"}")
+        self.verticalLayout_16 = QVBoxLayout(self.gbRobotROSI2IEnhancement)
+        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
+        self.cbROSI2IOptionsEnable = QCheckBox(self.gbRobotROSI2IEnhancement)
+        self.cbROSI2IOptionsEnable.setObjectName(u"cbROSI2IOptionsEnable")
+
+        self.verticalLayout_16.addWidget(self.cbROSI2IOptionsEnable)
+
+
+        self.verticalLayout_30.addWidget(self.gbRobotROSI2IEnhancement)
+
+        self.gbRobotROSCollaborationTasks = QGroupBox(self.frame_20)
+        self.gbRobotROSCollaborationTasks.setObjectName(u"gbRobotROSCollaborationTasks")
+        sizePolicy.setHeightForWidth(self.gbRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
+        self.gbRobotROSCollaborationTasks.setSizePolicy(sizePolicy)
+        self.gbRobotROSCollaborationTasks.setMinimumSize(QSize(0, 0))
+        self.gbRobotROSCollaborationTasks.setStyleSheet(u"QGroupBox#gbRobotROSCollaborationTasks{\n"
+"    border: 1px solid 	darkgray;\n"
+"    margin-top: 15px;\n"
+"	padding-top: 15px;\n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QGroupBox#gbRobotROSCollaborationTasks::title {\n"
+"    subcontrol-position: top left;\n"
+"    border: 1px solid white;\n"
+"    background-color: gray;\n"
+"    padding: 5px 15px 5px 15px;\n"
+"    top: -15px;\n"
+"	left: 20px;\n"
+"}")
+        self.horizontalLayout_20 = QHBoxLayout(self.gbRobotROSCollaborationTasks)
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.lstwRobotROSCollaborationTasks = QListWidget(self.gbRobotROSCollaborationTasks)
+        self.lstwRobotROSCollaborationTasks.setObjectName(u"lstwRobotROSCollaborationTasks")
+        sizePolicy5.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
+        self.lstwRobotROSCollaborationTasks.setSizePolicy(sizePolicy5)
+        self.lstwRobotROSCollaborationTasks.setMinimumSize(QSize(0, 400))
+
+        self.horizontalLayout_20.addWidget(self.lstwRobotROSCollaborationTasks)
+
+
+        self.verticalLayout_30.addWidget(self.gbRobotROSCollaborationTasks)
 
 
         self.verticalLayout_21.addWidget(self.frame_20)
@@ -794,6 +880,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_29.addWidget(self.gbRobotROS)
 
+        self.horizontalLayout_29.setStretch(0, 1)
 
         self.verticalLayout.addWidget(self.frame_19)
 
@@ -840,7 +927,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1135, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1188, 22))
         self.menuFIle = QMenu(self.menubar)
         self.menuFIle.setObjectName(u"menuFIle")
         self.menuDB = QMenu(self.menubar)
@@ -899,6 +986,11 @@ class Ui_MainWindow(object):
         self.gbRobotROSJnp.setTitle(QCoreApplication.translate("MainWindow", u"Jnp", None))
         self.cbROSJnpOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
         self.cbROSJnpOptionTerminal.setText(QCoreApplication.translate("MainWindow", u"Run the script in terminal", None))
+        self.gbRobotROSJnl.setTitle(QCoreApplication.translate("MainWindow", u"Jnl", None))
+        self.cbROSJnlOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
+        self.gbRobotROSI2IEnhancement.setTitle(QCoreApplication.translate("MainWindow", u"I2I Enhancement", None))
+        self.cbROSI2IOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
+        self.gbRobotROSCollaborationTasks.setTitle(QCoreApplication.translate("MainWindow", u"Collaboration Tasks", None))
         self.btnStartSimulator.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.menuFIle.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuDB.setTitle(QCoreApplication.translate("MainWindow", u"DB", None))

@@ -19,6 +19,7 @@ from dlgROSNavigation import DialogNavigation
 from dlgROSRViz import DialogRViz
 # from dlgDBOpen import DialogDBOpen
 from widgetRobotItem import WidgetRobotItem
+from widgetROSCollaborationTaskItem import widgetROSCollaborationTaskItem
 import atexit
 from PySide6.QtGui import QPixmap
 import xml.etree.ElementTree as ET
@@ -55,6 +56,12 @@ PATH_DEFAULT_WORLDS_OTHER = "/usr/share/gazebo-11/worlds"
 NAME_BACKUP_WORLD = "backup_world"
 
 ICON_THUMBNAIL_NONE = "Resources/thumbnail/icon_noworld.png"
+ICON_THUMBNAIL_ROS_COLLABORATION_TASK_NONE = ""
+ICON_THUMBNAIL_ROS_COLLABORATION_TASK_RELAY = "Resources/thumbnail/CollaborationTask/icon_task_relay.png"
+ICON_THUMBNAIL_ROS_COLLABORATION_TASK_MOVE = "Resources/thumbnail/CollaborationTask/icon_task_move.png"
+ICON_THUMBNAIL_ROS_COLLABORATION_TASK_AVOIDANCE = "Resources/thumbnail/CollaborationTask/icon_task_avoidance.png"
+ICON_THUMBNAIL_ROS_COLLABORATION_TASK_SEARCH_FIND = "Resources/thumbnail/CollaborationTask/icon_task_search_find.png"
+ICON_THUMBNAIL_ROS_COLLABORATION_TASK_SEARCH_MAKE_MAP = "Resources/thumbnail/CollaborationTask/icon_task_search_make_map.png"
 
 FLOAT_COLOR_X_MIN = 0.0000001               # Minimum x value of random color
 FLOAT_COLOR_Y_MIN = 0.0000001               # Minimum y value of random color
@@ -74,6 +81,7 @@ class MainWindow(QtWidgets.QMainWindow):
     m_orgPersonColorJeans = []              # OrgPersonJeansColor x,y,z    
     m_exeSimulator = None                   # 현재 실핼중인 Gazebo Process
     m_arrJnpProcess = []                    # Jnp sub proecess
+    m_arrROSCollaborationTask = []          # ROS Collaboration Task
 
     # Init
     def __init__(self):
@@ -119,10 +127,31 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btnGroupROS.buttonToggled.connect(self.ROSRadioButtonItemSelected)
         self.ui.cbROSJnpOptionsEnable.stateChanged.connect(self.ToggleJnpWidgets)
         self.ui.cbROSJnpOptionTerminal.setVisible(False)
+        self.ui.gbRobotROSNavigation.setVisible(False)
+        self.ui.lstwRobotROSCollaborationTasks.itemSelectionChanged.connect(self.on_item_selection_changed_collaboration_task)
 
         # Set Default Init
-        # ROS = None
-        self.m_simulator.ros = ENUM_ROS_TYPE.NONE
+        # ROS Navigation = None
+        self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE
+        # ROS Collaboration = None
+        self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.NONE, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_NONE))
+        self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_RELAY))
+        self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.MOVE, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_MOVE))
+        self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_AVOIDANCE))
+        self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_SEARCH_FIND))
+        self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_SEARCH_MAKE_MAP))
+        for task in self.m_arrROSCollaborationTask:
+            # 협업 태스크 리스트에 위젯 추가
+            item = QtWidgets.QListWidgetItem(self.ui.lstwRobotROSCollaborationTasks)
+            self.ui.lstwRobotROSCollaborationTasks.addItem(item)
+            # 협업 태스크 리스트 생성
+            row = widgetROSCollaborationTaskItem()
+            item.setSizeHint(row.sizeHint())
+            # 리스트뷰에 협업 태스트 생성
+            row.AddCollaborationTask(task.type.value, task.thumbPath)
+            self.ui.lstwRobotROSCollaborationTasks.setItemWidget(item, row)
+        self.ui.lstwRobotROSCollaborationTasks.setCurrentRow(0)
+
         # World
         self.SetWorld()
 
@@ -369,11 +398,11 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write(CMD_COMMON_ENTER)
 
         ## ROS 정보 입력
-        if sim.ros == ENUM_ROS_TYPE.NONE:
+        if sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NONE:
             pass
-        elif sim.ros == ENUM_ROS_TYPE.SLAM:
+        elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.SLAM:
             pass
-        elif sim.ros == ENUM_ROS_TYPE.NAVIGATION:
+        elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NAVIGATION:
             # Navigation 정보 입력
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_ROS_NAVIGATION_COMMENT_START + CMD_COMMON_ENTER)
             # map_file
@@ -392,7 +421,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(0, robotCount):
             ## 분기 - ROS에 따른 조정
             # ROS 없음
-            if sim.ros == ENUM_ROS_TYPE.NONE:
+            if sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NONE:
                 ## 1. Locobot
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.LOCOBOT :
                     f.write(CMD_COMMON_SPACE_DOUBLE + CMD_LOCOBOT_COMMENT_START + CMD_COMMON_ENTER)
@@ -428,7 +457,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER :
                     f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_BURGER_COMMENT_START + CMD_COMMON_ENTER)
                     # Model names
-                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                     robotName = "\"" + robotName + "\""
                     f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
                     f.write(CMD_COMMON_ENTER)
@@ -436,7 +465,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     posX = sim.robots[i].startX
                     posY = sim.robots[i].startY
                     posZ = sim.robots[i].startZ
-                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                     sim.robots[i].name = robotName
                     robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X + "\""
                     robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y + "\""
@@ -471,7 +500,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE :
                     f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_WAFFLE_COMMENT_START + CMD_COMMON_ENTER)
                     # Model names
-                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                     robotName = "\"" + robotName + "\""
                     f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
                     f.write(CMD_COMMON_ENTER)
@@ -479,7 +508,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     posX = sim.robots[i].startX
                     posY = sim.robots[i].startY
                     posZ = sim.robots[i].startZ
-                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                    robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                     sim.robots[i].name = robotName
                     robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X + "\""
                     robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y + "\""
@@ -571,12 +600,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     continue
 
             # ROS SLAM
-            elif sim.ros == ENUM_ROS_TYPE.SLAM:
+            elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.SLAM:
                 pass                                                                                    # TODO
 
             # ROS Navigation
             # 동일 제조사의 모델일 때만 실행 되도록 해야 할 듯..?
-            elif sim.ros == ENUM_ROS_TYPE.NAVIGATION:
+            elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NAVIGATION:
                 ## 1. Locobot
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.LOCOBOT :
                     pass
@@ -691,7 +720,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # RViz                                                                                  
         # TODO : 이슈가 있다, RViz 자체는 현재 최대 2가지 로봇에 대해 설정해놓은 파일이 강제로 세팅 되어있다, RViz를 동적으로 만들수 있는 알고리즘 같은게 있어야 유동적 사용이 가능하다.
-        if sim.ros == ENUM_ROS_TYPE.NAVIGATION:
+        if sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NAVIGATION:
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_ROS_NAVIGATION_COMMONET_RVIZ_START + CMD_COMMON_ENTER)
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_IF + CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_OPEN_RVIZ + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
             f.write(CMD_COMMON_SPACE_FOUR + CMD_ROS_NAVIGATION_RVIZ_PKG + CMD_COMMON_ENTER)
@@ -856,7 +885,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if sim.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER :
                 f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_BURGER_COMMENT_START + CMD_COMMON_ENTER)
                 # Model names
-                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                 robotName = "\"" + robotName + "\""
                 f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
                 f.write(CMD_COMMON_ENTER)
@@ -864,7 +893,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 posX = sim.robots[i].startX
                 posY = sim.robots[i].startY
                 posZ = sim.robots[i].startZ
-                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                 sim.robots[i].name = robotName
                 robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X + "\""
                 robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y + "\""
@@ -899,7 +928,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if sim.robots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE :
                 f.write(CMD_COMMON_SPACE_DOUBLE + CMD_TURTLEBOT3_WAFFLE_COMMENT_START + CMD_COMMON_ENTER)
                 # Model names
-                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                 robotName = "\"" + robotName + "\""
                 f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
                 f.write(CMD_COMMON_ENTER)
@@ -907,7 +936,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 posX = sim.robots[i].startX
                 posY = sim.robots[i].startY
                 posZ = sim.robots[i].startZ
-                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + str(sim.robots[i].id)
+                robotName = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
                 sim.robots[i].name = robotName
                 robotNamePosX = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X + "\""
                 robotNamePosY = "\"" + robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y + "\""
@@ -1134,11 +1163,11 @@ class MainWindow(QtWidgets.QMainWindow):
     # 라디오 버튼 - ROS 선택
     def ROSRadioButtonItemSelected(self):
         if self.ui.rbROSNone.isChecked() == True:
-            self.m_simulator.ros = ENUM_ROS_TYPE.NONE
+            self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE
         elif self.ui.rbROSSlam.isChecked() == True:
-            self.m_simulator.ros = ENUM_ROS_TYPE.SLAM
+            self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.SLAM
         elif self.ui.rbROSNavigation.isChecked() == True:
-            self.m_simulator.ros = ENUM_ROS_TYPE.NAVIGATION
+            self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NAVIGATION
 
     # 로봇 추가
     def AddRobot(self):
@@ -2118,6 +2147,17 @@ class MainWindow(QtWidgets.QMainWindow):
         # dlg = DialogDBOpen()
         # dlg.showModal()
         pass
+
+    # Collaboration task 아이템 선택 이벤트
+    def on_item_selection_changed_collaboration_task(self):
+        # 선택된 아이템 가져오기
+        selected_items = self.ui.lstwRobotROSCollaborationTasks.selectedItems()
+        
+        if selected_items:
+            # 첫 번째 선택된 아이템만 처리 (다중 선택 허용 시)
+            item = selected_items[0]
+            row = self.ui.lstwRobotROSCollaborationTasks.row(item)  # 선택된 아이템의 인덱스(행 번호)
+            self.m_simulator.ros_collaboration = self.m_arrROSCollaborationTask[row].type
 
 # 메인 실행
 if __name__ == '__main__':

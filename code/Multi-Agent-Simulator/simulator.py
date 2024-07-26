@@ -14,6 +14,7 @@
 ########################################################
 
 from enum import Enum
+from dataclasses import dataclass
 
 ## CONST : Robot Thumb path & name ##
 CONST_LOCOBOT_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_locobot.png"
@@ -105,14 +106,23 @@ class ENUM_ROBOT_TYPE(Enum):
     INTERBOTIX = 4                          ## Type : Interbotix
 
 ## ENUM : ROS Type ##
-class ENUM_ROS_TYPE(Enum):
+class ENUM_ROS_NAVIGATION_TYPE(Enum):
     NONE = 0                                ## Type : None
     SLAM = 1                                ## Type : Slam
     NAVIGATION = 2                          ## Type : Navigation
 
 ## ENUM : ROS Slam Method Type ##
-class ENUM_ROS_SLAM_METHOD(Enum):
+class ENUM_ROS_NAVIGATION_SLAM_METHOD(Enum):
     GMAPPING = 0                            ## Type : Gmapping
+
+## ENUM : ROS Collaboration Task ##
+class ENUM_ROS_COLLABORATION_TASK_TYPE(Enum):
+    NONE = "None"
+    RELAY = "Relay"
+    MOVE = "다목적 이동"
+    AVOIDANCE = "충돌회피"
+    SEARCH_FIND = "분산 탐색(물건 찾기)"
+    SEARCH_MAKE_MAP = "분산 탐색(지도 제작)"
 
 ## Class : Thumbnail list
 class Thumb:
@@ -156,21 +166,28 @@ class Robot:
     startZ = 0                              ## Robot : Start Position Z (Default 0, Fixed...)
     option = Option()                       ## Robot : Robot options..
 
+## DataClass : ROS Collaboration task
+@dataclass
+class ROSCollaborationTask :
+    type : ENUM_ROS_COLLABORATION_TASK_TYPE
+    thumbPath : str
+
 ## Class : Worlds
 ## Class : Simulator
 class Simulator:
-    worldType = ENUM_WORLD.GAZEBO_DEFAULT                   ## 구버전 월드, 남겨둔 이유는 AWS 시리즈는 특수한 방법으로 빌드를 하여야 하기 때문에 트리거를 남겨둠(AWS사용시 사용하던 코드로 현재는 GAZEBO_DEFAULT만 사용)
-    worldFileType = ""                                      ## 월드 파일의 확장자 (.world or .model)
-    categoryMain = ENUM_WORLD_CATEGORY_MAIN.HOUSE_CAFE      ## 현재 선택된 World의 상위 카테고리
-    categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE              ## 현재 선택된 World의 하위 카테고리
-    robots = []                                             ## 사용할 로봇들
-    ros = ENUM_ROS_TYPE.NONE                                ## 사용할 ROS
-    launchFileName = ""                                     ## 현재 실행중인 launchFile의 이름
-    addedLunchFileNumber = 0                                ## 실행 이후 추가된 launchFile의 번호
+    worldType = ENUM_WORLD.GAZEBO_DEFAULT                       ## 구버전 월드, 남겨둔 이유는 AWS 시리즈는 특수한 방법으로 빌드를 하여야 하기 때문에 트리거를 남겨둠(AWS사용시 사용하던 코드로 현재는 GAZEBO_DEFAULT만 사용)
+    worldFileType = ""                                          ## 월드 파일의 확장자 (.world or .model)
+    categoryMain = ENUM_WORLD_CATEGORY_MAIN.HOUSE_CAFE          ## 현재 선택된 World의 상위 카테고리
+    categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE                  ## 현재 선택된 World의 하위 카테고리
+    robots = []                                                 ## 사용할 로봇들
+    ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE              ## 사용할 ROS Navigation 타입
+    ros_collaboration = ENUM_ROS_COLLABORATION_TASK_TYPE.NONE   ## 사용할 ROS Collaboration 타입
+    launchFileName = ""                                         ## 현재 실행중인 launchFile의 이름
+    addedLunchFileNumber = 0                                    ## 실행 이후 추가된 launchFile의 번호
     def __init__(self):
         self.worldType = ENUM_WORLD.GAZEBO_DEFAULT
         self.worldFileType = ".world"
         self.categoryMain = ENUM_WORLD_CATEGORY_MAIN.HOUSE_CAFE
         self.categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE 
         self.robots = []
-        self.ros = ENUM_ROS_TYPE.NONE
+        self.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE
