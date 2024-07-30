@@ -399,25 +399,25 @@
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <joint name="caster_back_left_joint" type="fixed">
+  <joint name="caster_back_left_joint" type="continuous">
     <parent link="0_Base_body_link"/>
     <child link="caster_back_left_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <joint name="caster_back_right_joint" type="fixed">
+  <joint name="caster_back_right_joint" type="continuous">
     <parent link="0_Base_body_link"/>
     <child link="caster_back_right_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <joint name="caster_front_left_joint" type="fixed">
+  <joint name="caster_front_left_joint" type="continuous">
     <parent link="0_Base_body_link"/>
     <child link="caster_front_left_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <joint name="caster_front_right_joint" type="fixed">
+  <joint name="caster_front_right_joint" type="continuous">
     <parent link="0_Base_body_link"/>
     <child link="caster_front_right_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="1.5708 0 0"/>
@@ -471,13 +471,13 @@
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <joint name="wheel_l_joint" type="fixed">
+  <joint name="wheel_l_joint" type="continuous">
     <parent link="0_Base_body_link"/>
     <child link="wheel_L_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
   </joint>
 
-  <joint name="wheel_r_joint" type="fixed">
+  <joint name="wheel_r_joint" type="continuous">
     <parent link="0_Base_body_link"/>
     <child link="wheel_R_link"/>
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
@@ -488,33 +488,25 @@
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so"/>
   </gazebo>
 
-  <gazebo>
-    <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">
-      <joint_name>wheel_l_joint</joint_name>
-      <joint_name>wheel_r_joint</joint_name>
-      <updateRate>100</updateRate>
-    </plugin>
-
-    <plugin name="base_controller" filename="libgazebo_ros_diff_drive.so">
-      <commandTopic>cmd_vel</commandTopic>
-      <odometryTopic>robot/odom</odometryTopic>
-      <odometryFrame>odom</odometryFrame>
-      <odometrySource>world</odometrySource>
-      <publishOdomTF>true</publishOdomTF>
-      <robotBaseFrame>0_Base_body_link</robotBaseFrame>
-      <publishWheelTF>false</publishWheelTF>
-      <publishTf>true</publishTf>
-      <publishWheelJointState>true</publishWheelJointState>
-      <legacyMode>false</legacyMode>
-      <updateRate>30</updateRate>
-      <leftJoint>wheel_l_joint</leftJoint>
-      <rightJoint>wheel_r_joint</rightJoint>
-      <wheelSeparation>0.347</wheelSeparation>
-      <wheelDiameter>0.130</wheelDiameter>
-      <wheelAcceleration>1</wheelAcceleration>
-      <wheelTorque>10</wheelTorque>
-      <rosDebugLevel>na</rosDebugLevel>
-    </plugin>
-  </gazebo>
+<gazebo>
+  <plugin name="gazebo_ros_diff_drive" filename="libgazebo_ros_diff_drive.so">
+    <commandTopic>cmd_vel</commandTopic>
+    <odometryTopic>odom</odometryTopic>
+    <odometryFrame>odom</odometryFrame>
+    <robotBaseFrame>base_link</robotBaseFrame>
+    <publishOdomTF>true</publishOdomTF>
+    <publishWheelTF>false</publishWheelTF>
+    <publishTf>true</publishTf>
+    <publishWheelJointState>true</publishWheelJointState>
+    <legacyMode>false</legacyMode>
+    <updateRate>30</updateRate>
+    <leftJoint>wheel_L_joint</leftJoint>
+    <rightJoint>wheel_R_joint</rightJoint>
+    <wheelSeparation>0.347</wheelSeparation>
+    <wheelDiameter>0.130</wheelDiameter>
+    <wheelAcceleration>1</wheelAcceleration>
+    <wheelTorque>10</wheelTorque>
+  </plugin>
+</gazebo>
 </robot>
 

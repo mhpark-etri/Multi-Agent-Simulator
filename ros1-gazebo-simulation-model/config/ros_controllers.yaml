@@ -8,8 +8,8 @@ controller_manager:
         publish_rate: 50
         wheel_separation: 0.34
         wheel_radius: 0.1
-        left_wheel: 'left_wheel_joint'
-        right_wheel: 'right_wheel_joint'
+        left_wheel: 'wheel_l_joint'
+        right_wheel: 'wheel_r_joint'
         cmd_vel_timeout: 0.25
         publish_tf: true
         velocity_rolling_window_size: 2
