@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Run the map server -->
+  <arg name="map_file" default="$(find navigation_tools)/maps/wj.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!--- Run AMCL -->
+  <include file="$(find navigation_tools)/launch/amcl.launch" />
+
+  <!--- Run Move Base -->
+  <include file="$(find navigation_tools)/launch/move_base.launch" />
+
+</launch>

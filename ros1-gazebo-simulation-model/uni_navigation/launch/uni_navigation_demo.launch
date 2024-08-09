@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<launch>
+  <param name="/use_sim_time" value="true" />
+  <!-- Run the map server -->
+  <arg name="map_file" default="$(find uni_navigation)/maps/hd_world.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+  
+  <!--- Run AMCL -->
+  <include file="$(find uni_navigation)/launch/amcl.launch" />
+
+  <!--- Run Move Base -->
+  <include file="$(find uni_navigation)/launch/move_base.launch" />
+
+  <!-- Run Rviz configuration -->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find uni_navigation)/rviz/base_navigation.rviz" />
+
+</launch>

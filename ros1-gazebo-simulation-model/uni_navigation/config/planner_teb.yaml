@@ -1,0 +1,114 @@
+controller_frequency: 5.0
+recovery_behaviour_enabled: true
+
+NavfnROS:
+ allow_unknown: true # Specifies whether or not to allow navfn to create plans that traverse unknown space.
+ default_tolerance: 0.1 # A tolerance on the goal point for the planner.
+
+TebLocalPlannerROS:
+ odom_topic: /robot/odom
+ map_frame: /odom
+ # Trajectory
+ teb_autosize: True
+ dt_ref: 0.4
+ dt_hysteresis: 0.04
+ global_plan_overwrite_orientation: True
+ allow_init_with_backwards_motion: False
+ max_global_plan_lookahead_dist: 3.0
+ feasibility_check_no_poses: 3
+ force_reinit_new_goal_dist: 2.0
+ force_reinit_new_goal_angular: 0.5
+ #min_samples: 3
+ #max_samples: 10 
+ # Robot
+         
+ max_vel_x: 0.7
+ max_vel_x_backwards: 0.7
+ max_vel_theta: 1.5 #1.1
+ acc_lim_x: 0.1 #0.1
+ acc_lim_theta: 0.5 #0.4
+ min_turning_radius: 0.0
+ is_footprint_dynamic: true
+ footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
+   type: "circular"
+   #type: "polygon"
+   radius: 0.25 # for type "circular"
+   line_start: [-0.3, 0.0] # for type "line"
+   line_end: [0.3, 0.0] # for type "line"
+   front_offset: 0.2 # for type "two_circles"
+   front_radius: 0.2 # for type "two_circles"
+   rear_offset: 0.2 # for type "two_circles"
+   rear_radius: 0.2 # for type "two_circles"
+   vertices: [[-0.3, -0.3], [-0.3, 0.3], [0.3, 0.3], [0.3, -0.3]]
+ # for type "polygon"
+
+ # GoalTolerance
+    
+ xy_goal_tolerance: 0.3
+ yaw_goal_tolerance: 0.1 #0.1
+ free_goal_vel: False
+    
+ # Obstacles
+    
+ min_obstacle_dist: 0.2
+ inflation_dist: 0.5
+ dynamic_obstacle_inflation_dist: 0.5
+ include_dynamic_obstacles: True
+ include_costmap_obstacles: True
+ costmap_obstacles_behind_robot_dist: 0.15
+ obstacle_poses_affected: 10 #30
+ obstacle_proximity_ratio_max_vel: 0.5
+ obstacle_proximity_lower_bound: 0.1
+ obstacle_proximity_upper_bound: 0.5
+ obstacle_association_force_inclusion_factor: 2.0
+ obstacle_association_cutoff_factor: 0.85
+
+ # Optimization
+    
+ no_inner_iterations: 5 #5
+ no_outer_iterations: 4 #4
+ optimization_activate: True
+ optimization_verbose: False
+ penalty_epsilon: 0.01
+ weight_max_vel_x: 2
+ weight_max_vel_theta: 5
+ weight_acc_lim_x: 1.0
+ weight_acc_lim_theta: 1.0
+ weight_kinematics_nh: 7000  #7000
+ weight_kinematics_forward_drive: 500 #200
+ weight_kinematics_turning_radius: 0
+ weight_optimaltime: 1
+ weight_shortest_path: 0
+ weight_obstacle: 40 #50
+ weight_inflation: 5
+ weight_viapoint: 5 #10
+ weight_dynamic_obstacle: 40
+ weight_dynamic_obstacle_inflation: 5
+
+ weight_velocity_obstacle_ratio: 1.0
+ obstacle_cost_exponent: 0.8
+ # alternative_time_cost: True # not in use yet
+
+ # Homotopy Class Planner
+
+ enable_homotopy_class_planning: True
+ enable_multithreading: False
+ simple_exploration: False
+ max_number_classes: 2
+ max_number_plans_in_current_class: 2
+ selection_cost_hysteresis: 1.0
+ selection_prefer_initial_plan: 0.6
+ selection_obst_cost_scale: 1
+ selection_viapoint_cost_scale: 1.0
+ selection_alternative_time_cost: False
+ selection_dropping_probability: 0.05
+ switching_blocking_period: 1.0
+ roadmap_graph_no_samples: 15
+ roadmap_graph_area_width: 5
+ h_signature_prescaler: 0.5
+ h_signature_threshold: 0.2
+ obstacle_keypoint_offset: 0.005
+ obstacle_heading_threshold: 0.3 # 0.45
+ visualize_hc_graph: False
+
+ global_plan_viapoint_sep: 0.5
