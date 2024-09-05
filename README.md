@@ -73,7 +73,7 @@ rm -r /root/catkin_ws_jnp/build /root/catkin_ws_jnp/devel
 cd /root/catkin_ws_jnp
 catkin_make
 ```
-
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
 <br><br>
 
 ### 4.3 ketg_ai_bot_platform 설치
