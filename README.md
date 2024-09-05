@@ -77,7 +77,7 @@ catkin_make
 <br><br>
 
 ### 4.3 ketg_ai_bot_platform 설치
-## 4.3.1 uni_description 설치
+#### 4.3.1 uni_description 설치
 - 아래의 명령어를 차례대로 입력
 ```
 rm -r /root/catkin_ws_ai_bot/build /root/catkin_ws_ai_bot/devel
@@ -87,7 +87,7 @@ catkin_make
 <img src="https://github.com/user-attachments/assets/d13f42ab-88ec-4733-b78e-03302dfc3174" width="50%" height="50%"/>
 <br><br>
 
-## 4.3.2. uni_gazebo 설치
+#### 4.3.2. uni_gazebo 설치
 - 아래의 명령어를 차례대로 입력
 ```
 rm -r /root/catkin_ws_ai_bot_gazebo/build /root/catkin_ws_ai_bot_gazebo/devel
