@@ -65,8 +65,14 @@ source init.sh
 sudo docker start -i ct_mas
 ```
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/641dd3a6-f908-4120-be77-02f07c291f39" width="50%" height="50%"/>
-<br>
-<br>
+<br><br>
+
+- docker 접속 후에 아래의 명령어를 차례대로 입력하여 jnp make 실행
+```
+rm -r /root/catkin_ws_jnp/build /root/catkin_ws_jnp/devel
+cd /root/catkin_ws_jnp
+catkin_make
+```
 
 <br><br>
 
