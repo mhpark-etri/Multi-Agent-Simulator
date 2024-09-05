@@ -101,3 +101,5 @@ COPY init.sh /root/tesla/
 COPY xslocobot_amd64_install4.sh /root/tesla/
 RUN sudo mkdir -p /root/tesla/jnp
 COPY jnp /root/tesla/jnp/
+RUN sudo mkdir -p /root/tesla/robots
+COPY robots /root/tesla/robots

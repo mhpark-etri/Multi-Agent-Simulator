@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>uni_description</name>
+  <version>1.0.0</version>
+  <description>Launch packages for mapping and navigation</description>
+
+  <maintainer email="jinsol.kim@ketg.co.kr">jinsol kim</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roslaunch</build_depend>
+  <exec_depend>amcl</exec_depend>
+  <exec_depend>gmapping</exec_depend>
+  <exec_depend>map_server</exec_depend>
+  <exec_depend>move_base</exec_depend>
+  <exec_depend>navfn</exec_depend>
+  <exec_depend>base_local_planner</exec_depend>
+  <exec_depend>dwa_local_planner</exec_depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

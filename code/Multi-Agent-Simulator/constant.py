@@ -48,6 +48,10 @@ CMD_COMMON_CLOSE_INCLUDE="</include>"                                           
 CMD_COMMON_TRUE = "true"                                                                                    # Word : true
 CMD_COMMON_FALSE = "false"                                                                                  # Word : false
 CMD_COMMON_UNDERBAR = "_"                                                                                   # _
+CMD_COMMON_X = "-x"
+CMD_COMMON_Y = "-y"
+CMD_COMMON_Z = "-z"
+CMD_COMMON_MODEL = "-model"
 
 ## World ##  
 ## "World는 옵션등이 반고정 형태이고 또한 현재 옵션을 사용하기 않기 때문에 전체 문장을 입력해 놓고 상황에 따라 사용한다" ##
@@ -239,6 +243,19 @@ CMD_INTERBOTIX_INCLUDE_FILE_XSLOCOBOT_DESCRIPTION_CLOSE = "\"/>\n  </include>"
 CMD_INTERBOTIX_NODE_URDF_SPAWNER_OPEN = "<node\n    name=\"urdf_spawner\"\n    pkg=\"gazebo_ros\"\n    type=\"spawn_model\"\n    respawn=\"false\"\n    output=\"screen\"\n    ns=\""
 CMD_INTERBOTIX_NODE_URDF_SPAWNER_MIDDLE = "\"\n\t  args=\"-urdf -model "
 CMD_INTERBOTIX_NODE_URDF_SPAWNER_CLOSE = " -param robot_description\"/>"
+
+## uni
+CMD_UNI_MODEL_NAME = "uni_base" 
+CMD_UNI_DEFAULT_NAME = "uni"
+CMD_UNI_COMMENT_START = "<!-- #### UNI050_BASE #### -->"
+CMD_UNI_COMMENT_END = "<!-- #### UNI050_BASE End #### -->"
+CMD_UNI_DEFAULT_NAME_POSITION_X = "_x_pos"
+CMD_UNI_DEFAULT_NAME_POSITION_Y = "_y_pos"
+CMD_UNI_DEFAULT_NAME_POSITION_Z = "_z_pos"
+CMD_UNI_PARAM_NAME_ROBOT_DESCRIPTION = "<param name=\"robot_description\" command=\"$(find xacro)/xacro --inorder $(find uni_description)/urdf/uni_base.urdf.xacro\" />"
+CMD_UNI_NODE_PKG_ROBOT_STATE_PUBLISHER = "<node name=\"robot_state_publisher\" pkg=\"robot_state_publisher\" type=\"robot_state_publisher\" />"
+CMD_UNI_NODE_PKG_SPAWN_MODEL_OPEN = "<node pkg=\"gazebo_ros\" type=\"spawn_model\" name=\"spawn_urdf\" args=\"-urdf"
+CMD_UNI_NODE_PKG_SPAWN_MODEL_CLOSE = "-param robot_description\" />"
 
 ###############################
 ############# ROS #############

@@ -48,6 +48,10 @@ class WidgetRobotItem(QtWidgets.QWidget):
         thumb.thumbPath = CONST_INTERBOTIX_PATH
         thumb.thumbName = CONST_INTERBOTIX_NAME
         self.lstThumbs.append(thumb)  
+        thumb = Thumb()
+        thumb.thumbPath = CONST_UNI_PATH
+        thumb.thumbName = CONST_UNI_NAME
+        self.lstThumbs.append(thumb)  
 
         # Set thumb image and robot name
         pixmap = QtGui.QPixmap(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbPath))
@@ -58,7 +62,6 @@ class WidgetRobotItem(QtWidgets.QWidget):
     def ChangeCurrentThumbIdx(self, idx):
         self.m_nCurrentThumbIdx = idx
         self.SetThumbAndName()
-
 
     # 썸네일 이미지 변경 (왼쪽)
     def ChangeRobotToLeft(self):

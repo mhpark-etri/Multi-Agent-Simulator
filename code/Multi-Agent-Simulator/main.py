@@ -41,6 +41,7 @@ PATH_SOURCE_WAREHOUSE = "source /root/tesla/models/aws-robomaker-small-warehouse
 PATH_SOURCE_HOSPITAL = "source /root/tesla/models/aws-robomaker-hospital-world-ros1/install/setup.sh"
 PATH_SOURCE_SMALL_HOUSE = "source /root/tesla/models/aws-robomaker-small-house-world-ros1/install/setup.sh"
 PATH_SOURCE_BOOK_STORE = "source /root/tesla/models/aws-robomaker-bookstore-world-ros1/install/setup.sh"
+PATH_SOURCE_UNI = "source /root/catkin_ws_ai_bot/devel/setup.sh"
 MAX_MODEL_COUNT_ROBOT = 5  # Max robot model count
 MAX_MODEL_COUNT_PERSON = 3 # Max person model count
 PATH_SOURCE_JNP_SETUP = "source /root/catkin_ws_jnp/devel/setup.sh"
@@ -151,6 +152,22 @@ class MainWindow(QtWidgets.QMainWindow):
             row.AddCollaborationTask(task.type.value, task.thumbPath)
             self.ui.lstwRobotROSCollaborationTasks.setItemWidget(item, row)
         self.ui.lstwRobotROSCollaborationTasks.setCurrentRow(0)
+
+        # ROS - Teleop - 현재는 Disable - 이유 : 어떤 모델은 되고 어떤 모델은 안되기 때문에 일단 전체 블럭
+        self.ui.btnROSTeleop.setDisabled(True)
+        self.ui.btnROSTeleop.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;  /* 기본 스타일 */
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            QPushButton:disabled {
+                background-color: #A9A9A9;  /* 비활성화 시 배경색 */
+                color: #808080;  /* 비활성화 시 텍스트 색 */
+            }
+        """)
 
         # World
         self.SetWorld()
@@ -263,16 +280,21 @@ class MainWindow(QtWidgets.QMainWindow):
         f = open(tmpFile, 'w+')
         f.write("#!/bin/bash" + CMD_COMMON_ENTER)
         cmdLine = ""
+
         # world model 설정
         # AWS Robomaker의 world 설정 부분 이므로 현재는 사실상 사용하지 않음
-        if self.m_simulator.worldType == ENUM_WORLD.WAREHOUSE :
-            cmdLine  = PATH_SOURCE_WAREHOUSE
-        elif self.m_simulator.worldType == ENUM_WORLD.HOSPITAL :
-            cmdLine = PATH_SOURCE_HOSPITAL
-        elif self.m_simulator.worldType == ENUM_WORLD.SMALLHOUSE :
-            cmdLine = PATH_SOURCE_SMALL_HOUSE   
-        elif self.m_simulator.worldType == ENUM_WORLD.BOOK_STORE :
-            cmdLine = PATH_SOURCE_BOOK_STORE
+        # if self.m_simulator.worldType == ENUM_WORLD.WAREHOUSE :
+        #     cmdLine  = PATH_SOURCE_WAREHOUSE
+        # elif self.m_simulator.worldType == ENUM_WORLD.HOSPITAL :
+        #     cmdLine = PATH_SOURCE_HOSPITAL
+        # elif self.m_simulator.worldType == ENUM_WORLD.SMALLHOUSE :
+        #     cmdLine = PATH_SOURCE_SMALL_HOUSE   
+        # elif self.m_simulator.worldType == ENUM_WORLD.BOOK_STORE :
+        #     cmdLine = PATH_SOURCE_BOOK_STORE
+        
+        # UNI050_BASE source 지정
+        cmdLine = PATH_SOURCE_UNI
+        
         f.write(cmdLine + CMD_COMMON_ENTER)
 
         f.write("roslaunch " + launchFile)
@@ -599,6 +621,51 @@ class MainWindow(QtWidgets.QMainWindow):
                     f.write(CMD_COMMON_ENTER)
                     continue
 
+                ## 6. UNI050_BASE
+                if sim.robots[i].type == ENUM_ROBOT_TYPE.UNI050_BASE :
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_UNI_COMMENT_START + CMD_COMMON_ENTER)
+                    # Model names
+                    robotName = CMD_UNI_DEFAULT_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
+                    robotName = "\"" + robotName + "\""
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_ENTER)
+                    # Model Position
+                    posX = sim.robots[i].startX
+                    posY = sim.robots[i].startY
+                    posZ = sim.robots[i].startZ
+                    robotName = CMD_UNI_DEFAULT_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
+                    sim.robots[i].name = robotName
+                    robotNamePosX = "\"" + robotName + CMD_UNI_DEFAULT_NAME_POSITION_X + "\""
+                    robotNamePosY = "\"" + robotName + CMD_UNI_DEFAULT_NAME_POSITION_Y + "\""
+                    robotNamePosZ = "\"" + robotName + CMD_UNI_DEFAULT_NAME_POSITION_Z + "\""
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosX + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posX) + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosY + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posY) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosZ + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posZ) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_ENTER)
+                    # Group
+                    robotNameRef = CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_NS + robotNameRef + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
+                    # robot_description
+                    f.write(CMD_COMMON_SPACE_FOUR + CMD_UNI_PARAM_NAME_ROBOT_DESCRIPTION + CMD_COMMON_ENTER)
+                    # robot_state_publisher
+                    f.write(CMD_COMMON_SPACE_FOUR + CMD_UNI_NODE_PKG_ROBOT_STATE_PUBLISHER + CMD_COMMON_ENTER)
+                    # spawn_model
+                    robotNamePosX = robotName + CMD_UNI_DEFAULT_NAME_POSITION_X
+                    robotNamePosY = robotName + CMD_UNI_DEFAULT_NAME_POSITION_Y
+                    robotNamePosZ = robotName + CMD_UNI_DEFAULT_NAME_POSITION_Z
+                    f.write(CMD_COMMON_SPACE_FOUR + CMD_UNI_NODE_PKG_SPAWN_MODEL_OPEN + CMD_COMMON_SPACE + 
+                            CMD_COMMON_MODEL + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE + 
+                            CMD_COMMON_X + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotNamePosX + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE + 
+                            CMD_COMMON_Y + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotNamePosY + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE +
+                            CMD_COMMON_Z + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotNamePosZ + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE +
+                            CMD_UNI_NODE_PKG_SPAWN_MODEL_CLOSE + CMD_COMMON_ENTER)
+                    # Group - close
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                    # UNI050_BASE end
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_UNI_COMMENT_END + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_ENTER)
+                    continue          
+
             # ROS SLAM
             elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.SLAM:
                 pass                                                                                    # TODO
@@ -768,6 +835,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     robot.type = ENUM_ROBOT_TYPE.INTERBOTIX
                     robot.id = lstRobots[idx].id
                     arrInterbotixRobotIndex.append(robot.id)
+                elif widget.ui.lbRobotName.text() == CONST_UNI_NAME:
+                    robot.type = ENUM_ROBOT_TYPE.UNI050_BASE
+                    robot.id = lstRobots[idx].id
 
                 robot.startX = lstRobots[idx].startX
                 robot.startY = lstRobots[idx].startY
@@ -1026,6 +1096,50 @@ class MainWindow(QtWidgets.QMainWindow):
                 f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_COMMENT_END + CMD_COMMON_ENTER)
                 f.write(CMD_COMMON_ENTER)
                 continue
+            ## 6. UNI050_BASE
+            if sim.robots[i].type == ENUM_ROBOT_TYPE.UNI050_BASE :
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_UNI_COMMENT_START + CMD_COMMON_ENTER)
+                # Model names
+                robotName = CMD_UNI_DEFAULT_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
+                robotName = "\"" + robotName + "\""
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # Model Position
+                posX = sim.robots[i].startX
+                posY = sim.robots[i].startY
+                posZ = sim.robots[i].startZ
+                robotName = CMD_UNI_DEFAULT_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
+                sim.robots[i].name = robotName
+                robotNamePosX = "\"" + robotName + CMD_UNI_DEFAULT_NAME_POSITION_X + "\""
+                robotNamePosY = "\"" + robotName + CMD_UNI_DEFAULT_NAME_POSITION_Y + "\""
+                robotNamePosZ = "\"" + robotName + CMD_UNI_DEFAULT_NAME_POSITION_Z + "\""
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosX + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posX) + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosY + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posY) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosZ + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posZ) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                # Group
+                robotNameRef = CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_NS + robotNameRef + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
+                # robot_description
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_UNI_PARAM_NAME_ROBOT_DESCRIPTION + CMD_COMMON_ENTER)
+                # robot_state_publisher
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_UNI_NODE_PKG_ROBOT_STATE_PUBLISHER + CMD_COMMON_ENTER)
+                # spawn_model
+                robotNamePosX = robotName + CMD_UNI_DEFAULT_NAME_POSITION_X
+                robotNamePosY = robotName + CMD_UNI_DEFAULT_NAME_POSITION_Y
+                robotNamePosZ = robotName + CMD_UNI_DEFAULT_NAME_POSITION_Z
+                f.write(CMD_COMMON_SPACE_FOUR + CMD_UNI_NODE_PKG_SPAWN_MODEL_OPEN + CMD_COMMON_SPACE + 
+                        CMD_COMMON_MODEL + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE + 
+                        CMD_COMMON_X + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotNamePosX + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE + 
+                        CMD_COMMON_Y + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotNamePosY + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE +
+                        CMD_COMMON_Z + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotNamePosZ + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE +
+                        CMD_UNI_NODE_PKG_SPAWN_MODEL_CLOSE + CMD_COMMON_ENTER)
+                # Group - close
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                # UNI050_BASE end
+                f.write(CMD_COMMON_SPACE_DOUBLE + CMD_UNI_COMMENT_END + CMD_COMMON_ENTER)
+                f.write(CMD_COMMON_ENTER)
+                continue     
 
         # </Launch>
         f.write(CMD_COMMON_CLOSE_LAUNCH)
@@ -1036,6 +1150,10 @@ class MainWindow(QtWidgets.QMainWindow):
         tmpFile = PATH_SYSTEM_ROOT + "/shelltemp.sh"
         f = open(tmpFile, 'w+')
         f.write("#!/bin/bash" + CMD_COMMON_ENTER)
+        cmdLine = ""
+        # UNI050_BASE source 지정
+        cmdLine = PATH_SOURCE_UNI
+        f.write(cmdLine + CMD_COMMON_ENTER)
         f.write("roslaunch " + launchFile)
         f.close
         # Executable 권한 설정
@@ -1927,6 +2045,7 @@ class MainWindow(QtWidgets.QMainWindow):
         idxTurtlebot3Waffle = 0
         idxJetbot = 0
         idxInterbotix = 0
+        idxUni = 0
         for idx in range(self.ui.lstwRobots.count()):
             item = self.ui.lstwRobots.item(idx)
             widget = self.ui.lstwRobots.itemWidget(item)
@@ -1954,6 +2073,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 robot.type = ENUM_ROBOT_TYPE.INTERBOTIX
                 robot.id = idxInterbotix
                 idxInterbotix = idxInterbotix + 1
+            elif widget.ui.lbRobotName.text() == CONST_UNI_NAME:
+                robot.type = ENUM_ROBOT_TYPE.UNI050_BASE
+                robot.id = idxUni
+                idxUni = idxUni + 1         
 
             # TODO : Check starting position 현재 버전에선 일단 로봇의 위치는 미리 지정된 고정 위치로 지정한다
             lastPosOffset = 0.5
@@ -2165,3 +2288,4 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     app.exec()
+

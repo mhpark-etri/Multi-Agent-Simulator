@@ -17,16 +17,18 @@ from enum import Enum
 from dataclasses import dataclass
 
 ## CONST : Robot Thumb path & name ##
-CONST_LOCOBOT_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_locobot.png"
+CONST_LOCOBOT_PATH = "Resources/thumbnail/icon_thumb_robot_locobot.png"
 CONST_LOCOBOT_NAME = "LoCoBot"
-CONST_TURTLEBOT3_BURGER_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_turtlebot_burger.png"
+CONST_TURTLEBOT3_BURGER_PATH = "Resources/thumbnail/icon_thumb_robot_turtlebot_burger.png"
 CONST_TURTLEBOT3_BUTGER_NAME = "Turtlebot3 - Burger"
-CONST_TURTLEBOT3_WAFFLE_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_turtlebot_waffle.png"
+CONST_TURTLEBOT3_WAFFLE_PATH = "Resources/thumbnail/icon_thumb_robot_turtlebot_waffle.png"
 CONST_TURTLEBOT3_WAFFLE_NAME = "Turtlebot3 - Waffle"
 CONST_JETBOT_PATH = ""
 CONST_JETBOT_NAME = "Jetbot"
-CONST_INTERBOTIX_PATH = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_interbotix_wx250s.png"
+CONST_INTERBOTIX_PATH = "Resources/thumbnail/icon_thumb_robot_interbotix_wx250s.png"
 CONST_INTERBOTIX_NAME = "Locobot - wx250s"
+CONST_UNI_PATH = "Resources/thumbnail/icon_thumb_robot_uni.png"
+CONST_UNI_NAME = "UNI050_BASE"
 
 # extention
 CONST_EXTENTION_WORLD = ".world"
@@ -104,6 +106,7 @@ class ENUM_ROBOT_TYPE(Enum):
     TURTLEBOT3_WAFFLE = 2                   ## Type : Turtlebot3 Waffle
     JETBOT = 3                              ## Type : Jetbot
     INTERBOTIX = 4                          ## Type : Interbotix
+    UNI050_BASE = 5                         ## Type : UNI050_BASE
 
 ## ENUM : ROS Type ##
 class ENUM_ROS_NAVIGATION_TYPE(Enum):
