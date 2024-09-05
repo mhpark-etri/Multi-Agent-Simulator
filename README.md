@@ -67,13 +67,7 @@ sudo docker start -i ct_mas
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/641dd3a6-f908-4120-be77-02f07c291f39" width="50%" height="50%"/>
 <br>
 <br>
-- docker 접속 후에 아래의 명령어를 차례대로 입력하여 Jnp make 실행
-```bash
-rm -r /root/catkin_ws_jnp/build /root/catkin_ws_jnp/devel
-cd /root/catkin_ws_jnp
-catkin_make
-```
-<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
+
 <br><br>
 
 ### 4.3 ketg_ai_bot_platform 설치
@@ -84,7 +78,7 @@ rm -r /root/catkin_ws_ai_bot/build /root/catkin_ws_ai_bot/devel
 cd /root/catkin_ws_ai_bot
 catkin_make
 ```
-<img src="https://github.com/user-attachments/assets/c27ba804-6730-4940-a2c6-b37a0d1b573e" width="50%" height="50%"/>
+<img src="https://github.com/user-attachments/assets/d13f42ab-88ec-4733-b78e-03302dfc3174" width="50%" height="50%"/>
 <br><br>
 
 ## 4.3.2. uni_gazebo 설치
@@ -94,7 +88,7 @@ rm -r /root/catkin_ws_ai_bot_gazebo/build /root/catkin_ws_ai_bot_gazebo/devel
 cd /root/catkin_ws_ai_bot_gazebo
 catkin_make
 ```
-<img src="https://github.com/user-attachments/assets/ce4a13a7-ee82-4a82-bd0e-516d13f5fafb" width="50%" height="50%"/>
+<img src="https://github.com/user-attachments/assets/c56bb392-e3c5-4824-9d17-8b75584a9af7" width="50%" height="50%"/>
 <br><br>
 
 ---
