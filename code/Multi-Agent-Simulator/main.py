@@ -83,6 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):
     m_exeSimulator = None                   # 현재 실핼중인 Gazebo Process
     m_arrJnpProcess = []                    # Jnp sub proecess
     m_arrROSCollaborationTask = []          # ROS Collaboration Task
+    m_prevSelectedCollaborationTask = 0     # 이전 선택된 협업태스크 작업 목록
 
     # Init
     def __init__(self):
@@ -119,7 +120,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # ROS
         self.ui.btnROSTeleop.clicked.connect(self.StartTeleopDialog)
         self.ui.btnROSSlamEdit.clicked.connect(self.StartSlamDialog)
-        self.ui.btnROSNavigationEdit.clicked.connect(self.StartNavigationDilaog)
+        self.ui.btnROSNavigationEdit.clicked.connect(self.OpenCollaborationSettingDialog)
         self.btnGroupROS = QtWidgets.QButtonGroup()
         self.btnGroupROS.setExclusive(True)
         self.btnGroupROS.addButton(self.ui.rbROSNone)
@@ -129,11 +130,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.cbROSJnpOptionsEnable.stateChanged.connect(self.ToggleJnpWidgets)
         self.ui.cbROSJnpOptionTerminal.setVisible(False)
         self.ui.gbRobotROSNavigation.setVisible(False)
+        self.ui.gbRobotROSJnl.setVisible(False)
+        self.ui.gbRobotROSI2IEnhancement.setVisible(False)
         self.ui.lstwRobotROSCollaborationTasks.itemSelectionChanged.connect(self.on_item_selection_changed_collaboration_task)
+        self.ui.btnRobotROSCollaborationSetting.clicked.connect(self.OpenCollaborationSettingDialog)
 
         # Set Default Init
         # ROS Navigation = None
-        self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE
+        self.m_simulator.ros = ENUM_ROS_TYPE.NONE
         # ROS Collaboration = None
         self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.NONE, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_NONE))
         self.m_arrROSCollaborationTask.append(ROSCollaborationTask(ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY, ICON_THUMBNAIL_ROS_COLLABORATION_TASK_RELAY))
@@ -248,7 +252,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #     robot.option.arm = widget.ui.ckbRobotOptionUseArm.isChecked()
         #     robot.option.base = widget.ui.ckbRobotOptionBase.isChecked()
         #     lstRobots.append(robot)
-        self.saveRobotInfoToRobots(lstRobots)
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
 
         # 로봇 정보가 없으면 종료
         if len(lstRobots) <= 0 :
@@ -302,18 +306,18 @@ class MainWindow(QtWidgets.QMainWindow):
         # Executable 권한 설정
         os.system('chmod 777 ' + tmpFile)  
         # roslaunch (shell)
-
-        # Gazebo 실행
-        exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
-        if exeSimulator.poll() is None:
-            print("Gazebo 실행 성공.")
-            self.disableRobotList()
-            m_exeSimulator = exeSimulator
-            self.ui.btnStartSimulator.setEnabled(False)
-            self.m_simulator.launchFileName = launchFile
-            self.disableRobotList()
-        else:
-            print("Gazebo 실행 실패.")
+        
+        # # Gazebo 실행
+        # exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
+        # if exeSimulator.poll() is None:
+        #     print("Gazebo 실행 성공.")
+        #     self.disableRobotList()
+        #     m_exeSimulator = exeSimulator
+        #     self.ui.btnStartSimulator.setEnabled(False)
+        #     self.m_simulator.launchFileName = launchFile
+        #     self.disableRobotList()
+        # else:
+        #     print("Gazebo 실행 실패.")
 
         # 만약 Person 추가된 상태라면 원본 파일을 변경 한다
         # if self.ui.chkWorldOptionPerson.isChecked():
@@ -420,11 +424,11 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write(CMD_COMMON_ENTER)
 
         ## ROS 정보 입력
-        if sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NONE:
+        if sim.ros_navigation == ENUM_ROS_TYPE.NONE:
             pass
-        elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.SLAM:
+        elif sim.ros_navigation == ENUM_ROS_TYPE.SLAM:
             pass
-        elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NAVIGATION:
+        elif sim.ros_navigation == ENUM_ROS_TYPE.NAVIGATION:
             # Navigation 정보 입력
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_ROS_NAVIGATION_COMMENT_START + CMD_COMMON_ENTER)
             # map_file
@@ -443,7 +447,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(0, robotCount):
             ## 분기 - ROS에 따른 조정
             # ROS 없음
-            if sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NONE:
+            if sim.ros_navigation == ENUM_ROS_TYPE.NONE:
                 ## 1. Locobot
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.LOCOBOT :
                     f.write(CMD_COMMON_SPACE_DOUBLE + CMD_LOCOBOT_COMMENT_START + CMD_COMMON_ENTER)
@@ -667,12 +671,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     continue          
 
             # ROS SLAM
-            elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.SLAM:
+            elif sim.ros_navigation == ENUM_ROS_TYPE.SLAM:
                 pass                                                                                    # TODO
 
             # ROS Navigation
             # 동일 제조사의 모델일 때만 실행 되도록 해야 할 듯..?
-            elif sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NAVIGATION:
+            elif sim.ros_navigation == ENUM_ROS_TYPE.NAVIGATION:
                 ## 1. Locobot
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.LOCOBOT :
                     pass
@@ -787,7 +791,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # RViz                                                                                  
         # TODO : 이슈가 있다, RViz 자체는 현재 최대 2가지 로봇에 대해 설정해놓은 파일이 강제로 세팅 되어있다, RViz를 동적으로 만들수 있는 알고리즘 같은게 있어야 유동적 사용이 가능하다.
-        if sim.ros_navigation == ENUM_ROS_NAVIGATION_TYPE.NAVIGATION:
+        if sim.ros_navigation == ENUM_ROS_TYPE.NAVIGATION:
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_ROS_NAVIGATION_COMMONET_RVIZ_START + CMD_COMMON_ENTER)
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_IF + CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_OPEN_RVIZ + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
             f.write(CMD_COMMON_SPACE_FOUR + CMD_ROS_NAVIGATION_RVIZ_PKG + CMD_COMMON_ENTER)
@@ -804,7 +808,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def AddModel(self):
         lstRobots = []
         lstAddedRobots = []
-        self.saveRobotInfoToRobots(lstRobots)
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
         arrInterbotixRobotIndex = []
 
         for idx in range(len(lstRobots)):
@@ -1190,18 +1194,38 @@ class MainWindow(QtWidgets.QMainWindow):
            req = QtWidgets.QMessageBox.question(self, 'Start simulator', 'Please run the simulator first.',QtWidgets.QMessageBox.Ok)
            return
 
+        # 로봇 정보 저장
+        self.m_simulator.robots.clear()
+        lstRobots = []
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
+        self.m_simulator.robots = copy.deepcopy(lstRobots)
+
         dlg = DialogSmal(self.m_simulator)
         dlg.showModal()
 
-    # Navigation
-    def StartNavigationDilaog(self):
-        # 로봇 정보가 없으면 종료
-        if len(self.m_simulator.robots) <= 0 :
-           req = QtWidgets.QMessageBox.question(self, 'Start simulator', 'Please run the simulator first.',QtWidgets.QMessageBox.Ok)
-           return
+    # Collaboration
+    def OpenCollaborationSettingDialog(self):
+        # 선택된 아이템 가져오기
+        selected_items = self.ui.lstwRobotROSCollaborationTasks.selectedItems()
+        item = selected_items[0]
+        # 선택된 아이템의 행 번호
+        row = self.ui.lstwRobotROSCollaborationTasks.row(item)
+        if self.m_arrROSCollaborationTask[row].type == ENUM_ROS_COLLABORATION_TASK_TYPE.NONE:
+            return
+
+        # 로봇 정보 저장
+        self.m_simulator.robots.clear()
+        lstRobots = []
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
+        self.m_simulator.robots = copy.deepcopy(lstRobots)
 
         dlg = DialogNavigation(self.m_simulator)
+        dlg.finished.connect(self.onFinishedCollaborationDlg)
         dlg.showModal()
+
+    # 협업태스크 다이얼로그 종료 시 실행
+    def onFinishedCollaborationDlg(self):
+        self.ChangeUIInfoToSettingInfo(self.m_simulator)
 
     # R-Viz
     def StartRVizDialog(self):
@@ -1281,11 +1305,17 @@ class MainWindow(QtWidgets.QMainWindow):
     # 라디오 버튼 - ROS 선택
     def ROSRadioButtonItemSelected(self):
         if self.ui.rbROSNone.isChecked() == True:
-            self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE
+            self.m_simulator.ros = ENUM_ROS_TYPE.NONE
+            self.ui.btnROSSlamEdit.setEnabled(False)
+            self.ui.btnROSNavigationEdit.setEnabled(False)
         elif self.ui.rbROSSlam.isChecked() == True:
-            self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.SLAM
+            self.m_simulator.ros = ENUM_ROS_TYPE.SLAM
+            self.ui.btnROSSlamEdit.setEnabled(True)
+            self.ui.btnROSNavigationEdit.setEnabled(False)
         elif self.ui.rbROSNavigation.isChecked() == True:
-            self.m_simulator.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NAVIGATION
+            self.m_simulator.ros = ENUM_ROS_TYPE.NAVIGATION
+            self.ui.btnROSSlamEdit.setEnabled(False)
+            self.ui.btnROSNavigationEdit.setEnabled(True)
 
     # 로봇 추가
     def AddRobot(self):
@@ -1305,10 +1335,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # 리스트뷰에 새로운 로봇 위젯 추가
         lstRobot = self.ui.lstwRobots
         item = QtWidgets.QListWidgetItem(lstRobot)
-        lstRobot.addItem(item)
         # 로봇 위젯 생성
-        row = WidgetRobotItem()
-        item.setSizeHint(row.sizeHint())
+        custom_widget = WidgetRobotItem()
+        item.setSizeHint(custom_widget.sizeHint())
         # 만약 두번째 이상 로봇이라면 위치값을 증분하여 표기
         if self.ui.lstwRobots.count() > 1:
             prevIdx = self.ui.lstwRobots.count() - 2
@@ -1318,10 +1347,11 @@ class MainWindow(QtWidgets.QMainWindow):
             prevXstep = widget.ui.dsbRobotStartPosX.singleStep()
             prevYpos = widget.ui.dsbRobotStartPosY.value()
             prevYstep = widget.ui.dsbRobotStartPosY.singleStep()
-            row.SetStartPosition(prevXpos + prevXstep, prevYpos + prevYstep, 0.0)
+            custom_widget.SetStartPosition(prevXpos + prevXstep, prevYpos + prevYstep, 0.0)
 
         # 리스트뷰에 로봇 위젯 셋
-        lstRobot.setItemWidget(item, row)
+        lstRobot.addItem(item)
+        lstRobot.setItemWidget(item, custom_widget)
 
     # 로봇 삭제
     def DeleteRobot(self):
@@ -1785,6 +1815,8 @@ class MainWindow(QtWidgets.QMainWindow):
                             scaled_pixmap = pixmap.scaledToHeight(self.ui.lbWorldImage.height())
                             self.ui.lbWorldImage.setPixmap(scaled_pixmap)
                             self.ui.lbWorldImage.setAlignment(Qt.AlignHCenter)
+                            self.setCurrentWorld(ENUM_WORLD_CATEGORY_MAIN.NONE, ENUM_WORLD_CATEGORY_SUB.NONE)
+                            self.m_simulator.worldFileType = world_sub.extention
                             self.ui.btnStartSimulator.setEnabled(False)
 
     # 현재 world탭에서 선택한 world 정보를 simulator 메인 world에 입력
@@ -2035,7 +2067,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 print(f"파일을 찾을 수 없음: {dstFilePath}")
 
     # UI 로봇 정보를 파라미터 로봇리스트에 저장
-    def saveRobotInfoToRobots(self, lstRobots):
+    def SaveUIRobotInfoToSimRobotsInfo(self, lstRobots):
         # 기존 정보 삭제
         lstRobots.clear()
 
@@ -2056,53 +2088,65 @@ class MainWindow(QtWidgets.QMainWindow):
                 pass
                 robot.type = ENUM_ROBOT_TYPE.LOCOBOT
                 robot.id = idxLocobot
+                robot.name = CMD_LOCOBOT_MODEL + str(robot.id)
                 idxLocobot = idxLocobot + 1
             elif widget.ui.lbRobotName.text() == CONST_TURTLEBOT3_BUTGER_NAME:
                 robot.type = ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER  
                 robot.id = idxTurtlebot3Burger
+                robot.name = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_BURGER + CMD_COMMON_UNDERBAR + str(robot.id)
                 idxTurtlebot3Burger = idxTurtlebot3Burger + 1
             elif widget.ui.lbRobotName.text() == CONST_TURTLEBOT3_WAFFLE_NAME:
                 robot.type = ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE
                 robot.id = idxTurtlebot3Waffle
+                robot.name = CMD_TURTLEBOT3_DEFAULT_NAME + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_UNDERBAR + str(robot.id)
                 idxTurtlebot3Waffle = idxTurtlebot3Waffle + 1
             elif widget.ui.lbRobotName.text() == CONST_JETBOT_NAME:
                 robot.type = ENUM_ROBOT_TYPE.JETBOT
                 robot.id = idxJetbot
+                robot.name = CMD_JETBOT_DEFAULT_NAME + str(robot.id)
                 idxJetbot = idxJetbot + 1
             elif widget.ui.lbRobotName.text() == CONST_INTERBOTIX_NAME:
                 robot.type = ENUM_ROBOT_TYPE.INTERBOTIX
                 robot.id = idxInterbotix
+                robot.name = CMD_LOCOBOT_MODEL + str(robot.id)
                 idxInterbotix = idxInterbotix + 1
             elif widget.ui.lbRobotName.text() == CONST_UNI_NAME:
                 robot.type = ENUM_ROBOT_TYPE.UNI050_BASE
                 robot.id = idxUni
+                robot.name = CMD_UNI_DEFAULT_NAME + CMD_COMMON_UNDERBAR + str(robot.id)
                 idxUni = idxUni + 1         
 
             # TODO : Check starting position 현재 버전에선 일단 로봇의 위치는 미리 지정된 고정 위치로 지정한다
-            lastPosOffset = 0.5
-            for world in self.m_worlds:
-                for world_sub in world.arrCategorySubs:
-                    if world_sub.categorySub.value == self.m_simulator.categorySub:
-                        # 만약 현재 world_sub의 저장된 고정 위치보다 많은수의 로봇이 올 경우 마지막 위치값에 계속 0.5를 더해 추가한다
-                        if idx >= len(world_sub.robotStartXYZ) / 3:
-                            pos = int((len(world_sub.robotStartXYZ) / 3 -1) * 3)
-                            robot.startX = world_sub.robotStartXYZ[int(pos)] + lastPosOffset
-                            robot.startY = world_sub.robotStartXYZ[int(pos + 1)] + lastPosOffset
-                            robot.startZ = 0.1
-                            lastPosOffset = lastPosOffset + 0.5
-                            break
-                        else:
-                            pos = idx * 3
-                            robot.startX = world_sub.robotStartXYZ[pos]
-                            robot.startY = world_sub.robotStartXYZ[pos + 1]
-                            robot.startZ = world_sub.robotStartXYZ[pos + 2]
-                            break
+            # lastPosOffset = 0.5
+            # for world in self.m_worlds:
+            #     for world_sub in world.arrCategorySubs:
+            #         if world_sub.categorySub.value == self.m_simulator.categorySub:
+            #             # 만약 현재 world_sub의 저장된 고정 위치보다 많은수의 로봇이 올 경우 마지막 위치값에 계속 0.5를 더해 추가한다
+            #             if idx >= len(world_sub.robotStartXYZ) / 3:
+            #                 pos = int((len(world_sub.robotStartXYZ) / 3 -1) * 3)
+            #                 robot.startX = world_sub.robotStartXYZ[int(pos)] + lastPosOffset
+            #                 robot.startY = world_sub.robotStartXYZ[int(pos + 1)] + lastPosOffset
+            #                 robot.startZ = 0.1
+            #                 lastPosOffset = lastPosOffset + 0.5
+            #                 break
+            #             else:
+            #                 pos = idx * 3
+            #                 robot.startX = world_sub.robotStartXYZ[pos]
+            #                 robot.startY = world_sub.robotStartXYZ[pos + 1]
+            #                 robot.startZ = world_sub.robotStartXYZ[pos + 2]
+            #                 break
+            xPos = widget.ui.dsbRobotStartPosX.value()  
+            robot.startX = f"{xPos:.1f}"
+            yPos = widget.ui.dsbRobotStartPosY.value()  
+            robot.startY = f"{yPos:.1f}"
+            zPos = widget.ui.dsbRobotStartPosZ.value()  
+            robot.startZ = f"{zPos:.1f}"
 
             # Check robot option
             robot.option.camera = widget.ui.ckbRobotOptionCamera.isChecked()
             robot.option.arm = widget.ui.ckbRobotOptionUseArm.isChecked()
             robot.option.base = widget.ui.ckbRobotOptionBase.isChecked()
-            lstRobots.append(robot)
+            lstRobots.append(robot)            
 
     # 로봇 리스트의 활성화 로봇들을 편집 불가 상태로 비활성화 시킨다
     def disableRobotList(self):
@@ -2132,7 +2176,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 월드 로봇 종류 지정
         self.m_simulator.robots.clear()
         lstRobots = []
-        self.saveRobotInfoToRobots(lstRobots)
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
         self.m_simulator.robots = copy.deepcopy(lstRobots)
 
         elRobots = ET.SubElement(root, "robots")
@@ -2275,12 +2319,91 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_item_selection_changed_collaboration_task(self):
         # 선택된 아이템 가져오기
         selected_items = self.ui.lstwRobotROSCollaborationTasks.selectedItems()
-        
-        if selected_items:
-            # 첫 번째 선택된 아이템만 처리 (다중 선택 허용 시)
-            item = selected_items[0]
-            row = self.ui.lstwRobotROSCollaborationTasks.row(item)  # 선택된 아이템의 인덱스(행 번호)
-            self.m_simulator.ros_collaboration = self.m_arrROSCollaborationTask[row].type
+        item = selected_items[0]
+        # 선택된 아이템의 행 번호
+        row = self.ui.lstwRobotROSCollaborationTasks.row(item)
+
+        # TODO : 협업 태스크는 현재 고정상태의 로봇 조건을 갖추므로 기존 설정한 로봇 리스트가 있다면 지우고 고정시킨다.
+        # None 일때는 실행 안함
+        if self.m_arrROSCollaborationTask[row].type == ENUM_ROS_COLLABORATION_TASK_TYPE.NONE:
+            self.ui.lstwRobots.clear()
+            self.ui.btnAddRobot.setEnabled(True)
+            self.ui.btnDeleteRobot.setEnabled(True)
+            self.ui.btnAddModel.setEnabled(True)
+        else:
+            msg_box = QtWidgets.QMessageBox()
+            msg_box.setIcon(QtWidgets.QMessageBox.Warning)
+            msg_box.setWindowTitle("Warning")
+            msg_box.setText("You have selected a collaborative task.\n\n"
+                            "The list will be deleted, and the robot will be fixed.\n\n"
+                            "Are you sure?")
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
+    
+            result = msg_box.exec()
+
+            if result == QtWidgets.QMessageBox.Ok:
+                # 먼저 로봇을 정보를 삭제 한다.
+                self.ui.lstwRobots.clear()
+
+                ## 로봇 정보를 고정 시킨다. (현재 locobot 1대, turtlebot-burger 1대)
+                # locobot
+                lstRobot = self.ui.lstwRobots
+                wItem = QtWidgets.QListWidgetItem(lstRobot)
+                lstRobot.addItem(wItem)
+                # 로봇 위젯 생성
+                newItem = WidgetRobotItem()
+                wItem.setSizeHint(newItem.sizeHint())
+                newItem.ChageCurrentThumbIdxByName(CONST_INTERBOTIX_NAME)
+                newItem.SetStartPosition(0.0, 0.0, 0.0)
+                # 리스트뷰에 로봇 위젯 셋
+                lstRobot.setItemWidget(wItem, newItem)
+
+                # tutlebot
+                lstRobot = self.ui.lstwRobots
+                wItem2 = QtWidgets.QListWidgetItem(lstRobot)
+                lstRobot.addItem(wItem2)
+                # 로봇 위젯 생성
+                newItem2 = WidgetRobotItem()
+                wItem2.setSizeHint(newItem2.sizeHint())
+                newItem2.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
+                newItem2.SetStartPosition(0.5, 0.5, 0.0)
+                # 리스트뷰에 로봇 위젯 셋
+                lstRobot.setItemWidget(wItem2, newItem2)
+
+                # 모든 로봇 정보는 수정 불가능 하도록 변경
+                self.disableRobotList()
+                self.ui.btnAddRobot.setEnabled(False)
+                self.ui.btnDeleteRobot.setEnabled(False)
+                self.ui.btnAddModel.setEnabled(False)
+
+                # 로봇 정보 저장
+                self.m_simulator.robots.clear()
+                lstRobots = []
+                self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
+                self.m_simulator.robots = copy.deepcopy(lstRobots)
+
+                if selected_items:
+                    self.m_simulator.ros_collaboration = self.m_arrROSCollaborationTask[row].type
+                    self.m_prevSelectedCollaborationTask = row
+
+            else:
+                # 시그널 임시 차단
+                self.ui.lstwRobotROSCollaborationTasks.blockSignals(True)
+                self.ui.lstwRobotROSCollaborationTasks.setCurrentRow(self.m_prevSelectedCollaborationTask)
+                self.ui.lstwRobotROSCollaborationTasks.blockSignals(False)
+
+    # 협업태스크 Setting에서 변경된 로봇 정보를 UI에 갱신
+    # 로봇 자체는 삭제 추가가 없기 때문에 사실상 Option 정보만 갱신 한다
+    def ChangeUIInfoToSettingInfo(self, lstRobots):
+        # 입력 시작
+        lstwRobots = self.ui.lstwRobots
+        for i in range(lstwRobots.count()):  # 리스트 아이템 개수만큼 반복
+            robot = lstRobots.robots[i]
+            item = self.ui.lstwRobots.item(i)
+            widget = self.ui.lstwRobots.itemWidget(item)
+            if isinstance(widget, WidgetRobotItem):
+                widget.SetStartPosition(robot.startX, robot.startY, robot.startZ)
+            
 
 # 메인 실행
 if __name__ == '__main__':

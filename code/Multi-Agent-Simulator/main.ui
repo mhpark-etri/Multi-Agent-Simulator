@@ -908,9 +908,9 @@ QGroupBox#gbRobotROS::title {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-470</y>
+               <y>-415</y>
                <width>323</width>
-               <height>1030</height>
+               <height>1067</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1068,6 +1068,9 @@ QGroupBox#gbRobotROSNavigation::title {
                         </item>
                         <item>
                          <widget class="QPushButton" name="btnROSSlamEdit">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -1116,7 +1119,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                         <item>
                          <widget class="QRadioButton" name="rbROSNavigation">
                           <property name="enabled">
-                           <bool>false</bool>
+                           <bool>true</bool>
                           </property>
                           <property name="minimumSize">
                            <size>
@@ -1134,6 +1137,9 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                         </item>
                         <item>
                          <widget class="QPushButton" name="btnROSNavigationEdit">
+                          <property name="enabled">
+                           <bool>false</bool>
+                          </property>
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -1372,7 +1378,40 @@ QGroupBox#gbRobotROSCollaborationTasks::title {
                    <property name="title">
                     <string>Collaboration Tasks</string>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_20">
+                   <layout class="QVBoxLayout" name="verticalLayout_17">
+                    <item>
+                     <widget class="QPushButton" name="btnRobotROSCollaborationSetting">
+                      <property name="styleSheet">
+                       <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                      </property>
+                      <property name="text">
+                       <string>Setting</string>
+                      </property>
+                     </widget>
+                    </item>
                     <item>
                      <widget class="QListWidget" name="lstwRobotROSCollaborationTasks">
                       <property name="sizePolicy">

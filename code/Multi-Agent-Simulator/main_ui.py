@@ -531,7 +531,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, -470, 323, 1030))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, -415, 323, 1067))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -644,6 +644,7 @@ class Ui_MainWindow(object):
 
         self.btnROSSlamEdit = QPushButton(self.gbRobotROSNavigation)
         self.btnROSSlamEdit.setObjectName(u"btnROSSlamEdit")
+        self.btnROSSlamEdit.setEnabled(False)
         sizePolicy1.setHeightForWidth(self.btnROSSlamEdit.sizePolicy().hasHeightForWidth())
         self.btnROSSlamEdit.setSizePolicy(sizePolicy1)
         self.btnROSSlamEdit.setMinimumSize(QSize(94, 0))
@@ -680,7 +681,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.rbROSNavigation = QRadioButton(self.gbRobotROSNavigation)
         self.rbROSNavigation.setObjectName(u"rbROSNavigation")
-        self.rbROSNavigation.setEnabled(False)
+        self.rbROSNavigation.setEnabled(True)
         self.rbROSNavigation.setMinimumSize(QSize(0, 40))
         self.rbROSNavigation.setChecked(False)
 
@@ -688,6 +689,7 @@ class Ui_MainWindow(object):
 
         self.btnROSNavigationEdit = QPushButton(self.gbRobotROSNavigation)
         self.btnROSNavigationEdit.setObjectName(u"btnROSNavigationEdit")
+        self.btnROSNavigationEdit.setEnabled(False)
         sizePolicy1.setHeightForWidth(self.btnROSNavigationEdit.sizePolicy().hasHeightForWidth())
         self.btnROSNavigationEdit.setSizePolicy(sizePolicy1)
         self.btnROSNavigationEdit.setMinimumSize(QSize(94, 0))
@@ -857,15 +859,44 @@ class Ui_MainWindow(object):
 "    top: -15px;\n"
 "	left: 20px;\n"
 "}")
-        self.horizontalLayout_20 = QHBoxLayout(self.gbRobotROSCollaborationTasks)
-        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.verticalLayout_17 = QVBoxLayout(self.gbRobotROSCollaborationTasks)
+        self.verticalLayout_17.setObjectName(u"verticalLayout_17")
+        self.btnRobotROSCollaborationSetting = QPushButton(self.gbRobotROSCollaborationTasks)
+        self.btnRobotROSCollaborationSetting.setObjectName(u"btnRobotROSCollaborationSetting")
+        self.btnRobotROSCollaborationSetting.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.verticalLayout_17.addWidget(self.btnRobotROSCollaborationSetting)
+
         self.lstwRobotROSCollaborationTasks = QListWidget(self.gbRobotROSCollaborationTasks)
         self.lstwRobotROSCollaborationTasks.setObjectName(u"lstwRobotROSCollaborationTasks")
         sizePolicy5.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
         self.lstwRobotROSCollaborationTasks.setSizePolicy(sizePolicy5)
         self.lstwRobotROSCollaborationTasks.setMinimumSize(QSize(0, 400))
 
-        self.horizontalLayout_20.addWidget(self.lstwRobotROSCollaborationTasks)
+        self.verticalLayout_17.addWidget(self.lstwRobotROSCollaborationTasks)
 
 
         self.verticalLayout_30.addWidget(self.gbRobotROSCollaborationTasks)
@@ -991,6 +1022,7 @@ class Ui_MainWindow(object):
         self.gbRobotROSI2IEnhancement.setTitle(QCoreApplication.translate("MainWindow", u"I2I Enhancement", None))
         self.cbROSI2IOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
         self.gbRobotROSCollaborationTasks.setTitle(QCoreApplication.translate("MainWindow", u"Collaboration Tasks", None))
+        self.btnRobotROSCollaborationSetting.setText(QCoreApplication.translate("MainWindow", u"Setting", None))
         self.btnStartSimulator.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.menuFIle.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuDB.setTitle(QCoreApplication.translate("MainWindow", u"DB", None))

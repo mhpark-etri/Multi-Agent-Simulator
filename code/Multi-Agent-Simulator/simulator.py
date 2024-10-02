@@ -109,7 +109,7 @@ class ENUM_ROBOT_TYPE(Enum):
     UNI050_BASE = 5                         ## Type : UNI050_BASE
 
 ## ENUM : ROS Type ##
-class ENUM_ROS_NAVIGATION_TYPE(Enum):
+class ENUM_ROS_TYPE(Enum):
     NONE = 0                                ## Type : None
     SLAM = 1                                ## Type : Slam
     NAVIGATION = 2                          ## Type : Navigation
@@ -183,8 +183,9 @@ class Simulator:
     categoryMain = ENUM_WORLD_CATEGORY_MAIN.HOUSE_CAFE          ## 현재 선택된 World의 상위 카테고리
     categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE                  ## 현재 선택된 World의 하위 카테고리
     robots = []                                                 ## 사용할 로봇들
-    ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE              ## 사용할 ROS Navigation 타입
+    ros = ENUM_ROS_TYPE.NONE                                    ## 사용할 ROS 타입
     ros_collaboration = ENUM_ROS_COLLABORATION_TASK_TYPE.NONE   ## 사용할 ROS Collaboration 타입
+    ros_navigation_map_path = ""                                ## 사용할 ROS Collaboration 에서 쓸 네비게이션 맵 파일 경로
     launchFileName = ""                                         ## 현재 실행중인 launchFile의 이름
     addedLunchFileNumber = 0                                    ## 실행 이후 추가된 launchFile의 번호
     def __init__(self):
@@ -193,4 +194,4 @@ class Simulator:
         self.categoryMain = ENUM_WORLD_CATEGORY_MAIN.HOUSE_CAFE
         self.categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE 
         self.robots = []
-        self.ros_navigation = ENUM_ROS_NAVIGATION_TYPE.NONE
+        self.ros = ENUM_ROS_TYPE.NONE

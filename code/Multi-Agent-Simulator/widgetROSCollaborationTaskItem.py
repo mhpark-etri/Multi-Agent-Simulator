@@ -25,3 +25,7 @@ class widgetROSCollaborationTaskItem(QtWidgets.QWidget):
         pixmap = QtGui.QPixmap(str(path))
         self.ui.lbROSCollaborationTaskImage.setPixmap(pixmap)
         self.ui.lbROSCollaborationTaskName.setText(name)
+
+    # Setting 버튼 활성, 비활성화
+    def SetSettingButtonEnable(self, bValue):
+        self.ui.btnROSCollaborationTaskSetting.setVisible(bValue)

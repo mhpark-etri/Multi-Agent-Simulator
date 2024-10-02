@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>94</width>
-    <height>118</height>
+    <width>186</width>
+    <height>131</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,26 +79,18 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lbROSCollaborationTaskName">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>None</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="lbROSCollaborationTaskName">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>

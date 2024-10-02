@@ -15,14 +15,14 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QSizePolicy,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+    QSizePolicy, QVBoxLayout, QWidget)
 
 class Ui_WidgetCollaborationTask(object):
     def setupUi(self, WidgetCollaborationTask):
         if not WidgetCollaborationTask.objectName():
             WidgetCollaborationTask.setObjectName(u"WidgetCollaborationTask")
-        WidgetCollaborationTask.resize(94, 118)
+        WidgetCollaborationTask.resize(186, 131)
         WidgetCollaborationTask.setStyleSheet(u"QWidget#WidgetCollaborationTask{\n"
 "    border: 1px solid 	darkgray;\n"
 "}")
@@ -58,14 +58,16 @@ class Ui_WidgetCollaborationTask(object):
 
         self.verticalLayout.addWidget(self.lbROSCollaborationTaskImage)
 
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.lbROSCollaborationTaskName = QLabel(self.fWidgetCollaborationTask)
         self.lbROSCollaborationTaskName.setObjectName(u"lbROSCollaborationTaskName")
-        sizePolicy1.setHeightForWidth(self.lbROSCollaborationTaskName.sizePolicy().hasHeightForWidth())
-        self.lbROSCollaborationTaskName.setSizePolicy(sizePolicy1)
-        self.lbROSCollaborationTaskName.setMinimumSize(QSize(0, 20))
         self.lbROSCollaborationTaskName.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout.addWidget(self.lbROSCollaborationTaskName)
+        self.horizontalLayout.addWidget(self.lbROSCollaborationTaskName)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout)
 
 
         self.verticalLayout_3.addLayout(self.verticalLayout)
@@ -82,6 +84,6 @@ class Ui_WidgetCollaborationTask(object):
     def retranslateUi(self, WidgetCollaborationTask):
         WidgetCollaborationTask.setWindowTitle(QCoreApplication.translate("WidgetCollaborationTask", u"Form", None))
         self.lbROSCollaborationTaskImage.setText("")
-        self.lbROSCollaborationTaskName.setText(QCoreApplication.translate("WidgetCollaborationTask", u"None", None))
+        self.lbROSCollaborationTaskName.setText(QCoreApplication.translate("WidgetCollaborationTask", u"TextLabel", None))
     # retranslateUi
 

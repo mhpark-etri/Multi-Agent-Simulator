@@ -14,15 +14,15 @@ from constant import *
 from simulator import *
 
 class WidgetRobotItem(QtWidgets.QWidget):
-    # Thmubnail List
-    lstThumbs = []
-    m_nCurrentThumbIdx = 0
-
     # Init
     def __init__(self, parent = None):
         super(WidgetRobotItem, self).__init__(parent)
         self.ui = Ui_WidgetRobotItem()
         self.ui.setupUi(self)
+
+        # Thumb 네일 이미지 리스트
+        self.lstThumbs = []
+        self.m_nCurrentThumbIdx = 0
 
         self.ui.btnSelectRobotLeft.clicked.connect(self.ChangeRobotToLeft)
         self.ui.btnSelectRobotRight.clicked.connect(self.ChangeRobotToRight)
@@ -58,6 +58,21 @@ class WidgetRobotItem(QtWidgets.QWidget):
         self.ui.lbRobotThumb.setPixmap(pixmap)
         self.ui.lbRobotName.setText(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbName))
 
+    # 썸네일 이미지 변경 (협업 태스크 고정용)
+    def ChageCurrentThumbIdxByName(self, robotName):
+        if robotName== CONST_LOCOBOT_NAME:
+            pass
+        elif robotName == CONST_TURTLEBOT3_BUTGER_NAME:
+            self.m_nCurrentThumbIdx = 0
+        elif robotName == CONST_TURTLEBOT3_WAFFLE_NAME:
+            self.m_nCurrentThumbIdx = 1
+        elif robotName == CONST_INTERBOTIX_NAME:
+            self.m_nCurrentThumbIdx = 2
+        elif robotName == CONST_UNI_NAME:
+            self.m_nCurrentThumbIdx = 3
+
+        self.SetThumbAndName()
+
     # 선택 인덱스 변경 (idx)
     def ChangeCurrentThumbIdx(self, idx):
         self.m_nCurrentThumbIdx = idx
@@ -89,9 +104,9 @@ class WidgetRobotItem(QtWidgets.QWidget):
 
     # 초기 위치 설정
     def SetStartPosition(self, x, y, z):
-        self.ui.dsbRobotStartPosX.setValue(x)
-        self.ui.dsbRobotStartPosY.setValue(y)
-        self.ui.dsbRobotStartPosZ.setValue(z)
+        self.ui.dsbRobotStartPosX.setValue(float(x))
+        self.ui.dsbRobotStartPosY.setValue(float(y))
+        self.ui.dsbRobotStartPosZ.setValue(float(z))
 
     # # UI 정보를 로봇 정보로 추출하여 반환(기술적 문제로 현재 사용되지 않음)
     # def GetRobotInfo(self):
