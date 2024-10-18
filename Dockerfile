@@ -29,7 +29,10 @@ RUN apt-get update && apt-get install -y \
     gedit \
     && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && apt-get install -y locales
+RUN apt-get update && apt-get install -y locales && \
+    locale-gen ko_KR.UTF-8 && \
+    update-locale LANG=ko_KR.UTF-8
+ENV LANG ko_KR.UTF-8
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen
 ENV LANG en_US.UTF-8  
@@ -64,13 +67,20 @@ RUN apt-get install -y ros-noetic-dynamixel-sdk \
 
 # 4. ROS 환경 설정
 RUN echo "source /opt/ros/noetic/setup.bash" >> /root/.bashrc
+RUN echo '# add by tesla : ROS Collaboration' >> ~/.bashrc && \
+    echo 'export TURTLEBOT3_MODEL=burger' >> ~/.bashrc
+
+# .bashrc를 source하여 환경 변수를 적용
+RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 # 5. ROS 관련 기능들
 # 5-1. Navigation
+RUN sudo mkdir -p /root/tesla/ros
+COPY ros /root/tesla/ros/
 # Launch
-COPY ros/navi/launch/ /opt/ros/noetic/share/turtlebot3_navigation/launch/
+COPY ros/navi/launch/turtlebot/ /opt/ros/noetic/share/turtlebot3_navigation/launch/
 # RViz
-COPY ros/navi/rviz/ /opt/ros/noetic/share/turtlebot3_navigation/rviz/
+COPY ros/navi/rviz/turtlebot/ /opt/ros/noetic/share/turtlebot3_navigation/rviz/
 # Map
 RUN sudo mkdir /opt/ros/noetic/share/turtlebot3_navigation/maps/backup
 RUN sudo mv /opt/ros/noetic/share/turtlebot3_navigation/maps/map.pgm /opt/ros/noetic/share/turtlebot3_navigation/maps/backup/

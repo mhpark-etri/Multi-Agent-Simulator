@@ -1,0 +1,108 @@
+<launch>
+
+  <arg name="robot_model"                       default=""/>
+  <arg name="robot_name"                        default="locobot"/>
+  <arg name="arm_model"                         default="$(eval 'mobile_' + arg('robot_model').split('_')[1])"/>
+  <arg name="show_lidar"                        default="false"/>
+  <arg name="show_gripper_bar"                  default="true"/>
+  <arg name="show_gripper_fingers"              default="true"/>
+  <arg name="external_urdf_loc"                 default=""/>
+  <arg name="use_rviz"                          default="false"/>
+  <arg name="rviz_frame"                        default="$(arg robot_name)/base_footprint"/>
+  <arg name="world_name"                        default="$(find interbotix_xslocobot_gazebo)/worlds/xslocobot_gazebo.world"/>
+  <arg name="gui"                               default="true"/>
+  <arg name="debug"                             default="false"/>
+  <arg name="paused"                            default="true"/>
+  <arg name="recording"                         default="false"/>
+  <arg name="use_sim_time"                      default="true"/>
+  <arg name="use_position_controllers"          default="false"/>
+  <arg name="use_trajectory_controllers"        default="false"/>
+  <arg name="dof"                               default="5"/>
+  <arg name="robot_name1" default="locobot_0"/> <!-- kang -->
+  <arg name="robot_name2" default="locobot_1"/> <!-- kang -->
+
+  <env name="GAZEBO_RESOURCE_PATH"              value="$(find interbotix_xslocobot_gazebo)"/>
+
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find aws_robomaker_small_warehouse_world)/worlds/no_roof_small_warehouse.world"/>
+    <arg name="gui"                               value="$(arg gui)" />
+    <arg name="debug"                             value="$(arg debug)" />
+    <arg name="paused"                            value="$(arg paused)"/>
+    <arg name="recording"                         value="$(arg recording)"/>
+    <arg name="use_sim_time"                      value="$(arg use_sim_time)"/>
+<!--
+    <arg name="world_name" value="$(find aws_robomaker_small_warehouse_world)/worlds/small_warehouse.world"/>
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="$(arg gui)"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="verbose" default="true"/>
+-->
+  </include>
+
+<!--
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name"                        value="$(arg world_name)"/>
+    <arg name="gui"                               value="$(arg gui)" />
+    <arg name="debug"                             value="$(arg debug)" />
+    <arg name="paused"                            value="$(arg paused)"/>
+    <arg name="recording"                         value="$(arg recording)"/>
+    <arg name="use_sim_time"                      value="$(arg use_sim_time)"/>
+  </include>
+-->
+
+  <include file="$(find interbotix_xslocobot_gazebo)/launch/xslocobot_gazebo_one_robot.launch">
+    <arg name="robot_model"                       value="$(arg robot_model)"/>
+    <arg name="robot_name"                        value="$(arg robot_name1)"/>
+    <arg name="show_lidar"                        value="$(arg show_lidar)"/>
+    <arg name="show_gripper_bar"                  value="$(arg show_gripper_bar)"/>
+    <arg name="show_gripper_fingers"              value="$(arg show_gripper_fingers)"/>
+    <arg name="external_urdf_loc"                 value="$(arg external_urdf_loc)"/>
+    <arg name="use_rviz"                          value="$(arg use_rviz)"/>
+<!--
+    <arg name="rviz_frame"                        value="$(arg rviz_frame)"/>
+-->
+    <arg name="rviz_frame"                        value="$(arg robot_name1)/base_footprint"/>
+    <arg name="use_position_controllers"          value="$(arg use_position_controllers)"/>
+    <arg name="use_trajectory_controllers"        value="$(arg use_trajectory_controllers)"/>
+    <arg name="dof"                               value="$(arg dof)"/>
+  </include>
+
+  <include file="$(find interbotix_xslocobot_gazebo)/launch/xslocobot_gazebo_one_robot.launch">
+    <arg name="robot_model"                       value="$(arg robot_model)"/>
+    <arg name="robot_name"                        value="$(arg robot_name2)"/>
+    <arg name="show_lidar"                        value="$(arg show_lidar)"/>
+    <arg name="show_gripper_bar"                  value="$(arg show_gripper_bar)"/>
+    <arg name="show_gripper_fingers"              value="$(arg show_gripper_fingers)"/>
+    <arg name="external_urdf_loc"                 value="$(arg external_urdf_loc)"/>
+<!--    <arg name="use_rviz"                          value="$(arg use_rviz)"/> 
+    <arg name="rviz_frame"                        value="$(arg rviz_frame)"/>
+    <arg name="use_rviz"                          value="true"/>
+ -->
+    <arg name="use_rviz"                          value="$(arg use_rviz)"/>
+    <arg name="rviz_frame"                        value="$(arg robot_name2)/base_footprint"/>
+    <arg name="use_position_controllers"          value="$(arg use_position_controllers)"/>
+    <arg name="use_trajectory_controllers"        value="$(arg use_trajectory_controllers)"/>
+    <arg name="dof"                               value="$(arg dof)"/>
+  </include>
+
+  <node
+    name="urdf_spawner"
+    pkg="gazebo_ros"
+    type="spawn_model"
+    respawn="false"
+    output="screen"
+    ns="$(arg robot_name1)"
+	  args="-urdf -x 1.5 -y 0.0 -z 0.0 -model $(arg robot_name1) -param /$(arg robot_name1)/robot_description"/>
+  <node
+    name="urdf_spawner"
+    pkg="gazebo_ros"
+    type="spawn_model"
+    respawn="false"
+    output="screen"
+    ns="$(arg robot_name2)"
+	  args="-urdf -x 0.0 -y 0.0 -z 0.0 -model $(arg robot_name2) -param /$(arg robot_name2)/robot_description"/>
+
+</launch>

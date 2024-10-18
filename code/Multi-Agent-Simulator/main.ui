@@ -228,6 +228,9 @@ border-radius:5px;</string>
                     <property name="scaledContents">
                      <bool>false</bool>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -908,9 +911,9 @@ QGroupBox#gbRobotROS::title {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-415</y>
+               <y>0</y>
                <width>323</width>
-               <height>1067</height>
+               <height>904</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1379,6 +1382,9 @@ QGroupBox#gbRobotROSCollaborationTasks::title {
                     <string>Collaboration Tasks</string>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_17">
+                    <property name="spacing">
+                     <number>10</number>
+                    </property>
                     <item>
                      <widget class="QPushButton" name="btnRobotROSCollaborationSetting">
                       <property name="styleSheet">
@@ -1415,7 +1421,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                     <item>
                      <widget class="QListWidget" name="lstwRobotROSCollaborationTasks">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
@@ -1423,8 +1429,41 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
-                        <height>400</height>
+                        <height>0</height>
                        </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="btnRobotROSCollaborationStartTask">
+                      <property name="styleSheet">
+                       <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                      </property>
+                      <property name="text">
+                       <string>Start task</string>
                       </property>
                      </widget>
                     </item>

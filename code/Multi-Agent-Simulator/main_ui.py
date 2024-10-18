@@ -139,6 +139,7 @@ class Ui_MainWindow(object):
 "    background-color: #cccccc;\n"
 "}")
         self.lbWorldImage.setScaledContents(False)
+        self.lbWorldImage.setAlignment(Qt.AlignCenter)
 
         self.horizontalLayout_11.addWidget(self.lbWorldImage)
 
@@ -531,7 +532,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, -415, 323, 1067))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 323, 904))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -860,6 +861,7 @@ class Ui_MainWindow(object):
 "	left: 20px;\n"
 "}")
         self.verticalLayout_17 = QVBoxLayout(self.gbRobotROSCollaborationTasks)
+        self.verticalLayout_17.setSpacing(10)
         self.verticalLayout_17.setObjectName(u"verticalLayout_17")
         self.btnRobotROSCollaborationSetting = QPushButton(self.gbRobotROSCollaborationTasks)
         self.btnRobotROSCollaborationSetting.setObjectName(u"btnRobotROSCollaborationSetting")
@@ -892,11 +894,43 @@ class Ui_MainWindow(object):
 
         self.lstwRobotROSCollaborationTasks = QListWidget(self.gbRobotROSCollaborationTasks)
         self.lstwRobotROSCollaborationTasks.setObjectName(u"lstwRobotROSCollaborationTasks")
-        sizePolicy5.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
-        self.lstwRobotROSCollaborationTasks.setSizePolicy(sizePolicy5)
-        self.lstwRobotROSCollaborationTasks.setMinimumSize(QSize(0, 400))
+        sizePolicy6 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
+        self.lstwRobotROSCollaborationTasks.setSizePolicy(sizePolicy6)
+        self.lstwRobotROSCollaborationTasks.setMinimumSize(QSize(0, 0))
 
         self.verticalLayout_17.addWidget(self.lstwRobotROSCollaborationTasks)
+
+        self.btnRobotROSCollaborationStartTask = QPushButton(self.gbRobotROSCollaborationTasks)
+        self.btnRobotROSCollaborationStartTask.setObjectName(u"btnRobotROSCollaborationStartTask")
+        self.btnRobotROSCollaborationStartTask.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.verticalLayout_17.addWidget(self.btnRobotROSCollaborationStartTask)
 
 
         self.verticalLayout_30.addWidget(self.gbRobotROSCollaborationTasks)
@@ -917,11 +951,11 @@ class Ui_MainWindow(object):
 
         self.frame_4 = QFrame(self.centralwidget)
         self.frame_4.setObjectName(u"frame_4")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
-        sizePolicy6.setHorizontalStretch(0)
-        sizePolicy6.setVerticalStretch(25)
-        sizePolicy6.setHeightForWidth(self.frame_4.sizePolicy().hasHeightForWidth())
-        self.frame_4.setSizePolicy(sizePolicy6)
+        sizePolicy7 = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        sizePolicy7.setHorizontalStretch(0)
+        sizePolicy7.setVerticalStretch(25)
+        sizePolicy7.setHeightForWidth(self.frame_4.sizePolicy().hasHeightForWidth())
+        self.frame_4.setSizePolicy(sizePolicy7)
         self.frame_4.setMinimumSize(QSize(0, 40))
         self.frame_4.setFrameShape(QFrame.NoFrame)
         self.frame_4.setFrameShadow(QFrame.Plain)
@@ -939,11 +973,11 @@ class Ui_MainWindow(object):
 
         self.btnStartSimulator = QPushButton(self.frame_4)
         self.btnStartSimulator.setObjectName(u"btnStartSimulator")
-        sizePolicy7 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        sizePolicy7.setHorizontalStretch(0)
-        sizePolicy7.setVerticalStretch(0)
-        sizePolicy7.setHeightForWidth(self.btnStartSimulator.sizePolicy().hasHeightForWidth())
-        self.btnStartSimulator.setSizePolicy(sizePolicy7)
+        sizePolicy8 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        sizePolicy8.setHorizontalStretch(0)
+        sizePolicy8.setVerticalStretch(0)
+        sizePolicy8.setHeightForWidth(self.btnStartSimulator.sizePolicy().hasHeightForWidth())
+        self.btnStartSimulator.setSizePolicy(sizePolicy8)
         self.btnStartSimulator.setMinimumSize(QSize(100, 0))
         self.btnStartSimulator.setStyleSheet(u"    color: white;")
 
@@ -1023,6 +1057,7 @@ class Ui_MainWindow(object):
         self.cbROSI2IOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
         self.gbRobotROSCollaborationTasks.setTitle(QCoreApplication.translate("MainWindow", u"Collaboration Tasks", None))
         self.btnRobotROSCollaborationSetting.setText(QCoreApplication.translate("MainWindow", u"Setting", None))
+        self.btnRobotROSCollaborationStartTask.setText(QCoreApplication.translate("MainWindow", u"Start task", None))
         self.btnStartSimulator.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.menuFIle.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuDB.setTitle(QCoreApplication.translate("MainWindow", u"DB", None))

@@ -43,6 +43,7 @@ class ENUM_WORLD_CATEGORY_MAIN(Enum):
     FACTORY = "Factory"
     BOOKSTORE = "Bookstore"
     OTHERS = "Others"
+    CUSTOM = "Custom"
     NONE = "None"
 
 ## ENUM : World type : sub category ##
@@ -89,6 +90,7 @@ class ENUM_WORLD_CATEGORY_SUB(Enum):
     # EXPERIMENT_ROOM = "experiment_room"
     # RANDOM_WORLD = "random_world"
     DISTRIBUTION_CENTER = "distribution_center"
+    COLLABORATION = "collaboration"
     NONE = "None"
 
 ## ENUM : World Type ##
@@ -168,6 +170,9 @@ class Robot:
     startY = 0                              ## Robot : Start Position Y (Default 0)
     startZ = 0                              ## Robot : Start Position Z (Default 0, Fixed...)
     option = Option()                       ## Robot : Robot options..
+    moveToX = 0                             ## Robot : Collaboration Task Goal Position X (Default 0)
+    moveToY = 0                             ## Robot : Collaboration Task Goal Position Y (Default 0)
+    moveToZ = 0                             ## Robot : Collaboration Task Goal Position Z (Default 0, Fixed...)
 
 ## DataClass : ROS Collaboration task
 @dataclass

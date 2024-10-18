@@ -17,6 +17,7 @@ from dlgROSTeleop import DialogTeleop
 from dlgROSSlam import DialogSmal
 from dlgROSNavigation import DialogNavigation
 from dlgROSRViz import DialogRViz
+from dlgStartROSCollaborationTask import DialogStartROSCollaborationTask
 # from dlgDBOpen import DialogDBOpen
 from widgetRobotItem import WidgetRobotItem
 from widgetROSCollaborationTaskItem import widgetROSCollaborationTaskItem
@@ -42,9 +43,15 @@ PATH_SOURCE_HOSPITAL = "source /root/tesla/models/aws-robomaker-hospital-world-r
 PATH_SOURCE_SMALL_HOUSE = "source /root/tesla/models/aws-robomaker-small-house-world-ros1/install/setup.sh"
 PATH_SOURCE_BOOK_STORE = "source /root/tesla/models/aws-robomaker-bookstore-world-ros1/install/setup.sh"
 PATH_SOURCE_UNI = "source /root/catkin_ws_ai_bot/devel/setup.sh"
-MAX_MODEL_COUNT_ROBOT = 5  # Max robot model count
+MAX_MODEL_COUNT_ROBOT = 10  # Max robot model count
 MAX_MODEL_COUNT_PERSON = 3 # Max person model count
 PATH_SOURCE_JNP_SETUP = "source /root/catkin_ws_jnp/devel/setup.sh"
+PATH_ROS_INTERBOTIX_LAUNCH = "/root/interbotix_ws/src/interbotix_ros_rovers/interbotix_ros_xslocobots/interbotix_xslocobot_gazebo/launch"
+PATH_ROS_INTERBOTIX_RVIZ = "/root/interbotix_ws/src/interbotix_ros_rovers/interbotix_ros_xslocobots/interbotix_xslocobot_descriptions/rviz"
+PATH_ROS_COLLABORATION_TASK_LAUNCH = "/root/tesla/ros/navi/launch/locobot/"
+PATH_ROS_COLLABORATION_TASK_RVIZ = "/root/tesla/ros/navi/rviz/locobot/"
+PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY = "/root/tesla/ros/navi/launch/locobot/locobot_turtle_nav_sim2.launch"
+PATH_SOURCE_WAREHOUSE_TASK = "export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:/root/tesla/models/aws-robomaker-small-warehouse-world-ros1/install/aws_robomaker_small_warehouse_world/share"
 
 PATH_DEFAULT_MODEL_PERSON = "/usr/local/share/gazebo-11/media/models"
 PATH_DEFAULT_MODEL_PERSON_OTHER = "/usr/share/gazebo-11/media/models"
@@ -111,7 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lstwWorldSubCategory.itemSelectionChanged.connect(self.on_item_selection_changed_sub_category)
         self.ui.sbWorldOptionPersonCount.setMaximum(MAX_MODEL_COUNT_PERSON)
         self.ui.chkWorldOptionPerson.stateChanged.connect(self.ChangedWolrdOptionPersonCheckbox)
-        self.ui.actionSave.triggered.connect(self.saveFile) 
+        self.ui.actionSave.triggered.connect(self.saveFile)
         self.ui.actionOpen.triggered.connect(self.loadFile)
         self.ui.actionOpenDB.triggered.connect(self.OpenDBDialog)
         self.ui.btnAddModel.setVisible(False)
@@ -134,6 +141,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.gbRobotROSI2IEnhancement.setVisible(False)
         self.ui.lstwRobotROSCollaborationTasks.itemSelectionChanged.connect(self.on_item_selection_changed_collaboration_task)
         self.ui.btnRobotROSCollaborationSetting.clicked.connect(self.OpenCollaborationSettingDialog)
+        self.ui.btnRobotROSCollaborationStartTask.clicked.connect(self.StartCollaborationTask)
 
         # Set Default Init
         # ROS Navigation = None
@@ -155,6 +163,11 @@ class MainWindow(QtWidgets.QMainWindow):
             # 리스트뷰에 협업 태스트 생성
             row.AddCollaborationTask(task.type.value, task.thumbPath)
             self.ui.lstwRobotROSCollaborationTasks.setItemWidget(item, row)
+
+            # TODO : 현재는 Relay를 제외한 다른 협업 태스크는 Disable 처리 한다
+            if task.type != ENUM_ROS_COLLABORATION_TASK_TYPE.NONE and task.type != ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY :
+                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+
         self.ui.lstwRobotROSCollaborationTasks.setCurrentRow(0)
 
         # ROS - Teleop - 현재는 Disable - 이유 : 어떤 모델은 되고 어떤 모델은 안되기 때문에 일단 전체 블럭
@@ -183,6 +196,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # Check world file
     def CheckWorldFile(self, worldFileName):
+        # Custom 맵일 경우에는 그냥 통과
+        if worldFileName == "collaboration.world":
+            return True
+
         # check..
         path = PATH_DEFAULT_WORLDS_OTHER + "/" + worldFileName
         if os.path.exists(path) :
@@ -192,6 +209,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # 시뮬레이터 시작
     def StartSimualtor(self):
+        ## 맵 체크
+        # Custom 맵들은 일반적인 작업으론 사용 할 수 없도록 조치
+        selected_items = self.ui.lstwRobotROSCollaborationTasks.selectedItems()
+        item = selected_items[0]
+        # 선택된 아이템의 행 번호
+        row = self.ui.lstwRobotROSCollaborationTasks.row(item)
+        if self.m_arrROSCollaborationTask[row].type == ENUM_ROS_COLLABORATION_TASK_TYPE.NONE:
+            if self.m_simulator.categoryMain == ENUM_WORLD_CATEGORY_MAIN.CUSTOM:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Warning)
+                msg.setWindowTitle("Warning")
+                msg.setText("Custom maps can only be used for specialized purposes.")
+                msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                msg.exec_()
+                return
+
         # 시작전 서버 전부 비활성화
         os.system("killall gzserver")
         # Simulator 구조체 초기화
@@ -307,22 +340,27 @@ class MainWindow(QtWidgets.QMainWindow):
         os.system('chmod 777 ' + tmpFile)  
         # roslaunch (shell)
         
-        # # Gazebo 실행
-        # exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
-        # if exeSimulator.poll() is None:
-        #     print("Gazebo 실행 성공.")
-        #     self.disableRobotList()
-        #     m_exeSimulator = exeSimulator
-        #     self.ui.btnStartSimulator.setEnabled(False)
-        #     self.m_simulator.launchFileName = launchFile
-        #     self.disableRobotList()
-        # else:
-        #     print("Gazebo 실행 실패.")
+        # TODO : 협업 콜라보레이션 실행
+        ## 현재는 협업 콜라보레이션이 체크 된 실행시 로봇 정보가 고정 되므로 미리 준비된 launch 파일을 실행 하도록 적용 한다, 그 외에는 기존 생성한 launch 파일로 실행한다.
+        if self.m_simulator.ros_collaboration != ENUM_ROS_COLLABORATION_TASK_TYPE.NONE:
+            self.StartROSCollaboration(self.m_simulator.ros_collaboration)
+        else :
+            # # Gazebo 실행
+            exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
+            if exeSimulator.poll() is None:
+                print("Gazebo 실행 성공.")
+                self.disableRobotList()
+                m_exeSimulator = exeSimulator
+                self.ui.btnStartSimulator.setEnabled(False)
+                self.m_simulator.launchFileName = launchFile
+                self.disableRobotList()
+            else:
+                print("Gazebo 실행 실패.")
 
-        # 만약 Person 추가된 상태라면 원본 파일을 변경 한다
-        # if self.ui.chkWorldOptionPerson.isChecked():
-        #     time.sleep(1)
-        #     self.replaceWorldFile(self.m_simulator.categorySub + self.m_simulator.worldFileType)
+            # 만약 Person 추가된 상태라면 원본 파일을 변경 한다
+            # if self.ui.chkWorldOptionPerson.isChecked():
+            #     time.sleep(1)
+            #     self.replaceWorldFile(self.m_simulator.categorySub + self.m_simulator.worldFileType)
 
     # 설정 파일 정보를 토대로 Launch 파일 정보를 생성
     def MakeLaunch(self, sim):
@@ -424,11 +462,11 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write(CMD_COMMON_ENTER)
 
         ## ROS 정보 입력
-        if sim.ros_navigation == ENUM_ROS_TYPE.NONE:
+        if sim.ros == ENUM_ROS_TYPE.NONE:
             pass
-        elif sim.ros_navigation == ENUM_ROS_TYPE.SLAM:
+        elif sim.ros == ENUM_ROS_TYPE.SLAM:
             pass
-        elif sim.ros_navigation == ENUM_ROS_TYPE.NAVIGATION:
+        elif sim.ros == ENUM_ROS_TYPE.NAVIGATION:
             # Navigation 정보 입력
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_ROS_NAVIGATION_COMMENT_START + CMD_COMMON_ENTER)
             # map_file
@@ -447,7 +485,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for i in range(0, robotCount):
             ## 분기 - ROS에 따른 조정
             # ROS 없음
-            if sim.ros_navigation == ENUM_ROS_TYPE.NONE:
+            if sim.ros == ENUM_ROS_TYPE.NONE:
                 ## 1. Locobot
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.LOCOBOT :
                     f.write(CMD_COMMON_SPACE_DOUBLE + CMD_LOCOBOT_COMMENT_START + CMD_COMMON_ENTER)
@@ -671,12 +709,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     continue          
 
             # ROS SLAM
-            elif sim.ros_navigation == ENUM_ROS_TYPE.SLAM:
+            elif sim.ros == ENUM_ROS_TYPE.SLAM:
                 pass                                                                                    # TODO
 
             # ROS Navigation
             # 동일 제조사의 모델일 때만 실행 되도록 해야 할 듯..?
-            elif sim.ros_navigation == ENUM_ROS_TYPE.NAVIGATION:
+            elif sim.ros == ENUM_ROS_TYPE.NAVIGATION:
                 ## 1. Locobot
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.LOCOBOT :
                     pass
@@ -791,7 +829,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # RViz                                                                                  
         # TODO : 이슈가 있다, RViz 자체는 현재 최대 2가지 로봇에 대해 설정해놓은 파일이 강제로 세팅 되어있다, RViz를 동적으로 만들수 있는 알고리즘 같은게 있어야 유동적 사용이 가능하다.
-        if sim.ros_navigation == ENUM_ROS_TYPE.NAVIGATION:
+        if sim.ros == ENUM_ROS_TYPE.NAVIGATION:
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_ROS_NAVIGATION_COMMONET_RVIZ_START + CMD_COMMON_ENTER)
             f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_IF + CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_OPEN_RVIZ + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
             f.write(CMD_COMMON_SPACE_FOUR + CMD_ROS_NAVIGATION_RVIZ_PKG + CMD_COMMON_ENTER)
@@ -804,6 +842,69 @@ class MainWindow(QtWidgets.QMainWindow):
         f.close()
         return tmpFile
     
+    # 협업 콜라보레이션으로 Gazebo 실행
+    def StartROSCollaboration(self, collaboTask):
+        # 먼저 locobot 경로에 파일 복사
+        # launch
+        for filename in os.listdir(PATH_ROS_COLLABORATION_TASK_LAUNCH):
+            source_file = os.path.join(PATH_ROS_COLLABORATION_TASK_LAUNCH, filename)
+            dest_file = os.path.join(PATH_ROS_INTERBOTIX_LAUNCH, filename)
+        
+            # 파일인지 확인 후 복사
+            if os.path.isfile(source_file):
+                shutil.copy(source_file, dest_file)
+
+        # rviz
+        for filename in os.listdir(PATH_ROS_COLLABORATION_TASK_RVIZ):
+            source_file = os.path.join(PATH_ROS_COLLABORATION_TASK_RVIZ, filename)
+            dest_file = os.path.join(PATH_ROS_INTERBOTIX_RVIZ, filename)
+        
+            # 파일인지 확인 후 복사
+            if os.path.isfile(source_file):
+                shutil.copy(source_file, dest_file)
+
+        # 다음으로 COLLABORATION 타입에 따라 launch 실행
+        # 먼저 shell 파일 생성
+        PATH_SYSTEM_ROOT = os.getcwd() + "/" + PATH_LAUNCH_FOLDER_NAME
+        tmpFile = PATH_SYSTEM_ROOT + "/shelltemp_task.sh"
+        f = open(tmpFile, 'w+')
+        f.write("#!/bin/bash" + CMD_COMMON_ENTER)
+        cmdLine = ""
+        # UNI050_BASE source 지정
+        cmdLine = PATH_SOURCE_UNI
+        f.write(cmdLine + CMD_COMMON_ENTER)
+
+        # # TODO : 일단은 aws-robomaker-warehouse 모델을 강제로 로드하고 있으므로 source 명령이 필요, 나중에 동적 맵 로딩이 가능하게 되면 제거
+        # cmdLine = PATH_SOURCE_WAREHOUSE_TASK
+        # f.write(cmdLine + CMD_COMMON_ENTER)
+
+        # cmdLine = "source ~/.bashrc"
+        # f.write(cmdLine + CMD_COMMON_ENTER)
+
+        cmdLine = PATH_SOURCE_WAREHOUSE
+        f.write(cmdLine + CMD_COMMON_ENTER)
+
+        # 협력콜라보레이션 작업 타입 별 실행 구문 변경
+        if collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY:
+            f.write(f"roslaunch {PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY} robot_model:=locobot_wx250s use_lidar:=true use_position_controllers:=true rtabmap_args:=-d\n")
+            print("### value = " + f"roslaunch {PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY} robot_model:=locobot_wx250s use_lidar:=true use_position_controllers:=true rtabmap_args:=-d\n")
+
+        f.close
+        # Executable 권한 설정
+        os.system('chmod 777 ' + tmpFile)  
+        
+        ## Gazebo 실행
+        exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
+        if exeSimulator.poll() is None:
+            print("Gazebo 실행 성공.")
+            m_exeSimulator = exeSimulator
+            self.ui.btnStartSimulator.setEnabled(False)
+            self.m_simulator.launchFileName = PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY
+            self.disableRobotList()
+        else:
+            print("Gazebo 실행 실패.")
+
+
     # 실행중인 Gazebo에 로봇 모델 추가
     def AddModel(self):
         lstRobots = []
@@ -1032,7 +1133,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # model의 속성 작성 구문(문법 제작 방식이 복잡한 관계로 sim 객체에서 필요 정보들을 가져와 직접 정적인 구문을 만든다)
                 robotNamePosX = robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X
                 robotNamePosY = robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y
-                robotNamePLaunchosZ = robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z
+                robotNamePosZ = robotName + CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z
                 robotNameYaw = robotName + CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_YAW
                 modelProf = "args=\"-urdf -model $(arg " + robotName + ") -x $(arg " + robotNamePosX + ") -y $(arg " + robotNamePosY + ") -z $(arg " + robotNamePosZ + ") -Y $(arg " + robotNameYaw + ")"
                 f.write(CMD_COMMON_SPACE_FOUR + CMD_TURTLEBOT3_OPEN_GROUP_NODE_NAME_SPAWN_URDF + modelProf + CMD_TURTLEBOT3_CLOSE_GROUP_NODE_NAME_SPAWN_URDF + CMD_COMMON_ENTER)
@@ -1221,6 +1322,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         dlg = DialogNavigation(self.m_simulator)
         dlg.finished.connect(self.onFinishedCollaborationDlg)
+        dlg.showModal()
+
+    # Collaboration Task start
+    def StartCollaborationTask(self):
+        # 로봇 정보 저장
+        self.m_simulator.robots.clear()
+        lstRobots = []
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
+        self.m_simulator.robots = copy.deepcopy(lstRobots)
+
+        dlg = DialogStartROSCollaborationTask(self.m_simulator)
         dlg.showModal()
 
     # 협업태스크 다이얼로그 종료 시 실행
@@ -1760,6 +1872,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.m_worlds.append(world)
 
+        ## Custom
+        world = World()
+        world.categoryMain = ENUM_WORLD_CATEGORY_MAIN.CUSTOM
+        # Custom : collaoration
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.COLLABORATION
+        defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.CUSTOM.value + "/")
+        world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.COLLABORATION.value + "/" + ENUM_WORLD_CATEGORY_SUB.COLLABORATION.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+
+        self.m_worlds.append(world)
+
         self.InitWolrdToList()
 
     # 생성된 월드 정보를 토대로 GUI에 World리스트 박스를 만든다
@@ -1803,7 +1929,8 @@ class MainWindow(QtWidgets.QMainWindow):
                             # Thumb 변경
                             thumbPath = world_sub.thumbPath
                             pixmap = QPixmap(thumbPath)
-                            scaled_pixmap = pixmap.scaledToWidth(self.ui.lbWorldImage.width())
+                            # scaled_pixmap = pixmap.scaledToWidth(self.ui.lbWorldImage.width())
+                            scaled_pixmap = pixmap.scaled(self.ui.lbWorldImage.width(), self.ui.lbWorldImage.height(), Qt.IgnoreAspectRatio)
                             self.ui.lbWorldImage.setPixmap(scaled_pixmap)
                             self.setCurrentWorld(world.categoryMain, world_sub.categorySub.value)
                             self.m_simulator.worldFileType = world_sub.extention
@@ -2319,6 +2446,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_item_selection_changed_collaboration_task(self):
         # 선택된 아이템 가져오기
         selected_items = self.ui.lstwRobotROSCollaborationTasks.selectedItems()
+        if selected_items == None:
+            return
         item = selected_items[0]
         # 선택된 아이템의 행 번호
         row = self.ui.lstwRobotROSCollaborationTasks.row(item)
@@ -2330,6 +2459,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.btnAddRobot.setEnabled(True)
             self.ui.btnDeleteRobot.setEnabled(True)
             self.ui.btnAddModel.setEnabled(True)
+            self.ui.lstwWorldMainCategory.setEnabled(True)
+            self.ui.lstwWorldSubCategory.setEnabled(True)
         else:
             msg_box = QtWidgets.QMessageBox()
             msg_box.setIcon(QtWidgets.QMessageBox.Warning)
@@ -2337,16 +2468,31 @@ class MainWindow(QtWidgets.QMainWindow):
             msg_box.setText("You have selected a collaborative task.\n\n"
                             "The list will be deleted, and the robot will be fixed.\n\n"
                             "Are you sure?")
-            msg_box.setStandardButtons(QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok)
-    
+            # 버튼 추가
+            msg_box.addButton(QtWidgets.QMessageBox.Cancel)
+            msg_box.addButton(QtWidgets.QMessageBox.Ok)
             result = msg_box.exec()
 
             if result == QtWidgets.QMessageBox.Ok:
                 # 먼저 로봇을 정보를 삭제 한다.
                 self.ui.lstwRobots.clear()
 
-                ## 로봇 정보를 고정 시킨다. (현재 locobot 1대, turtlebot-burger 1대)
-                # locobot
+                # 현재 해당 작업에 사용되는 맵은 launch 파일에 강제로 설정 되어있다(realay의 경우 aws robomaker)
+                # 때문에 UI상 보이는 맵 상태만 Custom으로 변경 시키도록 한다
+                worldMainCustomIdx = 0
+                worldSubCollaborationIdx = 0
+                for i in range(0, len(self.m_worlds)) :
+                    if self.m_worlds[i].categoryMain == ENUM_WORLD_CATEGORY_MAIN.CUSTOM:
+                        worldMainCustomIdx = i
+                        for j in range(0, len(self.m_worlds[i].arrCategorySubs)):
+                            if self.m_worlds[i].arrCategorySubs[j].categorySub == ENUM_WORLD_CATEGORY_SUB.COLLABORATION:
+                                worldSubCollaborationIdx = j
+                                break
+                self.ui.lstwWorldMainCategory.setCurrentRow(worldMainCustomIdx)
+                self.ui.lstwWorldSubCategory.setCurrentRow(worldSubCollaborationIdx)
+
+                ## TODO : 로봇 정보를 고정 시킨다. (현재 locobot 2대, turtlebot-burger 2대)
+                # locobot_1
                 lstRobot = self.ui.lstwRobots
                 wItem = QtWidgets.QListWidgetItem(lstRobot)
                 lstRobot.addItem(wItem)
@@ -2358,7 +2504,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 # 리스트뷰에 로봇 위젯 셋
                 lstRobot.setItemWidget(wItem, newItem)
 
-                # tutlebot
+                # locobot_2
+                lstRobot = self.ui.lstwRobots
+                wItem = QtWidgets.QListWidgetItem(lstRobot)
+                lstRobot.addItem(wItem)
+                # 로봇 위젯 생성
+                newItem = WidgetRobotItem()
+                wItem.setSizeHint(newItem.sizeHint())
+                newItem.ChageCurrentThumbIdxByName(CONST_INTERBOTIX_NAME)
+                newItem.SetStartPosition(0.0, 0.5, 0.0)
+                # 리스트뷰에 로봇 위젯 셋
+                lstRobot.setItemWidget(wItem, newItem)                
+
+                # tutlebot_1
                 lstRobot = self.ui.lstwRobots
                 wItem2 = QtWidgets.QListWidgetItem(lstRobot)
                 lstRobot.addItem(wItem2)
@@ -2366,7 +2524,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 newItem2 = WidgetRobotItem()
                 wItem2.setSizeHint(newItem2.sizeHint())
                 newItem2.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
-                newItem2.SetStartPosition(0.5, 0.5, 0.0)
+                newItem2.SetStartPosition(1.0, 0.0, 0.0)
+                # 리스트뷰에 로봇 위젯 셋
+                lstRobot.setItemWidget(wItem2, newItem2)
+
+                # tutlebot_2
+                lstRobot = self.ui.lstwRobots
+                wItem2 = QtWidgets.QListWidgetItem(lstRobot)
+                lstRobot.addItem(wItem2)
+                # 로봇 위젯 생성
+                newItem2 = WidgetRobotItem()
+                wItem2.setSizeHint(newItem2.sizeHint())
+                newItem2.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
+                newItem2.SetStartPosition(1.0, 0.5, 0.0)
                 # 리스트뷰에 로봇 위젯 셋
                 lstRobot.setItemWidget(wItem2, newItem2)
 
@@ -2375,6 +2545,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.btnAddRobot.setEnabled(False)
                 self.ui.btnDeleteRobot.setEnabled(False)
                 self.ui.btnAddModel.setEnabled(False)
+                self.ui.lstwWorldMainCategory.setEnabled(False)
+                self.ui.lstwWorldSubCategory.setEnabled(False)
 
                 # 로봇 정보 저장
                 self.m_simulator.robots.clear()
