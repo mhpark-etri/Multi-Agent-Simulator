@@ -100,7 +100,7 @@ python3 main.py
 <br>
 
 ### 프로그램 사용 방법
-<img src="https://github.com/etri-clara2/Multi-Agent-Simulator/assets/147698192/60ad5330-c16f-46b5-9c6a-64409329adde" width="70%" height="70%"/>
+<img src="https://github.com/user-attachments/assets/00242774-51e8-4c2f-a77e-76ed0ae89952" width="70%" height="70%"/>
 
 ### 1. World 선택
    - World 패널에서 실행 하려는 가상 환경 선택.
