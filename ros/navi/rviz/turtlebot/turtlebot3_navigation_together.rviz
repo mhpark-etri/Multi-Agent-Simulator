@@ -6,13 +6,13 @@ Panels:
       Expanded:
         - /TF1/Frames1
         - /TF1/Tree1
-        - /Global Map(tb3_0)1/Costmap1
-        - /Global Map(tb3_1)1
-        - /Global Map(tb3_1)1/Costmap1/Position1
-        - /Global Map(tb3_1)1/Costmap1/Orientation1
-        - /Local Map(tb3_0)1/Polygon1
-        - /Local Map(tb3_0)1/Costmap1
-        - /Local Map(tb3_0)1/Planner1
+        - /Global Map(tb3_burger_0)1/Costmap1
+        - /Global Map(tb3_burger_1)1
+        - /Global Map(tb3_burger_1)1/Costmap1/Position1
+        - /Global Map(tb3_burger_1)1/Costmap1/Orientation1
+        - /Local Map(tb3_burger_0)1/Polygon1
+        - /Local Map(tb3_burger_0)1/Costmap1
+        - /Local Map(tb3_burger_0)1/Planner1
       Splitter Ratio: 0.5972222089767456
     Tree Height: 435
   - Class: rviz/Selection
@@ -32,7 +32,7 @@ Panels:
   - Class: rviz/Time
     Name: Time
     SyncMode: 0
-    SyncSource: LaserScan(tb3_0)
+    SyncSource: LaserScan(tb3_burger_0)
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -119,9 +119,9 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel(tb3_0)
+      Name: RobotModel(tb3_burger_0)
       Robot Description: /robot_description
-      TF Prefix: tb3_0
+      TF Prefix: tb3_burger_0
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -203,9 +203,9 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-      Name: RobotModel(tb3_1)
+      Name: RobotModel(tb3_burger_1)
       Robot Description: robot_description
-      TF Prefix: tb3_1
+      TF Prefix: tb3_burger_1
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -225,25 +225,25 @@ Visualization Manager:
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
-      Name: LaserScan(tb3_0)
+      Name: LaserScan(tb3_burger_0)
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.030000001192092896
       Style: Flat Squares
-      Topic: /tb3_0/scan
+      Topic: /tb3_burger_0/scan
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /tb3_0/camera/rgb/image_raw
+      Image Topic: /tb3_burger_0/camera/rgb/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
-      Name: Image(tb3_0)
+      Name: Image(tb3_burger_0)
       Normalize Range: true
       Queue Size: 2
       Transport Hint: compressed
@@ -255,7 +255,7 @@ Visualization Manager:
       Draw Behind: false
       Enabled: true
       Name: Map
-      Topic: /tb3_0/map
+      Topic: /tb3_burger_0/map
       Unreliable: false
       Use Timestamp: false
       Value: true
@@ -269,7 +269,7 @@ Visualization Manager:
       Length: 0.30000001192092896
       Line Style: Lines
       Line Width: 0.029999999329447746
-      Name: Planner Plan(tb3_0)
+      Name: Planner Plan(tb3_burger_0)
       Offset:
         X: 0
         Y: 0
@@ -280,7 +280,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /tb3_0/move_base/NavfnROS/plan
+      Topic: /tb3_burger_0/move_base/NavfnROS/plan
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -293,7 +293,7 @@ Visualization Manager:
       Length: 0.30000001192092896
       Line Style: Lines
       Line Width: 0.029999999329447746
-      Name: Planner Plan(tb3_1)
+      Name: Planner Plan(tb3_burger_1)
       Offset:
         X: 0
         Y: 0
@@ -304,7 +304,7 @@ Visualization Manager:
       Radius: 0.029999999329447746
       Shaft Diameter: 0.10000000149011612
       Shaft Length: 0.10000000149011612
-      Topic: /tb3_1/move_base/NavfnROS/plan
+      Topic: /tb3_burger_1/move_base/NavfnROS/plan
       Unreliable: false
       Value: true
     - Class: rviz/Group
@@ -315,7 +315,7 @@ Visualization Manager:
           Draw Behind: true
           Enabled: true
           Name: Costmap
-          Topic: /tb3_0/move_base/global_costmap/costmap
+          Topic: /tb3_burger_0/move_base/global_costmap/costmap
           Unreliable: false
           Use Timestamp: false
           Value: true
@@ -340,11 +340,11 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /tb3_0/move_base/DWAPlannerROS/global_plan
+          Topic: /tb3_burger_0/move_base/DWAPlannerROS/global_plan
           Unreliable: false
           Value: true
       Enabled: true
-      Name: Global Map(tb3_0)
+      Name: Global Map(tb3_burger_0)
     - Class: rviz/Group
       Displays:
         - Alpha: 0.699999988079071
@@ -353,7 +353,7 @@ Visualization Manager:
           Draw Behind: true
           Enabled: true
           Name: Costmap
-          Topic: /tb3_1/move_base/global_costmap/costmap
+          Topic: /tb3_burger_1/move_base/global_costmap/costmap
           Unreliable: false
           Use Timestamp: false
           Value: true
@@ -378,11 +378,11 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /tb3_1/move_base/DWAPlannerROS/global_plan
+          Topic: /tb3_burger_1/move_base/DWAPlannerROS/global_plan
           Unreliable: false
           Value: true
       Enabled: false
-      Name: Global Map(tb3_1)
+      Name: Global Map(tb3_burger_1)
     - Class: rviz/Group
       Displays:
         - Alpha: 1
@@ -391,7 +391,7 @@ Visualization Manager:
           Enabled: false
           Name: Polygon
           Queue Size: 10
-          Topic: /tb3_0/move_base/local_costmap/footprint
+          Topic: /tb3_burger_0/move_base/local_costmap/footprint
           Unreliable: false
           Value: false
         - Alpha: 0.699999988079071
@@ -400,7 +400,7 @@ Visualization Manager:
           Draw Behind: false
           Enabled: true
           Name: Costmap
-          Topic: /tb3_0/move_base/local_costmap/costmap
+          Topic: /tb3_burger_0/move_base/local_costmap/costmap
           Unreliable: false
           Use Timestamp: false
           Value: true
@@ -425,11 +425,11 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /tb3_0/move_base/DWAPlannerROS/local_plan
+          Topic: /tb3_burger_0/move_base/DWAPlannerROS/local_plan
           Unreliable: false
           Value: true
       Enabled: true
-      Name: Local Map(tb3_0)
+      Name: Local Map(tb3_burger_0)
     - Class: rviz/Group
       Displays:
         - Alpha: 1
@@ -438,7 +438,7 @@ Visualization Manager:
           Enabled: false
           Name: Polygon
           Queue Size: 10
-          Topic: /tb3_1/move_base/local_costmap/footprint
+          Topic: /tb3_burger_1/move_base/local_costmap/footprint
           Unreliable: false
           Value: false
         - Alpha: 0.699999988079071
@@ -447,7 +447,7 @@ Visualization Manager:
           Draw Behind: false
           Enabled: true
           Name: Costmap
-          Topic: /tb3_1/move_base/local_costmap/costmap
+          Topic: /tb3_burger_1/move_base/local_costmap/costmap
           Unreliable: false
           Use Timestamp: false
           Value: true
@@ -472,11 +472,11 @@ Visualization Manager:
           Radius: 0.029999999329447746
           Shaft Diameter: 0.10000000149011612
           Shaft Length: 0.10000000149011612
-          Topic: /tb3_0/move_base/DWAPlannerROS/local_plan
+          Topic: /tb3_burger_0/move_base/DWAPlannerROS/local_plan
           Unreliable: false
           Value: true
       Enabled: false
-      Name: Local Map(tb3_1)
+      Name: Local Map(tb3_burger_1)
     - Alpha: 1
       Arrow Length: 0.05000000074505806
       Axes Length: 0.30000001192092896
@@ -486,12 +486,12 @@ Visualization Manager:
       Enabled: true
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
-      Name: Amcl Particles(tb3_0)
+      Name: Amcl Particles(tb3_burger_0)
       Queue Size: 10
       Shaft Length: 0.23000000417232513
       Shaft Radius: 0.009999999776482582
       Shape: Arrow (Flat)
-      Topic: /tb3_0/particlecloud
+      Topic: /tb3_burger_0/particlecloud
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -503,12 +503,12 @@ Visualization Manager:
       Enabled: true
       Head Length: 0.07000000029802322
       Head Radius: 0.029999999329447746
-      Name: Amcl Particles(tb3_1)
+      Name: Amcl Particles(tb3_burger_1)
       Queue Size: 10
       Shaft Length: 0.23000000417232513
       Shaft Radius: 0.009999999776482582
       Shape: Arrow (Flat)
-      Topic: /tb3_1/particlecloud
+      Topic: /tb3_burger_1/particlecloud
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -519,12 +519,12 @@ Visualization Manager:
       Enabled: true
       Head Length: 0.30000001192092896
       Head Radius: 0.10000000149011612
-      Name: Goal(tb3_0)
+      Name: Goal(tb3_burger_0)
       Queue Size: 10
       Shaft Length: 0.5
       Shaft Radius: 0.05000000074505806
       Shape: Arrow
-      Topic: /tb3_0/move_base/current_goal
+      Topic: /tb3_burger_0/move_base/current_goal
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -535,12 +535,12 @@ Visualization Manager:
       Enabled: true
       Head Length: 0.30000001192092896
       Head Radius: 0.10000000149011612
-      Name: Goal(tb3_1)
+      Name: Goal(tb3_burger_1)
       Queue Size: 10
       Shaft Length: 0.5
       Shaft Radius: 0.05000000074505806
       Shape: Arrow
-      Topic: /tb3_1/move_base/current_goal
+      Topic: /tb3_burger_1/move_base/current_goal
       Unreliable: false
       Value: true
   Enabled: true
@@ -561,9 +561,9 @@ Visualization Manager:
       X std deviation: 0.5
       Y std deviation: 0.5
     - Class: rviz/SetGoal
-      Topic: /tb3_0/move_base_simple/goal
+      Topic: /tb3_burger_0/move_base_simple/goal
     - Class: rviz/SetGoal
-      Topic: /tb3_1/move_base_simple/goal
+      Topic: /tb3_burger_1/move_base_simple/goal
     - Class: rviz/Measure
   Value: true
   Views:
@@ -589,7 +589,7 @@ Window Geometry:
   Height: 826
   Hide Left Dock: false
   Hide Right Dock: false
-  Image(tb3_0):
+  Image(tb3_burger_0):
     collapsed: false
   QMainWindow State: 000000ff00000000fd00000004000000000000016a000002e4fc0200000007fb0000001200530065006c0065006300740069006f006e000000003b0000006b0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007302000001ed000001df00000185000000a3fb000000120056006900650077007300200054006f006f02000001df000002110000018500000122fb000000200054006f006f006c002000500072006f0070006500720074006900650073003203000002880000011d000002210000017afb000000100044006900730070006c006100790073010000003b0000023c000000c700fffffffb000000180049006d0061006700650028007400620033005f00300029010000027d000000a20000001600fffffffb0000000a0049006d0061006700650000000330000000ce0000000000000000000000010000010f000002e4fc0200000003fb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000041000000780000000000000000fb0000000a00560069006500770073000000003b000002e4000000a000fffffffb0000001200530065006c0065006300740069006f006e010000025a000000b200000000000000000000000200000490000000a9fc0100000001fb0000000a00560069006500770073030000004e00000080000002e10000019700000003000004a00000003efc0100000002fb0000000800540069006d00650000000000000004a00000035c00fffffffb0000000800540069006d00650100000000000004500000000000000000000002ff000002e400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
