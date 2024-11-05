@@ -68,9 +68,9 @@ sudo docker start ct_mas
 <br>
 <br>
 - docker 접속 후에 아래의 명령어를 차례대로 입력하여 Jnp make 실행
-
 ```
-sudo docker start ct_mas
+cd /root/catkin_ws_jnp
+catkin_make
 ```
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
 <br><br>
