@@ -68,7 +68,7 @@ sudo docker start ct_mas
 <br>
 <br>
 - docker 접속 후에 아래의 명령어를 차례대로 입력하여 Jnp make 실행
-- 
+
 ```
 sudo docker start ct_mas
 ```
