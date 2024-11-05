@@ -71,7 +71,6 @@ sudo docker start ct_mas
 ```
 cd /root/catkin_ws_jnp
 catkin_make
-chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 ```
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
 <br><br>
