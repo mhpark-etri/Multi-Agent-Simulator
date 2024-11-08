@@ -842,14 +842,14 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
        <item>
         <widget class="QGroupBox" name="gbRobotROS">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>350</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
@@ -911,9 +911,9 @@ QGroupBox#gbRobotROS::title {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
-               <width>323</width>
-               <height>904</height>
+               <y>-343</y>
+               <width>327</width>
+               <height>1051</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -1221,59 +1221,52 @@ QGroupBox#gbRobotROSJnp::title {
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_12">
                     <item>
-                     <layout class="QVBoxLayout" name="verticalLayout_11">
+                     <layout class="QHBoxLayout" name="horizontalLayout_23">
                       <item>
-                       <widget class="QCheckBox" name="cbROSJnpOptionsEnable">
-                        <property name="enabled">
-                         <bool>true</bool>
+                       <widget class="QPushButton" name="btnRobotROSJNPStart">
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
                         </property>
                         <property name="text">
-                         <string>Enable</string>
-                        </property>
-                        <property name="checkable">
-                         <bool>true</bool>
-                        </property>
-                        <property name="checked">
-                         <bool>false</bool>
+                         <string>Start</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QFrame" name="frmROSJnpOptions">
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                       <widget class="QLabel" name="label_5">
+                        <property name="text">
+                         <string/>
                         </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_7">
+                        <property name="text">
+                         <string/>
                         </property>
-                        <layout class="QVBoxLayout" name="verticalLayout_15">
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <layout class="QVBoxLayout" name="verticalLayout_14">
-                           <property name="leftMargin">
-                            <number>15</number>
-                           </property>
-                           <item>
-                            <widget class="QCheckBox" name="cbROSJnpOptionTerminal">
-                             <property name="text">
-                              <string>Run the script in terminal</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </item>
-                        </layout>
                        </widget>
                       </item>
                      </layout>
@@ -1305,11 +1298,55 @@ QGroupBox#gbRobotROSJnl::title {
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_13">
                     <item>
-                     <widget class="QCheckBox" name="cbROSJnlOptionsEnable">
-                      <property name="text">
-                       <string>Enable</string>
-                      </property>
-                     </widget>
+                     <layout class="QHBoxLayout" name="horizontalLayout_24">
+                      <item>
+                       <widget class="QPushButton" name="btnRobotROSJNLStart">
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                        </property>
+                        <property name="text">
+                         <string>Start</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_6">
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_8">
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </item>
                    </layout>
                   </widget>
@@ -1338,11 +1375,275 @@ QGroupBox#gbRobotROSI2IEnhancement::title {
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_16">
                     <item>
-                     <widget class="QCheckBox" name="cbROSI2IOptionsEnable">
-                      <property name="text">
-                       <string>Enable</string>
+                     <layout class="QHBoxLayout" name="horizontalLayout_21">
+                      <item>
+                       <widget class="QPushButton" name="btnRobotROSI2IStart">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>114</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                        </property>
+                        <property name="text">
+                         <string>Setting</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_4">
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_9">
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="gbRobotROSDQN">
+                   <property name="styleSheet">
+                    <string notr="true">QGroupBox#gbRobotROSDQN{
+    border: 1px solid 	darkgray;
+    margin-top: 15px;
+	padding-top: 15px;
+    color: white;
+}
+
+QGroupBox#gbRobotROSDQN::title {
+    subcontrol-position: top left;
+    border: 1px solid white;
+    background-color: gray;
+    padding: 5px 15px 5px 15px;
+    top: -15px;
+	left: 20px;
+}</string>
+                   </property>
+                   <property name="title">
+                    <string>Deep Q-Learning</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_14">
+                    <item>
+                     <layout class="QVBoxLayout" name="verticalLayout_11">
+                      <property name="spacing">
+                       <number>6</number>
                       </property>
-                     </widget>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_25">
+                        <item>
+                         <widget class="QPushButton" name="btnRobotROSDQNStart">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>114</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                          </property>
+                          <property name="text">
+                           <string>Start</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_11">
+                          <property name="text">
+                           <string/>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_12">
+                          <property name="text">
+                           <string/>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_22">
+                        <item>
+                         <widget class="QPushButton" name="btnRobotROSDQNSave">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>114</width>
+                            <height>0</height>
+                           </size>
+                          </property>
+                          <property name="styleSheet">
+                           <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                          </property>
+                          <property name="text">
+                           <string>Save</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="lbRobotROSDQNSavePath">
+                          <property name="text">
+                           <string>Path : </string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                     </layout>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_26">
+                      <item>
+                       <widget class="QPushButton" name="btnRobotROSDQNLoad">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>114</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                        </property>
+                        <property name="text">
+                         <string>Load</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="lbRobotROSDQNLoadPath">
+                        <property name="text">
+                         <string>Path : </string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </item>
                    </layout>
                   </widget>
@@ -1386,9 +1687,26 @@ QGroupBox#gbRobotROSCollaborationTasks::title {
                      <number>10</number>
                     </property>
                     <item>
-                     <widget class="QPushButton" name="btnRobotROSCollaborationSetting">
-                      <property name="styleSheet">
-                       <string notr="true">QPushButton {
+                     <layout class="QHBoxLayout" name="horizontalLayout_20">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <item>
+                       <widget class="QPushButton" name="btnRobotROSCollaborationSetting">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>114</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
 color: #333;
 border: 2px solid #555;
 border-radius: 4px;
@@ -1412,11 +1730,77 @@ background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
-                      </property>
-                      <property name="text">
-                       <string>Setting</string>
-                      </property>
-                     </widget>
+                        </property>
+                        <property name="text">
+                         <string>Setting</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="btnRobotROSCollaborationStartTask">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>114</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                        </property>
+                        <property name="text">
+                         <string>Start</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_10">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>50</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </item>
                     <item>
                      <widget class="QListWidget" name="lstwRobotROSCollaborationTasks">
@@ -1431,39 +1815,6 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                         <width>0</width>
                         <height>0</height>
                        </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="btnRobotROSCollaborationStartTask">
-                      <property name="styleSheet">
-                       <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 4px;
-padding: 5px;
-margin-left: 10px;
-margin-right: 10px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:hover {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}</string>
-                      </property>
-                      <property name="text">
-                       <string>Start task</string>
                       </property>
                      </widget>
                     </item>

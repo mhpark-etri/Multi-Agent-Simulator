@@ -496,9 +496,9 @@ class Ui_MainWindow(object):
 
         self.gbRobotROS = QGroupBox(self.frame_19)
         self.gbRobotROS.setObjectName(u"gbRobotROS")
-        sizePolicy3.setHeightForWidth(self.gbRobotROS.sizePolicy().hasHeightForWidth())
-        self.gbRobotROS.setSizePolicy(sizePolicy3)
-        self.gbRobotROS.setMinimumSize(QSize(350, 0))
+        sizePolicy2.setHeightForWidth(self.gbRobotROS.sizePolicy().hasHeightForWidth())
+        self.gbRobotROS.setSizePolicy(sizePolicy2)
+        self.gbRobotROS.setMinimumSize(QSize(0, 0))
         self.gbRobotROS.setStyleSheet(u"QGroupBox#gbRobotROS{\n"
 "    border: 1px solid 	darkgray;\n"
 "    background-color: #cccccc;\n"
@@ -532,7 +532,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 323, 904))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, -343, 327, 1051))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -749,39 +749,49 @@ class Ui_MainWindow(object):
         self.gbRobotROSJnp.setChecked(False)
         self.verticalLayout_12 = QVBoxLayout(self.gbRobotROSJnp)
         self.verticalLayout_12.setObjectName(u"verticalLayout_12")
-        self.verticalLayout_11 = QVBoxLayout()
-        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
-        self.cbROSJnpOptionsEnable = QCheckBox(self.gbRobotROSJnp)
-        self.cbROSJnpOptionsEnable.setObjectName(u"cbROSJnpOptionsEnable")
-        self.cbROSJnpOptionsEnable.setEnabled(True)
-        self.cbROSJnpOptionsEnable.setCheckable(True)
-        self.cbROSJnpOptionsEnable.setChecked(False)
+        self.horizontalLayout_23 = QHBoxLayout()
+        self.horizontalLayout_23.setObjectName(u"horizontalLayout_23")
+        self.btnRobotROSJNPStart = QPushButton(self.gbRobotROSJnp)
+        self.btnRobotROSJNPStart.setObjectName(u"btnRobotROSJNPStart")
+        self.btnRobotROSJNPStart.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
 
-        self.verticalLayout_11.addWidget(self.cbROSJnpOptionsEnable)
+        self.horizontalLayout_23.addWidget(self.btnRobotROSJNPStart)
 
-        self.frmROSJnpOptions = QFrame(self.gbRobotROSJnp)
-        self.frmROSJnpOptions.setObjectName(u"frmROSJnpOptions")
-        self.frmROSJnpOptions.setFrameShape(QFrame.StyledPanel)
-        self.frmROSJnpOptions.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_15 = QVBoxLayout(self.frmROSJnpOptions)
-        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
-        self.verticalLayout_15.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout_14 = QVBoxLayout()
-        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
-        self.verticalLayout_14.setContentsMargins(15, -1, -1, -1)
-        self.cbROSJnpOptionTerminal = QCheckBox(self.frmROSJnpOptions)
-        self.cbROSJnpOptionTerminal.setObjectName(u"cbROSJnpOptionTerminal")
+        self.label_5 = QLabel(self.gbRobotROSJnp)
+        self.label_5.setObjectName(u"label_5")
 
-        self.verticalLayout_14.addWidget(self.cbROSJnpOptionTerminal)
+        self.horizontalLayout_23.addWidget(self.label_5)
+
+        self.label_7 = QLabel(self.gbRobotROSJnp)
+        self.label_7.setObjectName(u"label_7")
+
+        self.horizontalLayout_23.addWidget(self.label_7)
 
 
-        self.verticalLayout_15.addLayout(self.verticalLayout_14)
-
-
-        self.verticalLayout_11.addWidget(self.frmROSJnpOptions)
-
-
-        self.verticalLayout_12.addLayout(self.verticalLayout_11)
+        self.verticalLayout_12.addLayout(self.horizontalLayout_23)
 
 
         self.verticalLayout_30.addWidget(self.gbRobotROSJnp)
@@ -805,10 +815,49 @@ class Ui_MainWindow(object):
 "}")
         self.verticalLayout_13 = QVBoxLayout(self.gbRobotROSJnl)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
-        self.cbROSJnlOptionsEnable = QCheckBox(self.gbRobotROSJnl)
-        self.cbROSJnlOptionsEnable.setObjectName(u"cbROSJnlOptionsEnable")
+        self.horizontalLayout_24 = QHBoxLayout()
+        self.horizontalLayout_24.setObjectName(u"horizontalLayout_24")
+        self.btnRobotROSJNLStart = QPushButton(self.gbRobotROSJnl)
+        self.btnRobotROSJNLStart.setObjectName(u"btnRobotROSJNLStart")
+        self.btnRobotROSJNLStart.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
 
-        self.verticalLayout_13.addWidget(self.cbROSJnlOptionsEnable)
+        self.horizontalLayout_24.addWidget(self.btnRobotROSJNLStart)
+
+        self.label_6 = QLabel(self.gbRobotROSJnl)
+        self.label_6.setObjectName(u"label_6")
+
+        self.horizontalLayout_24.addWidget(self.label_6)
+
+        self.label_8 = QLabel(self.gbRobotROSJnl)
+        self.label_8.setObjectName(u"label_8")
+
+        self.horizontalLayout_24.addWidget(self.label_8)
+
+
+        self.verticalLayout_13.addLayout(self.horizontalLayout_24)
 
 
         self.verticalLayout_30.addWidget(self.gbRobotROSJnl)
@@ -832,13 +881,214 @@ class Ui_MainWindow(object):
 "}")
         self.verticalLayout_16 = QVBoxLayout(self.gbRobotROSI2IEnhancement)
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
-        self.cbROSI2IOptionsEnable = QCheckBox(self.gbRobotROSI2IEnhancement)
-        self.cbROSI2IOptionsEnable.setObjectName(u"cbROSI2IOptionsEnable")
+        self.horizontalLayout_21 = QHBoxLayout()
+        self.horizontalLayout_21.setObjectName(u"horizontalLayout_21")
+        self.btnRobotROSI2IStart = QPushButton(self.gbRobotROSI2IEnhancement)
+        self.btnRobotROSI2IStart.setObjectName(u"btnRobotROSI2IStart")
+        sizePolicy2.setHeightForWidth(self.btnRobotROSI2IStart.sizePolicy().hasHeightForWidth())
+        self.btnRobotROSI2IStart.setSizePolicy(sizePolicy2)
+        self.btnRobotROSI2IStart.setMinimumSize(QSize(114, 0))
+        self.btnRobotROSI2IStart.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
 
-        self.verticalLayout_16.addWidget(self.cbROSI2IOptionsEnable)
+        self.horizontalLayout_21.addWidget(self.btnRobotROSI2IStart)
+
+        self.label_4 = QLabel(self.gbRobotROSI2IEnhancement)
+        self.label_4.setObjectName(u"label_4")
+
+        self.horizontalLayout_21.addWidget(self.label_4)
+
+        self.label_9 = QLabel(self.gbRobotROSI2IEnhancement)
+        self.label_9.setObjectName(u"label_9")
+
+        self.horizontalLayout_21.addWidget(self.label_9)
+
+
+        self.verticalLayout_16.addLayout(self.horizontalLayout_21)
 
 
         self.verticalLayout_30.addWidget(self.gbRobotROSI2IEnhancement)
+
+        self.gbRobotROSDQN = QGroupBox(self.frame_20)
+        self.gbRobotROSDQN.setObjectName(u"gbRobotROSDQN")
+        self.gbRobotROSDQN.setStyleSheet(u"QGroupBox#gbRobotROSDQN{\n"
+"    border: 1px solid 	darkgray;\n"
+"    margin-top: 15px;\n"
+"	padding-top: 15px;\n"
+"    color: white;\n"
+"}\n"
+"\n"
+"QGroupBox#gbRobotROSDQN::title {\n"
+"    subcontrol-position: top left;\n"
+"    border: 1px solid white;\n"
+"    background-color: gray;\n"
+"    padding: 5px 15px 5px 15px;\n"
+"    top: -15px;\n"
+"	left: 20px;\n"
+"}")
+        self.verticalLayout_14 = QVBoxLayout(self.gbRobotROSDQN)
+        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
+        self.verticalLayout_11 = QVBoxLayout()
+        self.verticalLayout_11.setSpacing(6)
+        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
+        self.horizontalLayout_25 = QHBoxLayout()
+        self.horizontalLayout_25.setObjectName(u"horizontalLayout_25")
+        self.btnRobotROSDQNStart = QPushButton(self.gbRobotROSDQN)
+        self.btnRobotROSDQNStart.setObjectName(u"btnRobotROSDQNStart")
+        sizePolicy.setHeightForWidth(self.btnRobotROSDQNStart.sizePolicy().hasHeightForWidth())
+        self.btnRobotROSDQNStart.setSizePolicy(sizePolicy)
+        self.btnRobotROSDQNStart.setMinimumSize(QSize(114, 0))
+        self.btnRobotROSDQNStart.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.horizontalLayout_25.addWidget(self.btnRobotROSDQNStart)
+
+        self.label_11 = QLabel(self.gbRobotROSDQN)
+        self.label_11.setObjectName(u"label_11")
+
+        self.horizontalLayout_25.addWidget(self.label_11)
+
+        self.label_12 = QLabel(self.gbRobotROSDQN)
+        self.label_12.setObjectName(u"label_12")
+
+        self.horizontalLayout_25.addWidget(self.label_12)
+
+
+        self.verticalLayout_11.addLayout(self.horizontalLayout_25)
+
+        self.horizontalLayout_22 = QHBoxLayout()
+        self.horizontalLayout_22.setObjectName(u"horizontalLayout_22")
+        self.btnRobotROSDQNSave = QPushButton(self.gbRobotROSDQN)
+        self.btnRobotROSDQNSave.setObjectName(u"btnRobotROSDQNSave")
+        sizePolicy1.setHeightForWidth(self.btnRobotROSDQNSave.sizePolicy().hasHeightForWidth())
+        self.btnRobotROSDQNSave.setSizePolicy(sizePolicy1)
+        self.btnRobotROSDQNSave.setMinimumSize(QSize(114, 0))
+        self.btnRobotROSDQNSave.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.horizontalLayout_22.addWidget(self.btnRobotROSDQNSave)
+
+        self.lbRobotROSDQNSavePath = QLabel(self.gbRobotROSDQN)
+        self.lbRobotROSDQNSavePath.setObjectName(u"lbRobotROSDQNSavePath")
+
+        self.horizontalLayout_22.addWidget(self.lbRobotROSDQNSavePath)
+
+
+        self.verticalLayout_11.addLayout(self.horizontalLayout_22)
+
+
+        self.verticalLayout_14.addLayout(self.verticalLayout_11)
+
+        self.horizontalLayout_26 = QHBoxLayout()
+        self.horizontalLayout_26.setObjectName(u"horizontalLayout_26")
+        self.btnRobotROSDQNLoad = QPushButton(self.gbRobotROSDQN)
+        self.btnRobotROSDQNLoad.setObjectName(u"btnRobotROSDQNLoad")
+        sizePolicy1.setHeightForWidth(self.btnRobotROSDQNLoad.sizePolicy().hasHeightForWidth())
+        self.btnRobotROSDQNLoad.setSizePolicy(sizePolicy1)
+        self.btnRobotROSDQNLoad.setMinimumSize(QSize(114, 0))
+        self.btnRobotROSDQNLoad.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.horizontalLayout_26.addWidget(self.btnRobotROSDQNLoad)
+
+        self.lbRobotROSDQNLoadPath = QLabel(self.gbRobotROSDQN)
+        self.lbRobotROSDQNLoadPath.setObjectName(u"lbRobotROSDQNLoadPath")
+
+        self.horizontalLayout_26.addWidget(self.lbRobotROSDQNLoadPath)
+
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_26)
+
+
+        self.verticalLayout_30.addWidget(self.gbRobotROSDQN)
 
         self.gbRobotROSCollaborationTasks = QGroupBox(self.frame_20)
         self.gbRobotROSCollaborationTasks.setObjectName(u"gbRobotROSCollaborationTasks")
@@ -863,8 +1113,14 @@ class Ui_MainWindow(object):
         self.verticalLayout_17 = QVBoxLayout(self.gbRobotROSCollaborationTasks)
         self.verticalLayout_17.setSpacing(10)
         self.verticalLayout_17.setObjectName(u"verticalLayout_17")
+        self.horizontalLayout_20 = QHBoxLayout()
+        self.horizontalLayout_20.setSpacing(0)
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
         self.btnRobotROSCollaborationSetting = QPushButton(self.gbRobotROSCollaborationTasks)
         self.btnRobotROSCollaborationSetting.setObjectName(u"btnRobotROSCollaborationSetting")
+        sizePolicy.setHeightForWidth(self.btnRobotROSCollaborationSetting.sizePolicy().hasHeightForWidth())
+        self.btnRobotROSCollaborationSetting.setSizePolicy(sizePolicy)
+        self.btnRobotROSCollaborationSetting.setMinimumSize(QSize(114, 0))
         self.btnRobotROSCollaborationSetting.setStyleSheet(u"QPushButton {\n"
 "color: #333;\n"
 "border: 2px solid #555;\n"
@@ -890,21 +1146,13 @@ class Ui_MainWindow(object):
 "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
 "}")
 
-        self.verticalLayout_17.addWidget(self.btnRobotROSCollaborationSetting)
-
-        self.lstwRobotROSCollaborationTasks = QListWidget(self.gbRobotROSCollaborationTasks)
-        self.lstwRobotROSCollaborationTasks.setObjectName(u"lstwRobotROSCollaborationTasks")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy6.setHorizontalStretch(0)
-        sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
-        self.lstwRobotROSCollaborationTasks.setSizePolicy(sizePolicy6)
-        self.lstwRobotROSCollaborationTasks.setMinimumSize(QSize(0, 0))
-
-        self.verticalLayout_17.addWidget(self.lstwRobotROSCollaborationTasks)
+        self.horizontalLayout_20.addWidget(self.btnRobotROSCollaborationSetting)
 
         self.btnRobotROSCollaborationStartTask = QPushButton(self.gbRobotROSCollaborationTasks)
         self.btnRobotROSCollaborationStartTask.setObjectName(u"btnRobotROSCollaborationStartTask")
+        sizePolicy.setHeightForWidth(self.btnRobotROSCollaborationStartTask.sizePolicy().hasHeightForWidth())
+        self.btnRobotROSCollaborationStartTask.setSizePolicy(sizePolicy)
+        self.btnRobotROSCollaborationStartTask.setMinimumSize(QSize(114, 0))
         self.btnRobotROSCollaborationStartTask.setStyleSheet(u"QPushButton {\n"
 "color: #333;\n"
 "border: 2px solid #555;\n"
@@ -930,7 +1178,29 @@ class Ui_MainWindow(object):
 "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
 "}")
 
-        self.verticalLayout_17.addWidget(self.btnRobotROSCollaborationStartTask)
+        self.horizontalLayout_20.addWidget(self.btnRobotROSCollaborationStartTask)
+
+        self.label_10 = QLabel(self.gbRobotROSCollaborationTasks)
+        self.label_10.setObjectName(u"label_10")
+        sizePolicy.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
+        self.label_10.setSizePolicy(sizePolicy)
+        self.label_10.setMinimumSize(QSize(50, 0))
+
+        self.horizontalLayout_20.addWidget(self.label_10)
+
+
+        self.verticalLayout_17.addLayout(self.horizontalLayout_20)
+
+        self.lstwRobotROSCollaborationTasks = QListWidget(self.gbRobotROSCollaborationTasks)
+        self.lstwRobotROSCollaborationTasks.setObjectName(u"lstwRobotROSCollaborationTasks")
+        sizePolicy6 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy6.setHorizontalStretch(0)
+        sizePolicy6.setVerticalStretch(0)
+        sizePolicy6.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
+        self.lstwRobotROSCollaborationTasks.setSizePolicy(sizePolicy6)
+        self.lstwRobotROSCollaborationTasks.setMinimumSize(QSize(0, 0))
+
+        self.verticalLayout_17.addWidget(self.lstwRobotROSCollaborationTasks)
 
 
         self.verticalLayout_30.addWidget(self.gbRobotROSCollaborationTasks)
@@ -1049,15 +1319,29 @@ class Ui_MainWindow(object):
         self.rbROSNavigation.setText(QCoreApplication.translate("MainWindow", u"Navigation", None))
         self.btnROSNavigationEdit.setText(QCoreApplication.translate("MainWindow", u"edit", None))
         self.gbRobotROSJnp.setTitle(QCoreApplication.translate("MainWindow", u"Jnp", None))
-        self.cbROSJnpOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
-        self.cbROSJnpOptionTerminal.setText(QCoreApplication.translate("MainWindow", u"Run the script in terminal", None))
+        self.btnRobotROSJNPStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.label_5.setText("")
+        self.label_7.setText("")
         self.gbRobotROSJnl.setTitle(QCoreApplication.translate("MainWindow", u"Jnl", None))
-        self.cbROSJnlOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
+        self.btnRobotROSJNLStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.label_6.setText("")
+        self.label_8.setText("")
         self.gbRobotROSI2IEnhancement.setTitle(QCoreApplication.translate("MainWindow", u"I2I Enhancement", None))
-        self.cbROSI2IOptionsEnable.setText(QCoreApplication.translate("MainWindow", u"Enable", None))
+        self.btnRobotROSI2IStart.setText(QCoreApplication.translate("MainWindow", u"Setting", None))
+        self.label_4.setText("")
+        self.label_9.setText("")
+        self.gbRobotROSDQN.setTitle(QCoreApplication.translate("MainWindow", u"Deep Q-Learning", None))
+        self.btnRobotROSDQNStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.label_11.setText("")
+        self.label_12.setText("")
+        self.btnRobotROSDQNSave.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.lbRobotROSDQNSavePath.setText(QCoreApplication.translate("MainWindow", u"Path : ", None))
+        self.btnRobotROSDQNLoad.setText(QCoreApplication.translate("MainWindow", u"Load", None))
+        self.lbRobotROSDQNLoadPath.setText(QCoreApplication.translate("MainWindow", u"Path : ", None))
         self.gbRobotROSCollaborationTasks.setTitle(QCoreApplication.translate("MainWindow", u"Collaboration Tasks", None))
         self.btnRobotROSCollaborationSetting.setText(QCoreApplication.translate("MainWindow", u"Setting", None))
-        self.btnRobotROSCollaborationStartTask.setText(QCoreApplication.translate("MainWindow", u"Start task", None))
+        self.btnRobotROSCollaborationStartTask.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+        self.label_10.setText("")
         self.btnStartSimulator.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.menuFIle.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuDB.setTitle(QCoreApplication.translate("MainWindow", u"DB", None))

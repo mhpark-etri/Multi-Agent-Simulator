@@ -8,15 +8,16 @@ import shutil
 import copy
 import random
 import subprocess
-import threading
 from datetime import datetime  
 from PySide6 import QtWidgets
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QFileDialog
+from PySide6.QtCore import Qt, QSettings
 from ui_main import Ui_MainWindow
 from dlgROSTeleop import DialogTeleop
 from dlgROSSlam import DialogSmal
 from dlgROSNavigation import DialogNavigation
 from dlgROSRViz import DialogRViz
+from dlgROSI2I import DialogROSI2I
 from dlgStartROSCollaborationTask import DialogStartROSCollaborationTask
 # from dlgDBOpen import DialogDBOpen
 from widgetRobotItem import WidgetRobotItem
@@ -28,6 +29,7 @@ import tkinter as tk
 from tkinter import filedialog
 import time
 import atexit
+import rospy
 
 from constant import *
 from simulator import *
@@ -91,6 +93,7 @@ class MainWindow(QtWidgets.QMainWindow):
     m_arrJnpProcess = []                    # Jnp sub proecess
     m_arrROSCollaborationTask = []          # ROS Collaboration Task
     m_prevSelectedCollaborationTask = 0     # 이전 선택된 협업태스크 작업 목록
+    m_settings = QSettings(SETTING_COMPANY, SETTING_APP)  # 설정 파일 이름 설정
 
     # Init
     def __init__(self):
@@ -134,14 +137,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btnGroupROS.addButton(self.ui.rbROSSlam)
         self.btnGroupROS.addButton(self.ui.rbROSNavigation)
         self.btnGroupROS.buttonToggled.connect(self.ROSRadioButtonItemSelected)
-        self.ui.cbROSJnpOptionsEnable.stateChanged.connect(self.ToggleJnpWidgets)
-        self.ui.cbROSJnpOptionTerminal.setVisible(False)
+        self.ui.btnRobotROSJNPStart.clicked.connect(self.StartJnp)
         self.ui.gbRobotROSNavigation.setVisible(False)
         self.ui.gbRobotROSJnl.setVisible(False)
-        self.ui.gbRobotROSI2IEnhancement.setVisible(False)
+        self.ui.gbRobotROSI2IEnhancement.setVisible(True)
         self.ui.lstwRobotROSCollaborationTasks.itemSelectionChanged.connect(self.on_item_selection_changed_collaboration_task)
         self.ui.btnRobotROSCollaborationSetting.clicked.connect(self.OpenCollaborationSettingDialog)
+        self.ui.btnRobotROSI2IStart.clicked.connect(self.OpenROSI2IDialoglog)
         self.ui.btnRobotROSCollaborationStartTask.clicked.connect(self.StartCollaborationTask)
+        self.ui.btnRobotROSDQNSave.clicked.connect(self.SaveDQNWeightFile)
+        self.ui.btnRobotROSDQNLoad.clicked.connect(self.LoadDQNWeightFile)
 
         # Set Default Init
         # ROS Navigation = None
@@ -1301,7 +1306,33 @@ class MainWindow(QtWidgets.QMainWindow):
         self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
         self.m_simulator.robots = copy.deepcopy(lstRobots)
 
-        dlg = DialogSmal(self.m_simulator)
+        dlg = DialogROSI2I(self.m_simulator)
+        dlg.showModal()
+
+    # Image-to-Image Enhancement dialog open
+    def OpenROSI2IDialoglog(self):
+        # 로봇 정보 저장
+        self.m_simulator.robots.clear()
+        lstRobots = []
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
+        self.m_simulator.robots = copy.deepcopy(lstRobots)
+
+        if len(self.m_simulator.robots) == 0:
+            return
+
+        # 현재 ROS 실행 중인지 점검
+        try:
+            rospy.get_master().getSystemState()
+            print("Connected to the ROS master.")
+        except (rospy.ROSException, ConnectionRefusedError) as e:
+            error_message = "Unable to connect to the ROS master. Please ensure it is running."
+            print(error_message)
+            
+            # 경고 메시지 표시
+            QtWidgets.QMessageBox.critical(self, "Connection Error", error_message, QtWidgets.QMessageBox.Ok)
+            return
+
+        dlg = DialogROSI2I(self.m_simulator)
         dlg.showModal()
 
     # Collaboration
@@ -1351,24 +1382,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # Jnp 
     ## Jnp 활성화
-    def ToggleJnpWidgets(self):
-        state = self.ui.cbROSJnpOptionsEnable.isChecked()
-        for widget in self.ui.frmROSJnpOptions.findChildren(QtWidgets.QWidget):
-            widget.setEnabled(state)
-    
-        ## TODO : 현재 StartLaunch에서 아래 코드를 실행 할 경우 text file busy 에러를 발생하면서 실행 되지 않는다.
-        ##        때문에 일단은 여기에서 실행 되도록 한 상태인데 가급적이면 메인 스레드에서 실행되는 방안을 강구할 필요가 있다.
-        if self.ui.cbROSJnpOptionsEnable.isChecked() :
-            self.StartJnp(self.m_arrJnpProcess)
-            atexit.register(self.CloseJnp, self.m_arrJnpProcess)
-        else :
+    def StartJnp(self):
+        if len(self.m_arrJnpProcess) > 0:
             self.CloseJnp(self.m_arrJnpProcess)
-
-
-    ## Jnp 실행
-    def StartJnp(self, arrProcess):
-        if len(arrProcess) > 0:
-            self.CloseJnp(arrProcess)
 
         ## 각 모델 별 Jnp 실행
         # ns는 기본 사용
@@ -1380,9 +1396,44 @@ class MainWindow(QtWidgets.QMainWindow):
             command = command + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
             completeCmd = CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE
             process = subprocess.Popen([completeCmd], shell=True)
-            arrProcess.append(process)
+            self.m_arrJnpProcess.append(process)
             time.sleep(1)
             #cmd = subprocess.Popen(command, shell=True, executable="/bin/bash")
+
+        atexit.register(self.CloseJnp, self.m_arrJnpProcess)
+
+    # def StartJNPThread(self):
+    #     state = self.ui.cbROSJnpOptionsEnable.isChecked()
+    #     for widget in self.ui.frmROSJnpOptions.findChildren(QtWidgets.QWidget):
+    #         widget.setEnabled(state)
+    
+    #     ## TODO : 현재 StartLaunch에서 아래 코드를 실행 할 경우 text file busy 에러를 발생하면서 실행 되지 않는다.
+    #     ##        때문에 일단은 여기에서 실행 되도록 한 상태인데 가급적이면 메인 스레드에서 실행되는 방안을 강구할 필요가 있다.
+    #     if self.ui.cbROSJnpOptionsEnable.isChecked() :
+    #         self.StartJnp(self.m_arrJnpProcess)
+    #         atexit.register(self.CloseJnp, self.m_arrJnpProcess)
+    #     else :
+    #         self.CloseJnp(self.m_arrJnpProcess)
+
+
+    # ## Jnp 실행
+    # def StartJnp(self, arrProcess):
+    #     if len(arrProcess) > 0:
+    #         self.CloseJnp(arrProcess)
+
+    #     ## 각 모델 별 Jnp 실행
+    #     # ns는 기본 사용
+    #     for i in range(0, len(self.m_simulator.robots)) :
+    #         # 실행 전 source 지정
+    #         command = PATH_SOURCE_JNP_SETUP + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
+    #         # 실행
+    #         name = self.m_simulator.robots[i].name 
+    #         command = command + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
+    #         completeCmd = CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE
+    #         process = subprocess.Popen([completeCmd], shell=True)
+    #         arrProcess.append(process)
+    #         time.sleep(1)
+    #         #cmd = subprocess.Popen(command, shell=True, executable="/bin/bash")
 
     ## Jnp 종료
     def CloseJnp(self, arrProcess):
@@ -1398,6 +1449,49 @@ class MainWindow(QtWidgets.QMainWindow):
 
         subprocess.run(['pkill', '-f', 'gnome-terminal'])
         arrProcess.clear()
+
+    # DQN 실행
+    def StartROSDQN(Self):
+        pass
+    
+    # DQN 실행 결과 가중치 파일 저장
+    def SaveDQNWeightFile(self):
+        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
+        
+        # QFileDialog를 사용하여 파일 저장 대화상자 열기
+        file_name, _ = QFileDialog.getSaveFileName(None, "Save File", path, "All Files (*);;Text Files (*.txt)", options=options)
+        
+        if file_name:
+            self.m_settings.setValue(SETTING_PATH_DQN_WEIGHT, path)
+            msg_box = QtWidgets.QMessageBox()
+            msg_box.setWindowTitle("File Save")  # 타이틀 설정
+            msg_box.setText(f"File has been saved successfully.\nPath: {path}")  # 내용 설정
+            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
+            
+            msg_box.exec()  # 메시지 박스 실행
+
+    # DQN 가중치 파일 로드
+    def LoadDQNWeightFile(self):
+        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
+        
+        # QFileDialog를 사용하여 파일 오픈 대화상자 열기
+        file_name, _ = QFileDialog.getOpenFileName(None, "Open File", path, "All Files (*);;Text Files (*.txt)", options=options)
+        
+        if file_name:
+            msg_box = QtWidgets.QMessageBox()
+            msg_box.setWindowTitle("File Open")  # 타이틀 설정
+            msg_box.setText(f"File has been opened successfully.\nPath: {path}")  # 내용 설정
+            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
+            
+            msg_box.exec()  # 메시지 박스 실행
 
     #######################################
     ############### UI Event ##############
@@ -1450,6 +1544,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 로봇 위젯 생성
         custom_widget = WidgetRobotItem()
         item.setSizeHint(custom_widget.sizeHint())
+        custom_widget.SetStartPosition(0.0, 0.0, 0.1)
         # 만약 두번째 이상 로봇이라면 위치값을 증분하여 표기
         if self.ui.lstwRobots.count() > 1:
             prevIdx = self.ui.lstwRobots.count() - 2
@@ -1459,7 +1554,7 @@ class MainWindow(QtWidgets.QMainWindow):
             prevXstep = widget.ui.dsbRobotStartPosX.singleStep()
             prevYpos = widget.ui.dsbRobotStartPosY.value()
             prevYstep = widget.ui.dsbRobotStartPosY.singleStep()
-            custom_widget.SetStartPosition(prevXpos + prevXstep, prevYpos + prevYstep, 0.0)
+            custom_widget.SetStartPosition(prevXpos + prevXstep, prevYpos + prevYstep, 0.1)
 
         # 리스트뷰에 로봇 위젯 셋
         lstRobot.addItem(item)

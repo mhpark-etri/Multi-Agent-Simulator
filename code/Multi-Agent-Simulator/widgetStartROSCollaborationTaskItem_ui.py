@@ -60,8 +60,11 @@ class Ui_WidgetStartROSCollaborationTaskItem(object):
 
         self.lbWidgetStartROSCollaborationTaskItemName = QLabel(self.frame_2)
         self.lbWidgetStartROSCollaborationTaskItemName.setObjectName(u"lbWidgetStartROSCollaborationTaskItemName")
-        sizePolicy.setHeightForWidth(self.lbWidgetStartROSCollaborationTaskItemName.sizePolicy().hasHeightForWidth())
-        self.lbWidgetStartROSCollaborationTaskItemName.setSizePolicy(sizePolicy)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.lbWidgetStartROSCollaborationTaskItemName.sizePolicy().hasHeightForWidth())
+        self.lbWidgetStartROSCollaborationTaskItemName.setSizePolicy(sizePolicy2)
         self.lbWidgetStartROSCollaborationTaskItemName.setMinimumSize(QSize(0, 0))
         self.lbWidgetStartROSCollaborationTaskItemName.setAlignment(Qt.AlignCenter)
 
@@ -78,9 +81,6 @@ class Ui_WidgetStartROSCollaborationTaskItem(object):
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.gbWidgetStartROSCollaborationTaskItemPosition = QGroupBox(self.frame_3)
         self.gbWidgetStartROSCollaborationTaskItemPosition.setObjectName(u"gbWidgetStartROSCollaborationTaskItemPosition")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.gbWidgetStartROSCollaborationTaskItemPosition.sizePolicy().hasHeightForWidth())
         self.gbWidgetStartROSCollaborationTaskItemPosition.setSizePolicy(sizePolicy2)
         self.gbWidgetStartROSCollaborationTaskItemPosition.setStyleSheet(u"QGroupBox#gbWidgetStartROSCollaborationTaskItemPosition {\n"
