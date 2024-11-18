@@ -86,7 +86,7 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 - 터미널에서 아래의 명령어를 차례대로 입력하여 Ai-Bot make 실행
 ```
 cd /root/catkin_ws_ai_bot/
-catlin_make
+catkin_make
 ```
 <img src="https://github.com/user-attachments/assets/66ad2411-201c-402f-ab46-c3c6c2e2a293" width="50%" height="50%"/>
 <br><br>
