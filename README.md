@@ -1,6 +1,6 @@
 <div style="text-align: left;">
 
-# Multi-Agent-Simulator v1.6
+# Multi-Agent-Simulator v1.7
   <img src="https://github.com/user-attachments/assets/d64baddb-d154-4b10-8420-6c84a019a44e" width="70%" height="70%"/>
 
 - Copyright (C) ETRI. All rights reserved.
