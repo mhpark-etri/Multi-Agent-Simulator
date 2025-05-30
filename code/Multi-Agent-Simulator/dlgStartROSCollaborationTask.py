@@ -8,7 +8,7 @@ from PySide6 import QtWidgets
 from PySide6.QtGui import QTextCursor
 from widgetStartROSCollaborationTasktItem import WidgetStartROSCollaborationTaskItem
 from dlgStartROSCollaborationTask_ui import Ui_DlgROSCollaborationTask
-from taskRelay import TaskRelay
+#from taskRelay import TaskRelay
 import subprocess
 import copy
 from PySide6.QtCore import QThread, Signal
@@ -100,9 +100,8 @@ class DialogStartROSCollaborationTask(
             
             robots.append(rb)
 
-        taskRelay = TaskRelay()
-        taskRelay.StartTask(robots)
-        # taskRelay.TestStartTask()
+        #taskRelay = TaskRelay()
+        #taskRelay.StartTask(robots)
 
         print("릴레이 작업이 완료되었습니다.\n")
         self.enableUI()

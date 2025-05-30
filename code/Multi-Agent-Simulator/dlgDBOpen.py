@@ -34,7 +34,7 @@ class DialogDBOpen(
         # 기본 정보 ID PW 정보 불러오기
         dbID = self.settings.value(SETTING_DB_ID)
         if dbID == None:
-            dbID = CONST_SETTING_DB_ID
+            dbID = SETTING_DB_ID
 
         dbPW = self.settings.value(SETTING_DB_PW)
         if dbPW == None:

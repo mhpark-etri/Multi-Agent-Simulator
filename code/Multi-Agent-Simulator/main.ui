@@ -705,11 +705,6 @@ QPushButton:pressed {
 background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QPushButton:disabled {
-background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-color: #808080;  /* 비활성화 시 텍스트 색 */
 }</string>
                </property>
                <property name="text">
@@ -747,11 +742,6 @@ QPushButton:pressed {
 background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QPushButton:disabled {
-background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-color: #808080;  /* 비활성화 시 텍스트 색 */
 }</string>
                </property>
                <property name="text">
@@ -802,11 +792,6 @@ QPushButton:pressed {
 background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QPushButton:disabled {
-background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-color: #808080;  /* 비활성화 시 텍스트 색 */
 }</string>
                </property>
                <property name="text">
@@ -926,9 +911,9 @@ QGroupBox#gbRobotROS::title {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-343</y>
                <width>327</width>
-               <height>1042</height>
+               <height>1051</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -974,33 +959,14 @@ QGroupBox#gbRobotROSControl::title {
                     <string>Control</string>
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_6">
-                    <property name="rightMargin">
-                     <number>9</number>
-                    </property>
                     <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_27">
-                      <property name="spacing">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="QLabel" name="label_13">
-                        <property name="text">
-                         <string/>
-                        </property>
-                       </widget>
-                      </item>
+                     <layout class="QVBoxLayout" name="verticalLayout_8">
                       <item>
                        <widget class="QPushButton" name="btnROSTeleop">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
                         <property name="minimumSize">
                          <size>
                           <width>94</width>
-                          <height>0</height>
+                          <height>40</height>
                          </size>
                         </property>
                         <property name="styleSheet">
@@ -1142,15 +1108,10 @@ QPushButton:pressed {
 background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QPushButton:disabled {
-background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-color: #808080;  /* 비활성화 시 텍스트 색 */
 }</string>
                           </property>
                           <property name="text">
-                           <string>Edit</string>
+                           <string>edit</string>
                           </property>
                          </widget>
                         </item>
@@ -1216,15 +1177,10 @@ QPushButton:pressed {
 background: qradialgradient(cx: 0.4, cy: -0.1,
 fx: 0.4, fy: -0.1,
 radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QPushButton:disabled {
-background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-color: #808080;  /* 비활성화 시 텍스트 색 */
 }</string>
                           </property>
                           <property name="text">
-                           <string>Edit</string>
+                           <string>edit</string>
                           </property>
                          </widget>
                         </item>
@@ -1945,40 +1901,12 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
            </property>
            <property name="minimumSize">
             <size>
-             <width>114</width>
+             <width>100</width>
              <height>0</height>
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 4px;
-padding: 5px;
-margin-left: 10px;
-margin-right: 10px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:hover {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}
-
-QPushButton:disabled {
-background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-color: #808080;  /* 비활성화 시 텍스트 색 */
-}</string>
+            <string notr="true">    color: white;</string>
            </property>
            <property name="text">
             <string>Start</string>

@@ -1,0 +1,746 @@
+<?xml version="1.0"?>
+<robot name="uni_base" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:arg name="laser_visual"  default="true"/>
+  <xacro:arg name="camera_visual" default="false"/>
+  <xacro:arg name="imu_visual"    default="true"/>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/White</material>
+  </gazebo>
+
+  <gazebo reference="wheel_left_link">
+    <mu1>1</mu1>
+    <mu2>1</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="wheel_right_link">
+    <mu1>1</mu1>
+    <mu2>1</mu2>
+    <kp>10000000.0</kp>
+    <kd>1.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="caster_front_right_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>1000000.0</kp>
+    <kd>6.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="caster_front_left_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>1000000.0</kp>
+    <kd>6.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="caster_back_right_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>1000000.0</kp>
+    <kd>6.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="caster_back_left_link">
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
+    <kp>1000000.0</kp>
+    <kd>6.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>1.0</maxVel>
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <gazebo reference="imu_link">
+    <sensor type="imu" name="imu">
+      <always_on>true</always_on>
+      <visualize>$(arg imu_visual)</visualize>
+    </sensor>
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo>
+
+    <plugin name="joint_states" filename="libgazebo_ros_joint_state_publisher.so">
+      <joint_name>wheel_right_joint</joint_name>
+      <joint_name>wheel_left_joint</joint_name>
+      <updateRate>100</updateRate>
+    </plugin>
+
+    <plugin name="base_controller" filename="libgazebo_ros_diff_drive.so">
+      <commandTopic>cmd_vel</commandTopic>
+      <odometryTopic>robot/odom</odometryTopic>
+      <odometryFrame>odom</odometryFrame>
+      <odometrySource>world</odometrySource>
+      <publishOdomTF>true</publishOdomTF>
+      <robotBaseFrame>base_link</robotBaseFrame>
+      <publishWheelTF>false</publishWheelTF>
+      <publishTf>true</publishTf>
+      <publishWheelJointState>true</publishWheelJointState>
+      <legacyMode>false</legacyMode>
+      <updateRate>30</updateRate>
+      <leftJoint>wheel_left_joint</leftJoint>
+      <rightJoint>wheel_right_joint</rightJoint>
+      <wheelSeparation>0.347</wheelSeparation>
+      <wheelDiameter>0.130</wheelDiameter>
+      <wheelAcceleration>1</wheelAcceleration>
+      <wheelTorque>10</wheelTorque>
+      <rosDebugLevel>na</rosDebugLevel>
+    </plugin>
+  </gazebo>
+
+  <gazebo>
+    <plugin name="imu_plugin" filename="libgazebo_ros_imu.so">
+      <alwaysOn>true</alwaysOn>
+      <bodyName>imu_link</bodyName>
+      <frameName>imu_link</frameName>
+      <topicName>robot/imu</topicName>
+      <serviceName>imu_service</serviceName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>100</updateRate>
+      <imu>
+        <noise>
+          <type>gaussian</type>
+          <rate>
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </rate>
+          <accel>
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </accel>
+        </noise>
+      </imu>
+    </plugin>
+  </gazebo>
+
+  <gazebo reference="front_laser">
+    <material>Gazebo/FlatBlack</material>
+    <sensor type="ray" name="sick_tim_571">
+      <visualize>$(arg laser_visual)</visualize>
+      <update_rate>30</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-1.57</min_angle>
+            <max_angle>1.57</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.15</min>
+          <max>15</max>
+          <resolution>0.015</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
+      <plugin name="gazebo_ros_lds_lfcd_controller" filename="libgazebo_ros_laser.so">
+        <topicName>robot/scan</topicName>
+        <frameName>front_laser</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+<!--  <gazebo reference="front_astra_camera">-->
+<!--&lt;!&ndash;    <material>Gazebo/FlatBlack</material>&ndash;&gt;-->
+<!--    <sensor type="rgb" name="rgb_camera">-->
+<!--      <always_on>true</always_on>-->
+<!--      <visualize>$(arg camera_visual)</visualize>-->
+<!--      <camera>-->
+<!--          <horizontal_fov>1.085595</horizontal_fov>-->
+<!--          <image>-->
+<!--              <width>640</width>-->
+<!--              <height>480</height>-->
+<!--              <format>R8G8B8</format>-->
+<!--          </image>-->
+<!--          <clip>-->
+<!--              <near>0.03</near>-->
+<!--              <far>100</far>-->
+<!--          </clip>-->
+<!--      </camera>-->
+<!--      <plugin name="rgb_camera_controller" filename="libgazebo_ros_camera.so">-->
+<!--        <alwaysOn>true</alwaysOn>-->
+<!--        <updateRate>30.0</updateRate>-->
+<!--        <cameraName>rgb_camera</cameraName>-->
+<!--        <frameName>camera_rgb_optical_frame</frameName>-->
+<!--        <imageTopicName>rgb/image_raw</imageTopicName>-->
+<!--        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>-->
+<!--        <hackBaseline>0.07</hackBaseline>-->
+<!--        <distortionK1>0.0</distortionK1>-->
+<!--        <distortionK2>0.0</distortionK2>-->
+<!--        <distortionK3>0.0</distortionK3>-->
+<!--        <distortionT1>0.0</distortionT1>-->
+<!--        <distortionT2>0.0</distortionT2>-->
+<!--      </plugin>-->
+<!--    </sensor>-->
+<!--  </gazebo>-->
+
+  <gazebo reference="front_astra_camera">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <!-- 75x65 degree FOV for the depth sensor -->
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <!-- give the color sensor a maximum range of 50m so that the simulation renders nicely -->
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>camera</cameraName>
+        <imageTopicName>rgb/image_raw</imageTopicName>
+        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/camera_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/color/points</pointCloudTopicName>
+        <frameName>front_astra_camera</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+         
+          <!-- astra2_1(상단부 좌측 depth camera) 센서플러그인 추가  -->
+  <gazebo reference="astra2_1_link">
+
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="astra2_1_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>astra2_1</cameraName>
+        <imageTopicName>rgb/astra2_1_image_raw</imageTopicName>
+        <cameraInfoTopicName>rgb/astra2_1_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/astra2_1_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/astra2_1_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/astra2_1/color/points</pointCloudTopicName>
+        <frameName>astra2_1_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+          <!-- astra2_2(상단부 중심 depth camera) 센서플러그인 추가  -->
+  <gazebo reference="astra2_3_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="astra2_3_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>astra2_3</cameraName>
+        <imageTopicName>rgb/astra2_3_image_raw</imageTopicName>
+        <cameraInfoTopicName>rgb/astra2_3_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/astra2_3_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/astra2_3_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/astra2_2/color/points</pointCloudTopicName>
+        <frameName>astra2_3_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>  
+  
+          <!-- astra2_3(상단부 우측 depth camera) 센서플러그인 추가  -->
+  <gazebo reference="astra2_2_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="astra2_2_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>astra2_2</cameraName>
+        <imageTopicName>rgb/astra2_2_image_raw</imageTopicName>
+        <cameraInfoTopicName>rgb/astra2_2_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/astra2_2_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/astra2_2_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/astra2_2/color/points</pointCloudTopicName>
+        <frameName>astra2_2_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+  
+          <!-- astra_embedded_s(embedded camera) 센서플러그인 추가  -->
+  <gazebo reference="astra_embedded_s_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="astra_embedded_s_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>astra_embedded_s</cameraName>
+        <imageTopicName>rgb/astra_embedded_s_image_raw</imageTopicName>
+        <cameraInfoTopicName>astra_embedded_s_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/astra_embedded_s_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/astra_embedded_s_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/astra_embedded_s/color/points</pointCloudTopicName>
+        <frameName>astra_embedded_s_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+        <!-- ocam1(일반카메라) 센서플러그인 추가  -->
+  <gazebo reference="ocam_1_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="ocam1_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>ocam_1</cameraName>
+        <imageTopicName>rgb/ocam1_image_raw</imageTopicName>
+        <cameraInfoTopicName>ocam1_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/ocam1_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/ocam1_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/ocam1/color/points</pointCloudTopicName>
+        <frameName>ocam_1_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+          <!-- ocam2(일반카메라) 센서플러그인 추가  -->
+  <gazebo reference="ocam_2_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="ocam2_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>ocam_2</cameraName>
+        <imageTopicName>rgb/ocam2_image_raw</imageTopicName>
+        <cameraInfoTopicName>ocam2_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/ocam2_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/ocam2_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/ocam2/color/points</pointCloudTopicName>
+        <frameName>ocam_2_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+            <!-- ocam3(일반카메라) 센서플러그인 추가  -->
+  <gazebo reference="ocam_3_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="ocam3_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>ocam_3</cameraName>
+        <imageTopicName>rgb/ocam3_image_raw</imageTopicName>
+        <cameraInfoTopicName>ocam3_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/ocam3_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/ocam3_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/ocam3/color/points</pointCloudTopicName>
+        <frameName>ocam_3_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+              <!-- ocam4(일반카메라) 센서플러그인 추가  -->
+  <gazebo reference="ocam_4_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="ocam4_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>ocam_4</cameraName>
+        <imageTopicName>rgb/ocam4_image_raw</imageTopicName>
+        <cameraInfoTopicName>ocam4_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/ocam4_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/ocam4_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/ocam4/color/points</pointCloudTopicName>
+        <frameName>ocam_4_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+  
+                <!-- ocam5(일반카메라) 센서플러그인 추가  -->
+  <gazebo reference="ocam_5_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="ocam5_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>ocam_5</cameraName>
+        <imageTopicName>rgb/ocam5_image_raw</imageTopicName>
+        <cameraInfoTopicName>ocam5_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/ocam5_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/ocam5_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/ocam5/color/points</pointCloudTopicName>
+        <frameName>ocam_5_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>                      
+
+                <!-- ocam6(일반카메라) 센서플러그인 추가  -->
+  <gazebo reference="ocam_6_link">
+    <material>Gazebo/FlatBlack</material>
+    <turnGravityOff>true</turnGravityOff>
+    <sensor type="depth" name="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.085595</horizontal_fov>
+        <vertical_fov>1.518</vertical_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.01</near>
+          <far>50.0</far>
+        </clip>
+      </camera>      
+      <plugin name="ocam6_controller" filename="libgazebo_ros_openni_kinect.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30</updateRate>
+        <cameraName>ocam_6</cameraName>
+        <imageTopicName>rgb/ocam6_image_raw</imageTopicName>
+        <cameraInfoTopicName>ocam6_info</cameraInfoTopicName>
+        <depthImageTopicName>depth/ocam6_image_rect_raw</depthImageTopicName>
+        <depthImageInfoTopicName>depth/ocam6_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth/ocam6/color/points</pointCloudTopicName>
+        <frameName>ocam_6_link</frameName>
+        <pointCloudCutoff>0.105</pointCloudCutoff>
+        <pointCloudCutoffMax>1.0</pointCloudCutoffMax>
+        <distortionK1>0.00000001</distortionK1>
+        <distortionK2>0.00000001</distortionK2>
+        <distortionK3>0.00000001</distortionK3>
+        <distortionT1>0.00000001</distortionT1>
+        <distortionT2>0.00000001</distortionT2>
+        <CxPrime>0</CxPrime>
+        <Cx>0</Cx>
+        <Cy>0</Cy>
+        <focalLength>0</focalLength>
+        <hackBaseline>0</hackBaseline>
+      </plugin>
+    </sensor>
+  </gazebo>     
+  
+        <!-- mw-ahrs_v1_imu 자이로센서 플러그인 추가  -->
+  <gazebo reference="mw-ahrs_v1_imu_link">
+    <material>Gazebo/FlatBlack</material>
+    <plugin name="mw_ahrs_v1_imu_plugin" filename="libgazebo_ros_imu.so">
+      <alwaysOn>true</alwaysOn>
+      <bodyName>mw_ahrs_v1_imu_link</bodyName>
+      <frameName>mw_ahrs_v1_imu_link</frameName>
+      <topicName>robot/mw_ahrs_v1</topicName>
+      <serviceName>mw_ahrs_v1_service</serviceName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <updateRate>100</updateRate>
+      <imu>
+        <noise>
+          <type>gaussian</type>
+          <rate>
+            <mean>0.0</mean>
+            <stddev>2e-4</stddev>
+            <bias_mean>0.0000075</bias_mean>
+            <bias_stddev>0.0000008</bias_stddev>
+          </rate>
+          <accel>
+            <mean>0.0</mean>
+            <stddev>1.7e-2</stddev>
+            <bias_mean>0.1</bias_mean>
+            <bias_stddev>0.001</bias_stddev>
+          </accel>
+        </noise>
+      </imu>
+    </plugin>
+  </gazebo>
+</robot>
+

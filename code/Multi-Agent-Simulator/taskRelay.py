@@ -27,8 +27,7 @@ class TaskRelay:
         rospy.Subscriber("new_agent_detected", String, self.callback2)
 
     def move_to_goal(self, agent, x_goal, y_goal, th_goal):
-        # client = actionlib.SimpleActionClient('/' + agent + '/move_base', MoveBaseAction)
-        client = actionlib.SimpleActionClient('/move_base', MoveBaseAction)
+        client = actionlib.SimpleActionClient('/' + agent + '/move_base', MoveBaseAction)
         client.wait_for_server()
 
         # 목표 위치 및 자세 설정
@@ -162,8 +161,3 @@ class TaskRelay:
         rospy.init_node('locobot_agent')
         for robot in robots:
             self.move_to_goal(robot.name, robot.moveToX, robot.moveToY, robot.moveToZ)
-
-    # Unibase 테스트
-    def TestStartTask(self):
-        rospy.init_node('uni_agent')
-        self.move_to_goal("uni_base", 5.0, 5.0, 0)

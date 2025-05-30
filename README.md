@@ -1,6 +1,6 @@
 <div style="text-align: left;">
 
-# Multi-Agent-Simulator v1.7
+# Multi-Agent-Simulator v1.6
   <img src="https://github.com/user-attachments/assets/d64baddb-d154-4b10-8420-6c84a019a44e" width="70%" height="70%"/>
 
 - Copyright (C) ETRI. All rights reserved.
@@ -49,12 +49,7 @@ cd tesla
 source init.sh
 ```
 
-### 4.1 pip 업그레이드
-- 필스 패키지 설치 도중 pip 제거 화면이 나오면 y를 입력.
-<img src="https://github.com/user-attachments/assets/a44b31cb-31d2-49ec-af0a-eda26ffd7928" width="50%" height="50%"/>
-<br><br>
-
-### 4.2 Interbotix 설치
+### 4.1 Interbotix 설치
 - 필수패키지 설치 도중 Interbotix 설치 화면이 나오면 차례대로 y를 입력.
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/871c7299-c07c-4e2d-8f92-1d1770b40e7d" width="50%" height="50%"/>
 <br>
@@ -64,10 +59,10 @@ source init.sh
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="50%" height="50%"/>
 <br><br>
 
-### 4.3 Jnp 설치
+### 4.2 Jnp 설치
 - 우분투 터미널에서 아래의 명령어를 입력하여 docker에 다시 접속.(ct_mas는 위에서 설치했던 docker 컨테이너 이름)
 ```
-sudo docker start -i ct_mas
+sudo docker start ct_mas
 ```
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/641dd3a6-f908-4120-be77-02f07c291f39" width="50%" height="50%"/>
 <br>
@@ -80,15 +75,6 @@ catkin_make
 chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 ```
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
-<br><br>
-
-### 4.4 Ai-Bot 설치
-- 터미널에서 아래의 명령어를 차례대로 입력하여 Ai-Bot make 실행
-```
-cd /root/catkin_ws_ai_bot/
-catkin_make
-```
-<img src="https://github.com/user-attachments/assets/66ad2411-201c-402f-ab46-c3c6c2e2a293" width="50%" height="50%"/>
 <br><br>
 
 ---
@@ -124,8 +110,5 @@ python3 main.py
    - Robot 패널에서 Add를 눌러 에이전트 생성.
 ### 3. 시작
    - 우측 하단 Start 버튼을 눌러 가상 환경 실행.
-
-### 기타
-   - ※ 본 프로젝트의 Image-to-Image 가상환경향상 기능을 실행하기 위해서는 모델파일(.pkl)이 필요 합니다.
 
 </div>

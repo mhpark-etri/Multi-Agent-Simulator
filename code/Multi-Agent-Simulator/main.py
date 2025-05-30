@@ -176,26 +176,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lstwRobotROSCollaborationTasks.setCurrentRow(0)
 
         # ROS - Teleop - 현재는 Disable - 이유 : 어떤 모델은 되고 어떤 모델은 안되기 때문에 일단 전체 블럭
-        # self.ui.btnROSTeleop.setDisabled(True)
-        # self.ui.btnROSTeleop.setStyleSheet("""
-        #     QPushButton {
-        #         background-color: #4CAF50;  /* 기본 스타일 */
-        #         color: white;
-        #         border: none;
-        #         padding: 10px;
-        #         border-radius: 5px;
-        #     }
-        #     QPushButton:disabled {
-        #         background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-        #         color: #808080;  /* 비활성화 시 텍스트 색 */
-        #     }
-        # """)
+        self.ui.btnROSTeleop.setDisabled(True)
+        self.ui.btnROSTeleop.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;  /* 기본 스타일 */
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 5px;
+            }
+            QPushButton:disabled {
+                background-color: #A9A9A9;  /* 비활성화 시 배경색 */
+                color: #808080;  /* 비활성화 시 텍스트 색 */
+            }
+        """)
 
         # World
         self.SetWorld()
 
     # DeInit
-    def CleanUp(self):  
+    def CleanUp(self):
         os.system("killall gzserver")
         os.system("pkill gnome-terminal")
 
@@ -210,7 +210,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if os.path.exists(path) :
             return True
         else :
-            return False    
+            return False
 
     # 시뮬레이터 시작
     def StartSimualtor(self):
@@ -1335,49 +1335,6 @@ class MainWindow(QtWidgets.QMainWindow):
         dlg = DialogROSI2I(self.m_simulator)
         dlg.showModal()
 
-    # DQN 실행
-    def StartROSDQN(Self):
-        pass
-    
-    # DQN 실행 결과 가중치 파일 저장
-    def SaveDQNWeightFile(self):
-        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
-
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
-        
-        # QFileDialog를 사용하여 파일 저장 대화상자 열기
-        file_name, _ = QFileDialog.getSaveFileName(None, "Save File", path, "All Files (*);;Text Files (*.txt)", options=options)
-        
-        if file_name:
-            self.m_settings.setValue(SETTING_PATH_DQN_WEIGHT, path)
-            msg_box = QtWidgets.QMessageBox()
-            msg_box.setWindowTitle("File Save")  # 타이틀 설정
-            msg_box.setText(f"File has been saved successfully.\nPath: {path}")  # 내용 설정
-            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
-            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
-            
-            msg_box.exec()  # 메시지 박스 실행
-
-    # DQN 가중치 파일 로드
-    def LoadDQNWeightFile(self):
-        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
-
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
-        
-        # QFileDialog를 사용하여 파일 오픈 대화상자 열기
-        file_name, _ = QFileDialog.getOpenFileName(None, "Open File", path, "All Files (*);;Text Files (*.txt)", options=options)
-        
-        if file_name:
-            msg_box = QtWidgets.QMessageBox()
-            msg_box.setWindowTitle("File Open")  # 타이틀 설정
-            msg_box.setText(f"File has been opened successfully.\nPath: {path}")  # 내용 설정
-            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
-            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
-            
-            msg_box.exec()  # 메시지 박스 실행
-
     # Collaboration
     def OpenCollaborationSettingDialog(self):
         # 선택된 아이템 가져오기
@@ -1402,48 +1359,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def StartCollaborationTask(self):
         # 로봇 정보 저장
         self.m_simulator.robots.clear()
-        lstRobots = []    # DQN 실행
-    def StartROSDQN(Self):
-        pass
-    
-    # DQN 실행 결과 가중치 파일 저장
-    def SaveDQNWeightFile(self):
-        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
+        lstRobots = []
+        self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
+        self.m_simulator.robots = copy.deepcopy(lstRobots)
 
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
-        
-        # QFileDialog를 사용하여 파일 저장 대화상자 열기
-        file_name, _ = QFileDialog.getSaveFileName(None, "Save File", path, "All Files (*);;Text Files (*.txt)", options=options)
-        
-        if file_name:
-            self.m_settings.setValue(SETTING_PATH_DQN_WEIGHT, path)
-            msg_box = QtWidgets.QMessageBox()
-            msg_box.setWindowTitle("File Save")  # 타이틀 설정
-            msg_box.setText(f"File has been saved successfully.\nPath: {path}")  # 내용 설정
-            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
-            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
-            
-            msg_box.exec()  # 메시지 박스 실행
-
-    # DQN 가중치 파일 로드
-    def LoadDQNWeightFile(self):
-        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
-
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
-        
-        # QFileDialog를 사용하여 파일 오픈 대화상자 열기
-        file_name, _ = QFileDialog.getOpenFileName(None, "Open File", path, "All Files (*);;Text Files (*.txt)", options=options)
-        
-        if file_name:
-            msg_box = QtWidgets.QMessageBox()
-            msg_box.setWindowTitle("File Open")  # 타이틀 설정
-            msg_box.setText(f"File has been opened successfully.\nPath: {path}")  # 내용 설정
-            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
-            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
-            
-            msg_box.exec()  # 메시지 박스 실행
         dlg = DialogStartROSCollaborationTask(self.m_simulator)
         dlg.showModal()
 
@@ -1530,6 +1449,49 @@ class MainWindow(QtWidgets.QMainWindow):
 
         subprocess.run(['pkill', '-f', 'gnome-terminal'])
         arrProcess.clear()
+
+    # DQN 실행
+    def StartROSDQN(Self):
+        pass
+    
+    # DQN 실행 결과 가중치 파일 저장
+    def SaveDQNWeightFile(self):
+        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
+        
+        # QFileDialog를 사용하여 파일 저장 대화상자 열기
+        file_name, _ = QFileDialog.getSaveFileName(None, "Save File", path, "All Files (*);;Text Files (*.txt)", options=options)
+        
+        if file_name:
+            self.m_settings.setValue(SETTING_PATH_DQN_WEIGHT, path)
+            msg_box = QtWidgets.QMessageBox()
+            msg_box.setWindowTitle("File Save")  # 타이틀 설정
+            msg_box.setText(f"File has been saved successfully.\nPath: {path}")  # 내용 설정
+            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
+            
+            msg_box.exec()  # 메시지 박스 실행
+
+    # DQN 가중치 파일 로드
+    def LoadDQNWeightFile(self):
+        path = self.m_settings.value(SETTING_PATH_DQN_WEIGHT)
+
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog  # 네이티브 대화상자 사용 여부 설정 (선택 사항)
+        
+        # QFileDialog를 사용하여 파일 오픈 대화상자 열기
+        file_name, _ = QFileDialog.getOpenFileName(None, "Open File", path, "All Files (*);;Text Files (*.txt)", options=options)
+        
+        if file_name:
+            msg_box = QtWidgets.QMessageBox()
+            msg_box.setWindowTitle("File Open")  # 타이틀 설정
+            msg_box.setText(f"File has been opened successfully.\nPath: {path}")  # 내용 설정
+            msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)  # OK 버튼 추가
+            
+            msg_box.exec()  # 메시지 박스 실행
 
     #######################################
     ############### UI Event ##############
