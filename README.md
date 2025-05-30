@@ -77,7 +77,7 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
 <br><br>
 
-### 4.3 Ai-Bot 설치Add commentMore actions
+### 4.3 Ai-Bot 설치
 - 터미널에서 아래의 명령어를 차례대로 입력하여 Ai-Bot make 실행
 ```
 cd /root/catkin_ws_ai_bot/
