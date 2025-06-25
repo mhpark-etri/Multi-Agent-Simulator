@@ -36,7 +36,16 @@ sudo docker build --no-cache -t img_mas .
 ### 3. Docker Container 생성
 - 터미널을 열고 아래의 명령어를 입력.
 ```
-sudo docker run -it --privileged --gpus all --net=host -e DISPLAY=$DISPLAY -e USER=$USER -e XDG_RUNTIME_DIR=/tmp -v /root/.Xauthority:/root/.Xauthority -v /tmp/.X11-unix:/temp/.X11 -v /mnt/Shared:/mnt --name ct_mas img_mas
+sudo docker run -it --gpus all --net=host --privileged \
+--ipc=host --shm-size=2g \
+-e DISPLAY=$DISPLAY \
+-e XDG_RUNTIME_DIR=/tmp/runtime-root \
+-e QT_X11_NO_MITSHM=1 \
+-e NVIDIA_VISIBLE_DEVICES=all \
+-e NVIDIA_DRIVER_CAPABILITIES=all \
+-v /tmp/.X11-unix:/tmp/.X11-unix \
+-v $HOME/.Xauthority:/root/.Xauthority:ro \
+--name ct_mas img_mas
 ```
 - 위 명령어에서 "ct_mas"는 컨테이너의 이름이므로 자유롭게 입력.
 - Container 생성 완료 시 컨테이너로 진입.
