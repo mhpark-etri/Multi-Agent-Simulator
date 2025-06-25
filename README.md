@@ -62,7 +62,7 @@ source init.sh
 ### 4.2 Jnp 설치
 - 우분투 터미널에서 아래의 명령어를 입력하여 docker에 다시 접속.(ct_mas는 위에서 설치했던 docker 컨테이너 이름)
 ```
-sudo docker start ct_mas
+sudo docker start -i ct_mas
 ```
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/641dd3a6-f908-4120-be77-02f07c291f39" width="50%" height="50%"/>
 <br>
@@ -81,7 +81,7 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 - 터미널에서 아래의 명령어를 차례대로 입력하여 Ai-Bot make 실행
 ```
 cd /root/catkin_ws_ai_bot/
-catlin_make
+catkin_make
 ```
 <img src="https://github.com/user-attachments/assets/66ad2411-201c-402f-ab46-c3c6c2e2a293" width="50%" height="50%"/>
 <br><br>
