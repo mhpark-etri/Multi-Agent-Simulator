@@ -1,8 +1,8 @@
-######################################################
-## Teslasystem Co.,Ltd.                             ##
-## 제작 : 박태순                                     ##
+########################################################
+## Teslasystem Co.,Ltd.                               ##
+## 제작 : 박태순                                       ##
 ## 설명 : 3D Agent Simulator 프로그램의 mainDB 스크립트 ##
-######################################################
+########################################################
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QTableWidgetItem
 from PySide6.QtCore import Qt

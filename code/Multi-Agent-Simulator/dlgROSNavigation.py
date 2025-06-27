@@ -1,7 +1,7 @@
 ######################################################
 ## Teslasystem Co.,Ltd.                             ##
-## 제작 : 박태순                                      ## 
-## 설명 : Navigation Dialog                          ##
+## 제작 : 박태순                                     ## 
+## 설명 : Navigation Dialog                         ##
 ######################################################
 import os
 from PySide6 import QtWidgets

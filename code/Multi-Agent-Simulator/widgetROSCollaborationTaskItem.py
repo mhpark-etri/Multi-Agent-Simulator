@@ -1,7 +1,7 @@
 ######################################################
 ## Teslasystem Co.,Ltd.                             ##
-## 제작 : 박태순                                      ## 
-## 설명 : Collaboration ListWidget Item              ##
+## 제작 : 박태순                                     ## 
+## 설명 : Collaboration ListWidget Item             ##
 ######################################################
 import os
 import copy

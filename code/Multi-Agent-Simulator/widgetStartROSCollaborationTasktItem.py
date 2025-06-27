@@ -1,7 +1,7 @@
 ######################################################
 ## Teslasystem Co.,Ltd.                             ##
-## 제작 : 박태순                                      ## 
-## 설명 : 협업 태스크 로봇 아이템                        ##
+## 제작 : 박태순                                     ## 
+## 설명 : 협업 태스크 로봇 아이템                     ##
 ######################################################
 from PySide6 import QtWidgets, QtGui, QtCore
 from PySide6.QtWidgets import QMessageBox
