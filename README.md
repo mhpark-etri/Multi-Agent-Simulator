@@ -61,12 +61,12 @@ source init.sh
 
 ### 4.1 Interbotix 설치
 - 필수패키지 설치 도중 Interbotix 설치 화면이 나오면 차례대로 y를 입력.
-<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/871c7299-c07c-4e2d-8f92-1d1770b40e7d" width="50%" height="50%"/>
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/871c7299-c07c-4e2d-8f92-1d1770b40e7d" width="50%" />
 <br>
 <br>
 - 설치가 완료되면 y를 입력해 docker종료
 <br>
-<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="50%" height="50%"/>
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="50%" />
 <br><br>
 
 ### 4.2 Jnp 설치
@@ -74,7 +74,7 @@ source init.sh
 ```
 sudo docker start -i ct_mas
 ```
-<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/641dd3a6-f908-4120-be77-02f07c291f39" width="50%" height="50%"/>
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/641dd3a6-f908-4120-be77-02f07c291f39" width="50%" />
 <br>
 <br>
 - docker 접속 후에 아래의 명령어를 차례대로 입력하여 Jnp make 실행
@@ -84,7 +84,7 @@ cd /root/catkin_ws_jnp
 catkin_make
 chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 ```
-<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" height="50%"/>
+<img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" />
 <br><br>
 
 ### 4.3 Ai-Bot 설치
@@ -93,7 +93,7 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 cd /root/catkin_ws_ai_bot/
 catkin_make
 ```
-<img src="https://github.com/user-attachments/assets/66ad2411-201c-402f-ab46-c3c6c2e2a293" width="50%" height="50%"/>
+<img src="https://github.com/user-attachments/assets/66ad2411-201c-402f-ab46-c3c6c2e2a293" width="50%" />
 <br><br>
 
 ---
@@ -110,7 +110,7 @@ python3 main.py
 
 <details>
   <summary>Display 에러 발생 시 대처 방법.</summary>
-    <img src="https://github.com/etri-clara2/Multi-Agent-Simulator/assets/147698192/20c1c527-a696-42d7-85f6-caea933150bc" width="70%" height="70%"/>
+    <img src="https://github.com/etri-clara2/Multi-Agent-Simulator/assets/147698192/20c1c527-a696-42d7-85f6-caea933150bc" width="70%" />
    
   - 위 그림과 같이 display 관련 에러 발생시 **Docker 터미널이 아닌 Ubuntu 터미널을 열고** 아래의 명령어 입력.
 ```
@@ -121,7 +121,7 @@ python3 main.py
 <br>
 
 ### 프로그램 사용 방법
-<img src="https://github.com/user-attachments/assets/00242774-51e8-4c2f-a77e-76ed0ae89952" width="70%" height="70%"/>
+<img src="https://github.com/user-attachments/assets/00242774-51e8-4c2f-a77e-76ed0ae89952" width="70%" />
 
 ### 1. World 선택
    - World 패널에서 실행 하려는 가상 환경 선택.
