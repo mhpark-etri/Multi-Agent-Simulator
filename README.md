@@ -1,7 +1,7 @@
 <div style="text-align: left;">
 
 # Multi-Agent-Simulator v1.7
-  <img src="https://github.com/user-attachments/assets/d64baddb-d154-4b10-8420-6c84a019a44e" width="70%" height="100%"/>
+  <img src="https://github.com/user-attachments/assets/d64baddb-d154-4b10-8420-6c84a019a44e" width="70%" height="70%"/>
 
 - Copyright (C) ETRI. All rights reserved.
 - This software is a 3D simulator software for learning multi-agents in virtual environments (가상환경에서의 멀티에이전트 학습을 위한 3D 기반 에이전트 시뮬레이터).
