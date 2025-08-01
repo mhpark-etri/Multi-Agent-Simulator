@@ -106,14 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         ## UI Event
         self.ui.btnStartSimulator.clicked.connect(self.StartSimualtor)
-        # World radio button
-        # self.btnGroupWorld = QtWidgets.QButtonGroup()
-        # self.btnGroupWorld.setExclusive(True)
-        # self.btnGroupWorld.addButton(self.ui.rbWorldWarehouse)
-        # self.btnGroupWorld.addButton(self.ui.rbWorldHospital)
-        # self.btnGroupWorld.addButton(self.ui.rbWorldSmallHouse)
-        # self.btnGroupWorld.addButton(self.ui.rbWorldBookStore)
-        # self.btnGroupWorld.buttonToggled.connect(self.WorldRadioButtonItemSelected)
+
         # Add & Delete Model
         self.ui.btnAddRobot.clicked.connect(self.AddRobot)
         self.ui.btnDeleteRobot.clicked.connect(self.DeleteRobot)
@@ -241,55 +234,7 @@ class MainWindow(QtWidgets.QMainWindow):
        
         # 2. 로봇 생성(복수)
         lstRobots = []
-       
-        # # 리스트 정보 가져와서 로봇 배열에 입력
-        # idxLocobot = 0
-        # idxTurtlebot3Burger = 0
-        # idxTurtlebot3Waffle = 0
-        # idxJetbot = 0
-        # for idx in range(self.ui.lstwRobots.count()):
-        #     item = self.ui.lstwRobots.item(idx)
-        #     widget = self.ui.lstwRobots.itemWidget(item)
-        #     robot = Robot()
-        #     # Check robot type and set id
-        #     if widget.ui.lbRobotName.text() == CONST_LOCOBOT_NAME:
-        #         # TEST : 1차 릴리즈 버전에서는 Locobot 제외
-        #         pass
-        #         robot.type = ENUM_ROBOT_TYPE.LOCOBOT
-        #         robot.id = idxLocobot
-        #         idxLocobot = idxLocobot + 1
-        #     elif widget.ui.lbRobotName.text() == CONST_TURTLEBOT3_BUTGER_NAME:
-        #         robot.type = ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER
-        #         robot.id = idxTurtlebot3Burger
-        #         idxTurtlebot3Burger = idxTurtlebot3Burger + 1
-        #     elif widget.ui.lbRobotName.text() == CONST_TURTLEBOT3_WAFFLE_NAME:
-        #         robot.type = ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE
-        #         robot.id = idxTurtlebot3Waffle
-        #         idxTurtlebot3Waffle = idxTurtlebot3Waffle + 1
-        #     else:
-        #         robot.type = ENUM_ROBOT_TYPE.JETBOT
-        #         robot.id = idxJetbot
-        #         idxJetbot = idxJetbot + 1
 
-        #     # Check starting position
-        #     # robot.startX = widget.ui.dsbRobotStartPosX.value()
-        #     # robot.startY = widget.ui.dsbRobotStartPosY.value()
-        #     # robot.startZ = widget.ui.dsbRobotStartPosZ.value()
-        #     # TODO : Check starting position 현재 버전에선 일단 로봇의 위치는 미리 지정된 고정 위치로 지정한다
-        #     for world in self.m_worlds:
-        #         for world_sub in world.arrCategorySubs:
-        #             if world_sub.categorySub.value == self.m_simulator.categorySub:
-        #                 pos = idx * 3
-        #                 robot.startX = world_sub.robotStartXYZ[pos]
-        #                 robot.startY = world_sub.robotStartXYZ[pos + 1]
-        #                 robot.startZ = world_sub.robotStartXYZ[pos + 2]
-        #                 break
-
-        #     # Check robot option
-        #     robot.option.camera = widget.ui.ckbRobotOptionCamera.isChecked()
-        #     robot.option.arm = widget.ui.ckbRobotOptionUseArm.isChecked()
-        #     robot.option.base = widget.ui.ckbRobotOptionBase.isChecked()
-        #     lstRobots.append(robot)
         self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
 
         # 로봇 정보가 없으면 종료
@@ -1401,39 +1346,6 @@ class MainWindow(QtWidgets.QMainWindow):
             #cmd = subprocess.Popen(command, shell=True, executable="/bin/bash")
 
         atexit.register(self.CloseJnp, self.m_arrJnpProcess)
-
-    # def StartJNPThread(self):
-    #     state = self.ui.cbROSJnpOptionsEnable.isChecked()
-    #     for widget in self.ui.frmROSJnpOptions.findChildren(QtWidgets.QWidget):
-    #         widget.setEnabled(state)
-    
-    #     ## TODO : 현재 StartLaunch에서 아래 코드를 실행 할 경우 text file busy 에러를 발생하면서 실행 되지 않는다.
-    #     ##        때문에 일단은 여기에서 실행 되도록 한 상태인데 가급적이면 메인 스레드에서 실행되는 방안을 강구할 필요가 있다.
-    #     if self.ui.cbROSJnpOptionsEnable.isChecked() :
-    #         self.StartJnp(self.m_arrJnpProcess)
-    #         atexit.register(self.CloseJnp, self.m_arrJnpProcess)
-    #     else :
-    #         self.CloseJnp(self.m_arrJnpProcess)
-
-
-    # ## Jnp 실행
-    # def StartJnp(self, arrProcess):
-    #     if len(arrProcess) > 0:
-    #         self.CloseJnp(arrProcess)
-
-    #     ## 각 모델 별 Jnp 실행
-    #     # ns는 기본 사용
-    #     for i in range(0, len(self.m_simulator.robots)) :
-    #         # 실행 전 source 지정
-    #         command = PATH_SOURCE_JNP_SETUP + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
-    #         # 실행
-    #         name = self.m_simulator.robots[i].name 
-    #         command = command + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
-    #         completeCmd = CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE
-    #         process = subprocess.Popen([completeCmd], shell=True)
-    #         arrProcess.append(process)
-    #         time.sleep(1)
-    #         #cmd = subprocess.Popen(command, shell=True, executable="/bin/bash")
 
     ## Jnp 종료
     def CloseJnp(self, arrProcess):
