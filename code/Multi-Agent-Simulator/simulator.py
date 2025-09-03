@@ -29,6 +29,8 @@ CONST_INTERBOTIX_PATH = "Resources/thumbnail/icon_thumb_robot_interbotix_wx250s.
 CONST_INTERBOTIX_NAME = "Locobot - wx250s"
 CONST_UNI_PATH = "Resources/thumbnail/icon_thumb_robot_uni.png"
 CONST_UNI_NAME = "UNI050_BASE"
+CONST_HELLO_STRETCH2_PATH = ""
+CONST_HELLO_STRETCH2_NAME = "Hello_Stretch2"
 
 # extention
 CONST_EXTENTION_WORLD = ".world"

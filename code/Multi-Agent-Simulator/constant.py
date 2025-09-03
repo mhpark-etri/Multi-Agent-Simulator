@@ -257,6 +257,9 @@ CMD_UNI_NODE_PKG_ROBOT_STATE_PUBLISHER = "<node name=\"robot_state_publisher\" p
 CMD_UNI_NODE_PKG_SPAWN_MODEL_OPEN = "<node pkg=\"gazebo_ros\" type=\"spawn_model\" name=\"spawn_urdf\" args=\"-urdf"
 CMD_UNI_NODE_PKG_SPAWN_MODEL_CLOSE = "-param robot_description\" />"
 
+## hello_stretch2
+
+
 ###############################
 ############# ROS #############
 ###############################
