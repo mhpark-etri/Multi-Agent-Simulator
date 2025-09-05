@@ -88,6 +88,8 @@ class DialogROSI2I(
             thumbPath = CONST_INTERBOTIX_PATH
         elif robot.type == ENUM_ROBOT_TYPE.UNI050_BASE:
             thumbPath = CONST_UNI_PATH 
+        elif robot.type == ENUM_ROBOT_TYPE.HELLO_ROBOT_STRETCH:
+            thumbPath = CONST_HELLO_STRETCH2_PATH
 
         # Set thumb image and robot name
         pixmap = QtGui.QPixmap(thumbPath)

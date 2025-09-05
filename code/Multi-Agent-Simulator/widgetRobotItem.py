@@ -52,6 +52,10 @@ class WidgetRobotItem(QtWidgets.QWidget):
         thumb.thumbPath = CONST_UNI_PATH
         thumb.thumbName = CONST_UNI_NAME
         self.lstThumbs.append(thumb)  
+        thumb = Thumb()
+        thumb.thumbPath = CONST_HELLO_STRETCH2_PATH
+        thumb.thumbName = CONST_HELLO_STRETCH2_NAME
+        self.lstThumbs.append(thumb)  
 
         # Set thumb image and robot name
         pixmap = QtGui.QPixmap(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbPath))

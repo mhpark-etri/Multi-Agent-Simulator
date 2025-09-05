@@ -42,6 +42,8 @@ class WidgetStartROSCollaborationTaskItem(QtWidgets.QWidget):
             lbThumb = CONST_INTERBOTIX_PATH
         elif modelType == ENUM_ROBOT_TYPE.UNI050_BASE:
             lbThumb = CONST_UNI_PATH
+        elif modelType == ENUM_ROBOT_TYPE.HELLO_ROBOT_STRETCH:
+            lbThumb = CONST_HELLO_STRETCH2_PATH
 
         # 정보 입력
         pixmap = QtGui.QPixmap(str(lbThumb))
