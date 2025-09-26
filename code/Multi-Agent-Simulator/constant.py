@@ -258,6 +258,18 @@ CMD_UNI_NODE_PKG_SPAWN_MODEL_OPEN = "<node pkg=\"gazebo_ros\" type=\"spawn_model
 CMD_UNI_NODE_PKG_SPAWN_MODEL_CLOSE = "-param robot_description\" />"
 
 ## hello_stretch2
+CMD_HELLO_STRETCH2_MODEL_NAME = "stretch2"
+CMD_HELLO_STRETCH2_COMMENT_START = "<!-- #### Hello Robot Stretch2 #### -->"
+CMD_HELLO_STRETCH2_COMMENT_END = "<!-- #### Hello Robot Stretch2 End #### -->"
+CMD_HELLO_STRETCH2_POSITION_X = "_x_pos"
+CMD_HELLO_STRETCH2_POSITION_Y = "_y_pos"
+CMD_HELLO_STRETCH2_POSITION_Z = "_z_pos"
+CMD_HELLO_STRETCH2_ARG_DEX_WRIST_OPEN = "<arg name=\"dex_wrist\" default=\""
+CMD_HELLO_STRETCH2_ARG_DEX_WRIST_CLOSE = "\"/>"
+CMD_HELLO_STRETCH2_ARG_GPU_LIDAR_OPEN = "<arg name=\"gpu_lidar\" default=\""
+CMD_HELLO_STRETCH2_ARG_GPU_LIDAR_CLOSE = "\"/>"
+CMD_HELLO_STRETCH2_ARG_VISUALIZE_LIDAR_OPEN = "<arg name=\"visualize_lidar\" default=\""
+CMD_HELLO_STRETCH2_ARG_VISUALIZE_LIDAR_CLOSE = "\"/>"
 
 
 ###############################
