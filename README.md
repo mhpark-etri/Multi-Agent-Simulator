@@ -96,6 +96,55 @@ catkin_make
 <img src="https://github.com/user-attachments/assets/66ad2411-201c-402f-ab46-c3c6c2e2a293" width="50%" />
 <br><br>
 
+### 4.4 Hello_Robot Stretch2 설치
+- 터미널에서 아래의 명령어를 차례대로 입력하여 작업공간 생성 및 튜토리얼 패키지를 복사
+```
+cd
+mkdir -p ~/catkin_ws_stretch2/src
+cd ~/catkin_ws_stretch2
+git clone https://github.com/hello-robot/stretch_tutorials.git
+```
+<br>
+<img src="https://github.com/user-attachments/assets/55508fb9-d1de-4f0f-9d5d-b420cdcaf9c7" width="50%" />
+<br><br>
+
+- 초기 빌드 진행
+```
+catkin_make -DCATKIN_ENABLE_TESTING=OFF
+```
+<br>
+<img src="https://github.com/user-attachments/assets/8cc461bf-375a-4a06-b191-8faa81bedf8b" width="50%" />
+<br><br>
+
+- Realsense 카메라 패키지 설치(미리 설치되어 있을 수도 있음)
+```
+apt-get install ros-noetic-realsense2-camera
+```
+<br>
+<img src="https://github.com/user-attachments/assets/b8cc655d-e96d-42dc-bf99-3595b9ff82b4" width="50%" />
+<br><br>
+
+- Stretch 및 Gazebo 관련 패키지 클론
+```
+cd ~/catkin_ws_stretch2/src
+git clone https://github.com/hello-robot/stretch_ros
+git clone -b melodic-devel https://github.com/pal-robotics/realsense_gazebo_plugin
+git clone https://github.com/hello-robot/stretch_tutorials.git
+```
+<br>
+<img src="https://github.com/user-attachments/assets/2a02e079-9bb2-47dc-ae6c-e1a457d014a3" width="50%" />
+<br><br>
+
+- 의존성 설치 및 전체 패키지 빌드
+```
+cd ~/catkin_ws_stretch2
+rosdep install --from-paths src --ignore-src -r -y
+catkin_make -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+```
+<br>
+<img src="https://github.com/user-attachments/assets/c6d20058-19f3-45be-a686-f9b9df911ce4" width="50%" />
+<br><br>
+
 ---
 # 사용 방법
 ### 프로그램 실행
