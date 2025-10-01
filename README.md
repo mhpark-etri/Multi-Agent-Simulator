@@ -104,7 +104,6 @@ mkdir -p ~/catkin_ws_stretch2/src
 cd ~/catkin_ws_stretch2
 git clone https://github.com/hello-robot/stretch_tutorials.git
 ```
-<br>
 <img src="https://github.com/user-attachments/assets/55508fb9-d1de-4f0f-9d5d-b420cdcaf9c7" width="50%" />
 <br><br>
 
@@ -112,7 +111,6 @@ git clone https://github.com/hello-robot/stretch_tutorials.git
 ```
 catkin_make -DCATKIN_ENABLE_TESTING=OFF
 ```
-<br>
 <img src="https://github.com/user-attachments/assets/8cc461bf-375a-4a06-b191-8faa81bedf8b" width="50%" />
 <br><br>
 
@@ -120,7 +118,6 @@ catkin_make -DCATKIN_ENABLE_TESTING=OFF
 ```
 apt-get install ros-noetic-realsense2-camera
 ```
-<br>
 <img src="https://github.com/user-attachments/assets/b8cc655d-e96d-42dc-bf99-3595b9ff82b4" width="50%" />
 <br><br>
 
@@ -131,7 +128,6 @@ git clone https://github.com/hello-robot/stretch_ros
 git clone -b melodic-devel https://github.com/pal-robotics/realsense_gazebo_plugin
 git clone https://github.com/hello-robot/stretch_tutorials.git
 ```
-<br>
 <img src="https://github.com/user-attachments/assets/2a02e079-9bb2-47dc-ae6c-e1a457d014a3" width="50%" />
 <br><br>
 
@@ -141,7 +137,6 @@ cd ~/catkin_ws_stretch2
 rosdep install --from-paths src --ignore-src -r -y
 catkin_make -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 ```
-<br>
 <img src="https://github.com/user-attachments/assets/c6d20058-19f3-45be-a686-f9b9df911ce4" width="50%" />
 <br><br>
 
