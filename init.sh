@@ -41,7 +41,7 @@ sudo cp -r /root/tesla/jnp/jnp_0.2.1/* /root/catkin_ws_jnp/src/jnp
 ## UNI050_BASE 모델 복사(개별 빌드 필요 - 페이지 설치 메뉴얼 참고)
 # uni_description
 sudo mkdir -p ~/catkin_ws_ai_bot/src
-sudo cp -r /root/tesla/root/tesla/robots/ketg_ai-bot_platform/* ~/catkin_ws_ai_bot/src
+sudo cp -r /root/tesla/robots/ketg_ai-bot_platform/* ~/catkin_ws_ai_bot/src
 
 ## Copy gazebo models & world
 mkdir -p ~/.gazebo/models

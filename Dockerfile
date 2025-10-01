@@ -114,3 +114,5 @@ COPY robots /root/tesla/robots
 RUN mkdir -p /root/tesla/I2I_Simulator
 COPY I2I_Simulator /root/tesla/I2I_Simulator
 
+# 4. Hello Robot - Stretch
+
