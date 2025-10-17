@@ -436,7 +436,7 @@ QGroupBox::title {
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
-                           <height>40</height>
+                           <height>0</height>
                           </size>
                          </property>
                          <property name="frameShape">
@@ -445,7 +445,7 @@ QGroupBox::title {
                          <property name="frameShadow">
                           <enum>QFrame::Raised</enum>
                          </property>
-                         <layout class="QHBoxLayout" name="horizontalLayout_15">
+                         <layout class="QVBoxLayout" name="verticalLayout_15">
                           <property name="spacing">
                            <number>0</number>
                           </property>
@@ -462,55 +462,176 @@ QGroupBox::title {
                            <number>0</number>
                           </property>
                           <item>
-                           <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0,0">
-                            <property name="spacing">
-                             <number>5</number>
+                           <widget class="QFrame" name="frame_5">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>40</height>
+                             </size>
                             </property>
-                            <item>
-                             <layout class="QHBoxLayout" name="horizontalLayout_16">
-                              <item>
-                               <widget class="QLabel" name="label_3">
-                                <property name="text">
-                                 <string>Bulding</string>
-                                </property>
-                                <property name="alignment">
-                                 <set>Qt::AlignCenter</set>
-                                </property>
-                               </widget>
-                              </item>
-                             </layout>
-                            </item>
-                            <item>
-                             <layout class="QHBoxLayout" name="horizontalLayout_17">
-                              <item>
-                               <widget class="QLabel" name="label_2">
-                                <property name="text">
-                                 <string>Random Color</string>
-                                </property>
-                                <property name="alignment">
-                                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                                </property>
-                               </widget>
-                              </item>
-                              <item>
-                               <widget class="QCheckBox" name="checkBox">
-                                <property name="enabled">
-                                 <bool>false</bool>
-                                </property>
-                                <property name="sizePolicy">
-                                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                                  <horstretch>0</horstretch>
-                                  <verstretch>0</verstretch>
-                                 </sizepolicy>
-                                </property>
-                                <property name="text">
-                                 <string/>
-                                </property>
-                               </widget>
-                              </item>
-                             </layout>
-                            </item>
-                           </layout>
+                            <property name="frameShape">
+                             <enum>QFrame::StyledPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_15">
+                             <property name="spacing">
+                              <number>0</number>
+                             </property>
+                             <property name="leftMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="rightMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="bottomMargin">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <layout class="QHBoxLayout" name="horizontalLayout_13" stretch="0,0">
+                               <property name="spacing">
+                                <number>5</number>
+                               </property>
+                               <item>
+                                <layout class="QHBoxLayout" name="horizontalLayout_16">
+                                 <item>
+                                  <widget class="QLabel" name="label_3">
+                                   <property name="text">
+                                    <string>Bulding</string>
+                                   </property>
+                                   <property name="alignment">
+                                    <set>Qt::AlignCenter</set>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                </layout>
+                               </item>
+                               <item>
+                                <layout class="QHBoxLayout" name="horizontalLayout_17">
+                                 <item>
+                                  <widget class="QLabel" name="label_2">
+                                   <property name="text">
+                                    <string>Random Color</string>
+                                   </property>
+                                   <property name="alignment">
+                                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                 <item>
+                                  <widget class="QCheckBox" name="checkBox">
+                                   <property name="enabled">
+                                    <bool>false</bool>
+                                   </property>
+                                   <property name="sizePolicy">
+                                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                                     <horstretch>0</horstretch>
+                                     <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                   </property>
+                                   <property name="text">
+                                    <string/>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                </layout>
+                               </item>
+                              </layout>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QFrame" name="frame_6">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>40</height>
+                             </size>
+                            </property>
+                            <property name="frameShape">
+                             <enum>QFrame::StyledPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                             <enum>QFrame::Raised</enum>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_28">
+                             <property name="spacing">
+                              <number>0</number>
+                             </property>
+                             <property name="leftMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="rightMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="bottomMargin">
+                              <number>0</number>
+                             </property>
+                             <item>
+                              <layout class="QHBoxLayout" name="horizontalLayout_27">
+                               <property name="spacing">
+                                <number>6</number>
+                               </property>
+                               <item>
+                                <widget class="QLabel" name="label_13">
+                                 <property name="text">
+                                  <string/>
+                                 </property>
+                                </widget>
+                               </item>
+                               <item>
+                                <layout class="QHBoxLayout" name="horizontalLayout_30">
+                                 <property name="spacing">
+                                  <number>6</number>
+                                 </property>
+                                 <item>
+                                  <widget class="QPushButton" name="btnWorldOptionFire">
+                                   <property name="enabled">
+                                    <bool>true</bool>
+                                   </property>
+                                   <property name="styleSheet">
+                                    <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                                   </property>
+                                   <property name="text">
+                                    <string>Fire</string>
+                                   </property>
+                                  </widget>
+                                 </item>
+                                </layout>
+                               </item>
+                              </layout>
+                             </item>
+                            </layout>
+                           </widget>
                           </item>
                          </layout>
                         </widget>
@@ -911,7 +1032,7 @@ QGroupBox#gbRobotROS::title {
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-343</y>
+               <y>0</y>
                <width>327</width>
                <height>1051</height>
               </rect>
@@ -1111,7 +1232,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
                           </property>
                           <property name="text">
-                           <string>edit</string>
+                           <string>Edit</string>
                           </property>
                          </widget>
                         </item>
@@ -1180,7 +1301,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
                           </property>
                           <property name="text">
-                           <string>edit</string>
+                           <string>Edit</string>
                           </property>
                          </widget>
                         </item>
@@ -1926,7 +2047,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
      <x>0</x>
      <y>0</y>
      <width>1188</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFIle">

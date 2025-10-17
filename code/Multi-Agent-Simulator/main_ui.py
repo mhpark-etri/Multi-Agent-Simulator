@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.2.4
+## Created by: Qt User Interface Compiler version 6.6.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -50,13 +50,13 @@ class Ui_MainWindow(object):
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(-1, 0, -1, 0)
-        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
         self.gbWorld = QGroupBox(self.centralwidget)
         self.gbWorld.setObjectName(u"gbWorld")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.gbWorld.sizePolicy().hasHeightForWidth())
@@ -128,7 +128,7 @@ class Ui_MainWindow(object):
 
         self.lbWorldImage = QLabel(self.frame_3)
         self.lbWorldImage.setObjectName(u"lbWorldImage")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.lbWorldImage.sizePolicy().hasHeightForWidth())
@@ -150,7 +150,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.groupBox_5 = QGroupBox(self.frame_3)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
@@ -194,7 +194,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
         self.chkWorldOptionPerson = QCheckBox(self.frame)
         self.chkWorldOptionPerson.setObjectName(u"chkWorldOptionPerson")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.chkWorldOptionPerson.sizePolicy().hasHeightForWidth())
@@ -213,7 +213,7 @@ class Ui_MainWindow(object):
         self.sbWorldOptionPersonCount = QSpinBox(self.frame)
         self.sbWorldOptionPersonCount.setObjectName(u"sbWorldOptionPersonCount")
         self.sbWorldOptionPersonCount.setEnabled(False)
-        sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.sbWorldOptionPersonCount.sizePolicy().hasHeightForWidth())
@@ -263,19 +263,28 @@ class Ui_MainWindow(object):
         self.frame_2.setObjectName(u"frame_2")
         sizePolicy.setHeightForWidth(self.frame_2.sizePolicy().hasHeightForWidth())
         self.frame_2.setSizePolicy(sizePolicy)
-        self.frame_2.setMinimumSize(QSize(0, 40))
+        self.frame_2.setMinimumSize(QSize(0, 0))
         self.frame_2.setFrameShape(QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_15 = QHBoxLayout(self.frame_2)
+        self.verticalLayout_15 = QVBoxLayout(self.frame_2)
+        self.verticalLayout_15.setSpacing(0)
+        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
+        self.verticalLayout_15.setContentsMargins(5, 0, 5, 0)
+        self.frame_5 = QFrame(self.frame_2)
+        self.frame_5.setObjectName(u"frame_5")
+        self.frame_5.setMinimumSize(QSize(0, 40))
+        self.frame_5.setFrameShape(QFrame.StyledPanel)
+        self.frame_5.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_15 = QHBoxLayout(self.frame_5)
         self.horizontalLayout_15.setSpacing(0)
         self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
-        self.horizontalLayout_15.setContentsMargins(5, 0, 5, 0)
+        self.horizontalLayout_15.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_13 = QHBoxLayout()
         self.horizontalLayout_13.setSpacing(5)
         self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
         self.horizontalLayout_16 = QHBoxLayout()
         self.horizontalLayout_16.setObjectName(u"horizontalLayout_16")
-        self.label_3 = QLabel(self.frame_2)
+        self.label_3 = QLabel(self.frame_5)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setAlignment(Qt.AlignCenter)
 
@@ -286,13 +295,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_17 = QHBoxLayout()
         self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
-        self.label_2 = QLabel(self.frame_2)
+        self.label_2 = QLabel(self.frame_5)
         self.label_2.setObjectName(u"label_2")
         self.label_2.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.horizontalLayout_17.addWidget(self.label_2)
 
-        self.checkBox = QCheckBox(self.frame_2)
+        self.checkBox = QCheckBox(self.frame_5)
         self.checkBox.setObjectName(u"checkBox")
         self.checkBox.setEnabled(False)
         sizePolicy3.setHeightForWidth(self.checkBox.sizePolicy().hasHeightForWidth())
@@ -307,9 +316,69 @@ class Ui_MainWindow(object):
         self.horizontalLayout_15.addLayout(self.horizontalLayout_13)
 
 
+        self.verticalLayout_15.addWidget(self.frame_5)
+
+        self.frame_6 = QFrame(self.frame_2)
+        self.frame_6.setObjectName(u"frame_6")
+        self.frame_6.setMinimumSize(QSize(0, 40))
+        self.frame_6.setFrameShape(QFrame.StyledPanel)
+        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.horizontalLayout_28 = QHBoxLayout(self.frame_6)
+        self.horizontalLayout_28.setSpacing(0)
+        self.horizontalLayout_28.setObjectName(u"horizontalLayout_28")
+        self.horizontalLayout_28.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout_27 = QHBoxLayout()
+        self.horizontalLayout_27.setSpacing(6)
+        self.horizontalLayout_27.setObjectName(u"horizontalLayout_27")
+        self.label_13 = QLabel(self.frame_6)
+        self.label_13.setObjectName(u"label_13")
+
+        self.horizontalLayout_27.addWidget(self.label_13)
+
+        self.horizontalLayout_30 = QHBoxLayout()
+        self.horizontalLayout_30.setSpacing(6)
+        self.horizontalLayout_30.setObjectName(u"horizontalLayout_30")
+        self.btnWorldOptionFire = QPushButton(self.frame_6)
+        self.btnWorldOptionFire.setObjectName(u"btnWorldOptionFire")
+        self.btnWorldOptionFire.setEnabled(True)
+        self.btnWorldOptionFire.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.horizontalLayout_30.addWidget(self.btnWorldOptionFire)
+
+
+        self.horizontalLayout_27.addLayout(self.horizontalLayout_30)
+
+
+        self.horizontalLayout_28.addLayout(self.horizontalLayout_27)
+
+
+        self.verticalLayout_15.addWidget(self.frame_6)
+
+
         self.verticalLayout_3.addWidget(self.frame_2)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer_4)
 
@@ -335,7 +404,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.gbWorld)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.verticalSpacer_2 = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
         self.verticalLayout.addItem(self.verticalSpacer_2)
 
@@ -438,7 +507,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_12.addWidget(self.btnDeleteRobot)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_12.addItem(self.horizontalSpacer_2)
 
@@ -519,7 +588,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_19.setContentsMargins(-1, 20, 0, 10)
         self.scrollArea_9 = QScrollArea(self.gbRobotROS)
         self.scrollArea_9.setObjectName(u"scrollArea_9")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         sizePolicy5.setHorizontalStretch(0)
         sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.scrollArea_9.sizePolicy().hasHeightForWidth())
@@ -532,7 +601,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.scrollAreaWidgetContents_9 = QWidget()
         self.scrollAreaWidgetContents_9.setObjectName(u"scrollAreaWidgetContents_9")
-        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, -343, 327, 1051))
+        self.scrollAreaWidgetContents_9.setGeometry(QRect(0, 0, 327, 1051))
         self.verticalLayout_21 = QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.verticalLayout_21.setObjectName(u"verticalLayout_21")
         self.verticalLayout_21.setSizeConstraint(QLayout.SetDefaultConstraint)
@@ -1193,7 +1262,7 @@ class Ui_MainWindow(object):
 
         self.lstwRobotROSCollaborationTasks = QListWidget(self.gbRobotROSCollaborationTasks)
         self.lstwRobotROSCollaborationTasks.setObjectName(u"lstwRobotROSCollaborationTasks")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         sizePolicy6.setHorizontalStretch(0)
         sizePolicy6.setVerticalStretch(0)
         sizePolicy6.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
@@ -1221,7 +1290,7 @@ class Ui_MainWindow(object):
 
         self.frame_4 = QFrame(self.centralwidget)
         self.frame_4.setObjectName(u"frame_4")
-        sizePolicy7 = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
+        sizePolicy7 = QSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         sizePolicy7.setHorizontalStretch(0)
         sizePolicy7.setVerticalStretch(25)
         sizePolicy7.setHeightForWidth(self.frame_4.sizePolicy().hasHeightForWidth())
@@ -1237,13 +1306,13 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer)
 
         self.btnStartSimulator = QPushButton(self.frame_4)
         self.btnStartSimulator.setObjectName(u"btnStartSimulator")
-        sizePolicy8 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        sizePolicy8 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         sizePolicy8.setHorizontalStretch(0)
         sizePolicy8.setVerticalStretch(0)
         sizePolicy8.setHeightForWidth(self.btnStartSimulator.sizePolicy().hasHeightForWidth())
@@ -1262,7 +1331,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1188, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1188, 27))
         self.menuFIle = QMenu(self.menubar)
         self.menuFIle.setObjectName(u"menuFIle")
         self.menuDB = QMenu(self.menubar)
@@ -1305,6 +1374,8 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Bulding", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Random Color", None))
         self.checkBox.setText("")
+        self.label_13.setText("")
+        self.btnWorldOptionFire.setText(QCoreApplication.translate("MainWindow", u"Fire", None))
         self.gbRobot.setTitle(QCoreApplication.translate("MainWindow", u"Robot", None))
         self.btnAddRobot.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.btnDeleteRobot.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
@@ -1315,9 +1386,9 @@ class Ui_MainWindow(object):
         self.gbRobotROSNavigation.setTitle(QCoreApplication.translate("MainWindow", u"Navigation", None))
         self.rbROSNone.setText(QCoreApplication.translate("MainWindow", u"None", None))
         self.rbROSSlam.setText(QCoreApplication.translate("MainWindow", u"Slam", None))
-        self.btnROSSlamEdit.setText(QCoreApplication.translate("MainWindow", u"edit", None))
+        self.btnROSSlamEdit.setText(QCoreApplication.translate("MainWindow", u"Edit", None))
         self.rbROSNavigation.setText(QCoreApplication.translate("MainWindow", u"Navigation", None))
-        self.btnROSNavigationEdit.setText(QCoreApplication.translate("MainWindow", u"edit", None))
+        self.btnROSNavigationEdit.setText(QCoreApplication.translate("MainWindow", u"Edit", None))
         self.gbRobotROSJnp.setTitle(QCoreApplication.translate("MainWindow", u"Jnp", None))
         self.btnRobotROSJNPStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.label_5.setText("")
