@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainyUtwEs.ui'
+## Form generated from reading UI file 'mainOgsgMY.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.3
 ##
@@ -88,7 +88,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1148, 214))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1148, 242))
         self.horizontalLayout_3 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_3.setSpacing(0)
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")

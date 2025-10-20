@@ -10,12 +10,13 @@ import random
 import subprocess
 from datetime import datetime  
 from PySide6 import QtWidgets
-from PySide6.QtWidgets import QApplication, QFileDialog
+from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
 from PySide6.QtCore import Qt, QSettings
 from ui_main import Ui_MainWindow
 from dlgROSTeleop import DialogTeleop
 from dlgROSSlam import DialogSmal
 from dlgROSNavigation import DialogNavigation
+from dlgWorldOptionFire import DialogWorldOptionFire
 from dlgROSRViz import DialogRViz
 from dlgROSI2I import DialogROSI2I
 from dlgStartROSCollaborationTask import DialogStartROSCollaborationTask
@@ -107,6 +108,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         ## UI Event
         self.ui.btnStartSimulator.clicked.connect(self.StartSimualtor)
+
+        # Wolrd option
+        self.ui.btnWorldOptionFire.clicked.connect(self.OpenWorldOptionFireDialog)
 
         # Add & Delete Model
         self.ui.btnAddRobot.clicked.connect(self.AddRobot)
@@ -304,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if exeSimulator.poll() is None:
                 print("Gazebo 실행 성공.")
                 self.disableRobotList()
-                m_exeSimulator = exeSimulator
+                self.m_exeSimulator = exeSimulator
                 self.ui.btnStartSimulator.setEnabled(False)
                 self.m_simulator.launchFileName = launchFile
                 self.disableRobotList()
@@ -927,7 +931,7 @@ class MainWindow(QtWidgets.QMainWindow):
         exeSimulator = subprocess.Popen(tmpFile, shell=True, executable="/bin/bash")
         if exeSimulator.poll() is None:
             print("Gazebo 실행 성공.")
-            m_exeSimulator = exeSimulator
+            self.m_exeSimulator = exeSimulator
             self.ui.btnStartSimulator.setEnabled(False)
             self.m_simulator.launchFileName = PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY
             self.disableRobotList()
@@ -1305,7 +1309,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if exeSimulator.poll() is None:
             print("Gazebo 실행 성공.")
             self.disableRobotList()
-            m_exeSimulator = exeSimulator
+            self.m_exeSimulator = exeSimulator
             self.ui.btnStartSimulator.setEnabled(False)
         else:
             print("Gazebo 실행 실패.")
@@ -1505,6 +1509,20 @@ class MainWindow(QtWidgets.QMainWindow):
             self.m_simulator.worldType = ENUM_WORLD.SMALLHOUSE
         elif self.ui.rbWorldBookStore.isChecked() == True:
             self.m_simulator.worldType = ENUM_WORLD.BOOK_STORE
+
+    # World Fire 옵션 선택
+    def OpenWorldOptionFireDialog(self):
+        if self.m_exeSimulator is None:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setWindowTitle("Warning")
+            msg_box.setText("Gazebo를 먼저 실행 해 주세요")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec_()
+            return
+
+        dlg = DialogWorldOptionFire()
+        dlg.showModal()
 
     # 라디오 버튼 - ROS 선택
     def ROSRadioButtonItemSelected(self):

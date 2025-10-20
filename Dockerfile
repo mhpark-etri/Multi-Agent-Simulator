@@ -113,6 +113,5 @@ RUN mkdir -p /root/tesla/robots
 COPY robots /root/tesla/robots
 RUN mkdir -p /root/tesla/I2I_Simulator
 COPY I2I_Simulator /root/tesla/I2I_Simulator
-
-# 4. Hello Robot - Stretch
-
+RUN mkdir -p /root/tesla/particle_emitter
+COPY particle_emitter /root/tesla/particle_emitter
