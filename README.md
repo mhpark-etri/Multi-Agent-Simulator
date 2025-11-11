@@ -46,7 +46,7 @@ sudo docker run -it --gpus all --net=host --privileged \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
 -v $HOME/.Xauthority:/root/.Xauthority:ro \
 -v /mnt/Shared:/mnt \
---name ct_mas img_mas
+--name ct_mas_test img_mas_test
 ```
 - 위 명령어에서 "ct_mas"는 컨테이너의 이름이므로 자유롭게 입력.
 - Container 생성 완료 시 컨테이너로 진입.
