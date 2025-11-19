@@ -273,17 +273,6 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write("#!/bin/bash" + CMD_COMMON_ENTER)
         cmdLine = ""
 
-        # world model 설정
-        # AWS Robomaker의 world 설정 부분 이므로 현재는 사실상 사용하지 않음
-        # if self.m_simulator.worldType == ENUM_WORLD.WAREHOUSE :
-        #     cmdLine  = PATH_SOURCE_WAREHOUSE
-        # elif self.m_simulator.worldType == ENUM_WORLD.HOSPITAL :
-        #     cmdLine = PATH_SOURCE_HOSPITAL
-        # elif self.m_simulator.worldType == ENUM_WORLD.SMALLHOUSE :
-        #     cmdLine = PATH_SOURCE_SMALL_HOUSE   
-        # elif self.m_simulator.worldType == ENUM_WORLD.BOOK_STORE :
-        #     cmdLine = PATH_SOURCE_BOOK_STORE
-        
         # UNI050_BASE source 지정
         cmdLine = PATH_SOURCE_UNI
         f.write(cmdLine + CMD_COMMON_ENTER)
