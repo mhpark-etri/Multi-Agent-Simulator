@@ -59,10 +59,10 @@ class DialogRViz(QtWidgets.QDialog):
         if robotName == CMD_LOCOBOT_MODEL:
              # 로코봇 RViz 생성
              pass
-        elif robotName == CMD_TURTLEBOT3_BURGER_DEFAULT_NAME:
+        elif robotName == CMD_TURTLEBOT3_BURGER_MODEL:
              # 터틀봇 버거 RViz 생성
              pass
-        elif robotName == CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME:
+        elif robotName == CMD_TURTLEBOT3_WAFFLE_MODEL:
              # 터틀봇 와플 RViz 생성
              pass
         elif robotName == CMD_JETBOT_DEFAULT_NAME:
