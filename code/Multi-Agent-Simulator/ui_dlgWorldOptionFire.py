@@ -170,8 +170,6 @@ class Ui_DlgWorldOptionFire(object):
         self.leditWorldOptionFireSDFFilePath.setReadOnly(True)
 
         self.horizontalLayout_5.addWidget(self.leditWorldOptionFireSDFFilePath)
-
-
         self.horizontalLayout_4.addWidget(self.frame_4)
 
         self.btnWorldOptionFireSDFPathOpen = QPushButton(self.gbWorldOptionFireSetting)
@@ -184,8 +182,6 @@ class Ui_DlgWorldOptionFire(object):
         self.btnWorldOptionFireSDFPathOpen.setMinimumSize(QSize(20, 0))
 
         self.horizontalLayout_4.addWidget(self.btnWorldOptionFireSDFPathOpen)
-
-
         self.verticalLayout_6.addLayout(self.horizontalLayout_4)
 
         self.horizontalLayout_3 = QHBoxLayout()
