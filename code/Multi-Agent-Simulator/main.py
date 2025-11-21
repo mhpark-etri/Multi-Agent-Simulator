@@ -656,76 +656,76 @@ class MainWindow(QtWidgets.QMainWindow):
                     continue          
                 ## 7. Hello robot
                 if sim.robots[i].type == ENUM_ROBOT_TYPE.HELLO_ROBOT_STRETCH :
-                    # ## TODO : Option 추가 필요
-                    # bDex_wrist = "false"
-                    # bGpu_lidar = "false"
-                    # bVisualize_lidar = "false"
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_COMMENT_START + CMD_COMMON_ENTER)
-                    # # Model names
-                    # robotName = CMD_HELLO_STRETCH2_MODEL_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
-                    # robotName = "\"" + robotName + "\""
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_ENTER)
-                    # # Model Position
-                    # posX = sim.robots[i].startX
-                    # posY = sim.robots[i].startY
-                    # posZ = sim.robots[i].startZ
-                    # robotName = CMD_HELLO_STRETCH2_MODEL_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
-                    # sim.robots[i].name = robotName
-                    # robotNamePosX = "\"" + robotName + CMD_HELLO_STRETCH2_POSITION_X + "\""
-                    # robotNamePosY = "\"" + robotName + CMD_HELLO_STRETCH2_POSITION_Y + "\""
-                    # robotNamePosZ = "\"" + robotName + CMD_HELLO_STRETCH2_POSITION_Z + "\""
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosX + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posX) + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosY + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posY) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosZ + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posZ) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_ENTER)
-                    # # Group
-                    # robotNameRef = CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_NS + robotNameRef + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
-                    # # dex_wrist
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_DEX_WRIST_OPEN + bDex_wrist + CMD_HELLO_STRETCH2_ARG_DEX_WRIST_CLOSE + CMD_COMMON_ENTER)
-                    # # gpu_lidar
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_GPU_LIDAR_OPEN + bGpu_lidar + CMD_HELLO_STRETCH2_ARG_GPU_LIDAR_CLOSE + CMD_COMMON_ENTER)
-                    # # visualize_lidar
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_VISUALIZE_LIDAR_OPEN + bVisualize_lidar + CMD_HELLO_STRETCH2_ARG_VISUALIZE_LIDAR_CLOSE + CMD_COMMON_ENTER)
-                    # # model_unlsee
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_MODEL_UNLESS + CMD_COMMON_ENTER)
-                    # # model_if
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_MODEL_IF + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
-                    # # robot_description
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_DESCRIPTION + CMD_COMMON_ENTER)
-                    # # gazebo spawn
-                    # argRobotNamePosX = robotName + CMD_HELLO_STRETCH2_POSITION_X
-                    # argRobotNamePosY = robotName + CMD_HELLO_STRETCH2_POSITION_Y
-                    # argRobotNamePosZ = robotName + CMD_HELLO_STRETCH2_POSITION_Z
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_SPAWN_OPEN + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE + CMD_COMMON_SPACE
-                    #         + CMD_HELLO_STRETCH2_NODE_SPAWN_PROPERTIES_1 + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE + CMD_HELLO_STRETCH2_NODE_SPAWN_PROPERTIES_2 + CMD_COMMON_SPACE 
-                    #         + CMD_HELLO_STRETCH2_NODE_SPAWN_POSITION_X +  CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + argRobotNamePosX + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE 
-                    #         + CMD_HELLO_STRETCH2_NODE_SPAWN_POSITION_Y +  CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + argRobotNamePosY + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE 
-                    #         + CMD_HELLO_STRETCH2_NODE_SPAWN_POSITION_Z +  CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + argRobotNamePosZ + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE
-                    #         + CMD_HELLO_STRETCH2_NODE_SPAWN_CLOSE + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
-                    # # state_publisher
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_STATE_PUBLISHER_OPEN + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_FOUR + CMD_HELLO_STRETCH2_PARAM_STATE_PUBLISHER_FREQUENCY + CMD_COMMON_ENTER)
-                    # f.write(CMD_HELLO_STRETCH2_NODE_STATE_PUBLISHER_CLOSE + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
-                    # # controller_setting
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_JOINT + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_DRIVE_CONFIG + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_ARM + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_HEAD + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_GRIPPER + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_DEX_WRIST + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
-                    # # controller_spawn
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_CONTROLLER_SPAWN_UNLESS + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_CONTROLLER_SPAWN_IF + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
-                    # # ground_truth_odometry
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_GROUND_TRUTH_ODOM + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
-                    # # Group - close
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
-                    # # UNI050_BASE end
-                    # f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_COMMENT_END + CMD_COMMON_ENTER)
-                    # f.write(CMD_COMMON_ENTER)
-                    # continue
+                    ## TODO : Option 추가 필요
+                    bDex_wrist = "false"
+                    bGpu_lidar = "false"
+                    bVisualize_lidar = "false"
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_COMMENT_START + CMD_COMMON_ENTER)
+                    # Model names
+                    robotName = CMD_HELLO_STRETCH2_MODEL_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
+                    robotName = "\"" + robotName + "\""
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotName + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + robotName + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_ENTER)
+                    # Model Position
+                    posX = sim.robots[i].startX
+                    posY = sim.robots[i].startY
+                    posZ = sim.robots[i].startZ
+                    robotName = CMD_HELLO_STRETCH2_MODEL_NAME + CMD_COMMON_UNDERBAR + str(sim.robots[i].id)
+                    sim.robots[i].name = robotName
+                    robotNamePosX = "\"" + robotName + CMD_HELLO_STRETCH2_POSITION_X + "\""
+                    robotNamePosY = "\"" + robotName + CMD_HELLO_STRETCH2_POSITION_Y + "\""
+                    robotNamePosZ = "\"" + robotName + CMD_HELLO_STRETCH2_POSITION_Z + "\""
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosX + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posX) + "\"" + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosY + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posY) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_ARG + CMD_COMMON_SPACE + CMD_COMMON_NAME + robotNamePosZ + CMD_COMMON_SPACE + CMD_COMMON_DEFAULT + "\"" + str(posZ) + "\""  + CMD_COMMON_CLOSE_TAG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_ENTER)
+                    # Group
+                    robotNameRef = CMD_COMMON_OPEN_BRACKET_WITH_QUOTE + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_OPEN_GROUP + CMD_COMMON_SPACE + CMD_COMMON_NS + robotNameRef + CMD_COMMON_CLOSE + CMD_COMMON_ENTER)
+                    # dex_wrist
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_DEX_WRIST_OPEN + bDex_wrist + CMD_HELLO_STRETCH2_ARG_DEX_WRIST_CLOSE + CMD_COMMON_ENTER)
+                    # gpu_lidar
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_GPU_LIDAR_OPEN + bGpu_lidar + CMD_HELLO_STRETCH2_ARG_GPU_LIDAR_CLOSE + CMD_COMMON_ENTER)
+                    # visualize_lidar
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_VISUALIZE_LIDAR_OPEN + bVisualize_lidar + CMD_HELLO_STRETCH2_ARG_VISUALIZE_LIDAR_CLOSE + CMD_COMMON_ENTER)
+                    # model_unlsee
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_MODEL_UNLESS + CMD_COMMON_ENTER)
+                    # model_if
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ARG_MODEL_IF + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
+                    # robot_description
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_DESCRIPTION + CMD_COMMON_ENTER)
+                    # gazebo spawn
+                    argRobotNamePosX = robotName + CMD_HELLO_STRETCH2_POSITION_X
+                    argRobotNamePosY = robotName + CMD_HELLO_STRETCH2_POSITION_Y
+                    argRobotNamePosZ = robotName + CMD_HELLO_STRETCH2_POSITION_Z
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_SPAWN_OPEN + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE + CMD_COMMON_SPACE
+                            + CMD_HELLO_STRETCH2_NODE_SPAWN_PROPERTIES_1 + CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + robotName + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE + CMD_HELLO_STRETCH2_NODE_SPAWN_PROPERTIES_2 + CMD_COMMON_SPACE 
+                            + CMD_HELLO_STRETCH2_NODE_SPAWN_POSITION_X +  CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + argRobotNamePosX + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE 
+                            + CMD_HELLO_STRETCH2_NODE_SPAWN_POSITION_Y +  CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + argRobotNamePosY + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE 
+                            + CMD_HELLO_STRETCH2_NODE_SPAWN_POSITION_Z +  CMD_COMMON_SPACE + CMD_COMMON_OPEN_BRACKET + CMD_COMMON_ARG + CMD_COMMON_SPACE + argRobotNamePosZ + CMD_COMMON_CLOSE_BRACKET + CMD_COMMON_SPACE
+                            + CMD_HELLO_STRETCH2_NODE_SPAWN_CLOSE + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
+                    # state_publisher
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_STATE_PUBLISHER_OPEN + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_FOUR + CMD_HELLO_STRETCH2_PARAM_STATE_PUBLISHER_FREQUENCY + CMD_COMMON_ENTER)
+                    f.write(CMD_HELLO_STRETCH2_NODE_STATE_PUBLISHER_CLOSE + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
+                    # controller_setting
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_JOINT + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_DRIVE_CONFIG + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_ARM + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_HEAD + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_GRIPPER + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_ROSPARAM_PARAM_LOAD_CONFIG_DEX_WRIST + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
+                    # controller_spawn
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_CONTROLLER_SPAWN_UNLESS + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_CONTROLLER_SPAWN_IF + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
+                    # ground_truth_odometry
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_NODE_GROUND_TRUTH_ODOM + CMD_COMMON_ENTER + CMD_COMMON_ENTER)
+                    # Group - close
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_COMMON_CLOSE_GROUP + CMD_COMMON_ENTER)
+                    # UNI050_BASE end
+                    f.write(CMD_COMMON_SPACE_DOUBLE + CMD_HELLO_STRETCH2_COMMENT_END + CMD_COMMON_ENTER)
+                    f.write(CMD_COMMON_ENTER)
+                    continue
 
             # ROS SLAM
             elif sim.ros == ENUM_ROS_TYPE.SLAM:
