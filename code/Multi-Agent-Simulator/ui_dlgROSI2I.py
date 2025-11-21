@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'dlgROSI2I.ui'
+## Form generated from reading UI file 'dlgROSI2IPBUlIj.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.6.3
 ##
