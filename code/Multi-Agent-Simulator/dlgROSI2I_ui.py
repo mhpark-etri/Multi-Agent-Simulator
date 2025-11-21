@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'dlgROSI2I.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.2.4
+## Created by: Qt User Interface Compiler version 6.6.3
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -17,8 +17,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox,
     QDialog, QFrame, QGroupBox, QHBoxLayout,
-    QLabel, QListWidget, QListWidgetItem, QPushButton,
-    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+    QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
+    QWidget)
 
 class Ui_DlgROSI2I(object):
     def setupUi(self, DlgROSI2I):
@@ -38,7 +39,7 @@ class Ui_DlgROSI2I(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.frame_6 = QFrame(self.frame)
         self.frame_6.setObjectName(u"frame_6")
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frame_6.sizePolicy().hasHeightForWidth())
@@ -77,7 +78,7 @@ class Ui_DlgROSI2I(object):
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.frame_7 = QFrame(self.gbROSI2IRobot)
         self.frame_7.setObjectName(u"frame_7")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.frame_7.sizePolicy().hasHeightForWidth())
@@ -113,7 +114,7 @@ class Ui_DlgROSI2I(object):
         self.verticalLayout_17.setObjectName(u"verticalLayout_17")
         self.lbROSI2IRobotThumb = QLabel(self.frame_8)
         self.lbROSI2IRobotThumb.setObjectName(u"lbROSI2IRobotThumb")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.lbROSI2IRobotThumb.sizePolicy().hasHeightForWidth())
@@ -203,7 +204,42 @@ class Ui_DlgROSI2I(object):
 
         self.verticalLayout_19.addLayout(self.horizontalLayout_13)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.frame_2 = QFrame(self.gbROSI2IOption)
+        self.frame_2.setObjectName(u"frame_2")
+        self.frame_2.setFrameShape(QFrame.StyledPanel)
+        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.verticalLayout_2 = QVBoxLayout(self.frame_2)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.ckbROSI2ICapture = QCheckBox(self.frame_2)
+        self.ckbROSI2ICapture.setObjectName(u"ckbROSI2ICapture")
+
+        self.verticalLayout_2.addWidget(self.ckbROSI2ICapture)
+
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.btnROSI2ICapturePathOpen = QPushButton(self.frame_2)
+        self.btnROSI2ICapturePathOpen.setObjectName(u"btnROSI2ICapturePathOpen")
+
+        self.horizontalLayout_5.addWidget(self.btnROSI2ICapturePathOpen)
+
+        self.leditROSI2ICapturePath = QLineEdit(self.frame_2)
+        self.leditROSI2ICapturePath.setObjectName(u"leditROSI2ICapturePath")
+        self.leditROSI2ICapturePath.setReadOnly(True)
+
+        self.horizontalLayout_5.addWidget(self.leditROSI2ICapturePath)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_5)
+
+
+        self.horizontalLayout_3.addWidget(self.frame_2)
+
+
+        self.verticalLayout_19.addLayout(self.horizontalLayout_3)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_19.addItem(self.verticalSpacer_2)
 
@@ -245,7 +281,7 @@ class Ui_DlgROSI2I(object):
         self.verticalLayout_4.setContentsMargins(-1, 15, -1, -1)
         self.lstwROSI2ITopicList = QListWidget(self.gbROSI2ITopicList)
         self.lstwROSI2ITopicList.setObjectName(u"lstwROSI2ITopicList")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.lstwROSI2ITopicList.sizePolicy().hasHeightForWidth())
@@ -271,7 +307,7 @@ class Ui_DlgROSI2I(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
@@ -322,6 +358,8 @@ class Ui_DlgROSI2I(object):
         self.lbROSI2INameSpace.setText("")
         self.gbROSI2IOption.setTitle(QCoreApplication.translate("DlgROSI2I", u"Option", None))
         self.ckbROSI2IShowCamera.setText(QCoreApplication.translate("DlgROSI2I", u"Show Camera", None))
+        self.ckbROSI2ICapture.setText(QCoreApplication.translate("DlgROSI2I", u"Capture", None))
+        self.btnROSI2ICapturePathOpen.setText(QCoreApplication.translate("DlgROSI2I", u"Open", None))
         self.gbROSI2ITopicList.setTitle(QCoreApplication.translate("DlgROSI2I", u"Topic List", None))
         self.btnROSI2IStart.setText(QCoreApplication.translate("DlgROSI2I", u"Start", None))
     # retranslateUi
