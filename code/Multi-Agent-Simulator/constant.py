@@ -160,6 +160,7 @@ CMD_TURTLEBOT3_DEFAULT_NAME = "tb3_"
 CMD_TURTLEBOT3_GAZEBO = "turtlebot3_gazebo"
 
 ## Turtlebot3 - burger ##
+CMD_TURTLEBOT3_BURGER_MODEL = "burger_"
 CMD_TURTLEBOT3_BURGER_COMMENT_START = "<!-- #### Turtlebot3 - Burger #### -->"
 CMD_TURTLEBOT3_BURGER_COMMENT_END = "<!-- #### Turtlebot3 - Burger End #### -->"
 CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X = "_x_pos"
@@ -169,6 +170,8 @@ CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_YAW = "_yaw"
 CMD_TURTLEBOT3_MODEL_BURGER = "burger"                                                                      # Value : Burger
 
 ## Turtlebot3 - waffle ##
+CMD_TURTLEBOT3_WAFFLE_MODEL = "waffle_"
+CMD_TURTLEBOT3_WAFFLE_PI_MODEL = "waffle_pi_"
 CMD_TURTLEBOT3_WAFFLE_COMMENT_START = "<!-- #### Turtlebot3 - Waffle #### -->"
 CMD_TURTLEBOT3_WAFFLE_COMMENT_END = "<!-- #### Turtlebot3 - Waffle End #### -->"
 CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X = "_x_pos"
