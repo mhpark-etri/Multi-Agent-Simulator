@@ -65,17 +65,9 @@ class Ui_WidgetCollaborationTask(object):
         self.lbROSCollaborationTaskName.setAlignment(Qt.AlignCenter)
 
         self.horizontalLayout.addWidget(self.lbROSCollaborationTaskName)
-
-
         self.verticalLayout.addLayout(self.horizontalLayout)
-
-
         self.verticalLayout_3.addLayout(self.verticalLayout)
-
-
         self.verticalLayout_2.addWidget(self.fWidgetCollaborationTask)
-
-
         self.retranslateUi(WidgetCollaborationTask)
 
         QMetaObject.connectSlotsByName(WidgetCollaborationTask)
