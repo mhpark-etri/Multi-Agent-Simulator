@@ -140,6 +140,7 @@ CMD_WORLD_PERSON_ACTIR_EFFECT_COLOR_CLOSE = "</color>"
 CMD_LOCOBOT_COMMENT_START = "<!-- #### Locobot #### -->"
 CMD_LOCOBOT_COMMENT_END = "<!-- #### Locobot End #### -->"
 CMD_LOCOBOT_DEFAULT_NAME_LOCOBOT = "locobot"
+CMD_LOCOBOT_DEFAULT_NAME_LOCOBOT_UNDERBAR = "locobot_"
 CMD_LOCOBOT_NODE_PKG_TF = "<node pkg=\"tf\" type=\"static_transform_publisher\" name=\"cam_transform\" args=\"0 0 0 0 0 0 /camera_link /camera_color_optical_frame 100\" />"
 CMD_LOCOBOT_MODEL = "locobot_"
 # "Group 옵션들은 반고정 상태 이므로 모델명이 필요하지 않는 구문둘은 통으로 고정 하여 사용한다" ##
@@ -250,6 +251,7 @@ CMD_INTERBOTIX_NODE_URDF_SPAWNER_CLOSE = " -param robot_description\"/>"
 ## uni
 CMD_UNI_MODEL_NAME = "uni_base" 
 CMD_UNI_DEFAULT_NAME = "uni"
+CMD_UNI_DEFAULT_NAME_UNDERBAR = "uni_"
 CMD_UNI_COMMENT_START = "<!-- #### UNI050_BASE #### -->"
 CMD_UNI_COMMENT_END = "<!-- #### UNI050_BASE End #### -->"
 CMD_UNI_DEFAULT_NAME_POSITION_X = "_x_pos"
@@ -262,6 +264,7 @@ CMD_UNI_NODE_PKG_SPAWN_MODEL_CLOSE = "-param robot_description\" />"
 
 ## hello_stretch2
 CMD_HELLO_STRETCH2_MODEL_NAME = "stretch2"
+CMD_HELLO_STRETCH2_MODEL_NAME_UNDERBAR = "stretch2_"
 CMD_HELLO_STRETCH2_COMMENT_START = "<!-- #### Hello Robot Stretch2 #### -->"
 CMD_HELLO_STRETCH2_COMMENT_END = "<!-- #### Hello Robot Stretch2 End #### -->"
 CMD_HELLO_STRETCH2_POSITION_X = "_x_pos"
