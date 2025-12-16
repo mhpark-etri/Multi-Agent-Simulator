@@ -151,6 +151,11 @@ class DialogROSI2I(
         #     self.server_running = True
         #     print(f"Server is running. Access it at http://localhost:{self.m_RESTportNum}/get_topic_image_raw")
 
+        ## 변경된 부분 -> 스크립트 형태로 실행
+        # 1. Image 저장 경로를 가져오고
+        # 2. 해당 경로에 Image가 있을 때 마다 실행
+        # 3. 텍스트 버퍼를 하나 만들어 거기에 작업했던 이미지 파일명을 저장 해두고 버퍼 비교해서 없으면 실행
+
         self.accept()
 
     def showModal(self):
