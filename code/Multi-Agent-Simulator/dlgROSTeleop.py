@@ -105,6 +105,12 @@ class DialogTeleop(QtWidgets.QDialog):
                     command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
                     command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP_KEY
                     os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
+        elif robotName == CMD_INTERBOTIX_ROBOT_NAME_DEFAULT:
+            pass
+        elif robotName == CMD_UNI_DEFAULT_NAME_UNDERBAR:
+            pass
+        elif robotName == CMD_HELLO_STRETCH2_MODEL_NAME_UNDERBAR:
+            pass
         elif robotName == CMD_JETBOT_DEFAULT_NAME:
              # TODO : jetbot...
              pass
