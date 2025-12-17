@@ -11,30 +11,11 @@ from dlgROSI2I_ui import Ui_DlgROSI2I
 import copy
 import rospy
 import socket
-from flask import Flask, jsonify
 
 from constant import *
 from simulator import *
 
-# Flask 애플리케이션 초기화
-app = Flask(__name__)
-# FlaskThread 인스턴스를 전역 변수로 선언
-flask_thread = None
-# FlaskThread 클래스 정의
-class FlaskThread(QThread):
-    def __init__(self, portNum, topicImageRaw):
-        super().__init__()
-        self.portNum = portNum  # 포트 번호 저장
-        self.topicImageRaw = topicImageRaw  # 토픽 이미지를 저장
 
-    def run(self):
-        with app.app_context():
-            app.run(debug=True, host='0.0.0.0', port=self.portNum, use_reloader=False)  # reloader를 비활성화합니다.
-
-# API 경로를 수정하여 전달된 topic_image_raw를 사용합니다.
-@app.route('/get_topic_image_raw', methods=['GET'])
-def get_topic_image_raw():
-    return jsonify({"message": flask_thread.topicImageRaw})  # FlaskThread 인스턴스의 topicImageRaw를 반환합니다.
 
 class DialogROSI2I(
     QtWidgets.QDialog):
