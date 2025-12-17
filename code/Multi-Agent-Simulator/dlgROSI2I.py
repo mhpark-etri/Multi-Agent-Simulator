@@ -150,15 +150,15 @@ class DialogROSI2I(
         # 1. Image 저장 경로를 가져오고
         # 2. 해당 경로에 Image가 있을 때 마다 실행
         # 3. 텍스트 버퍼를 하나 만들어 거기에 작업했던 이미지 파일명을 저장 해두고 버퍼 비교해서 없으면 실행
+        
 
         self.accept()
 
+    # 이미지 처리 루틴
+    def OnImageReceived(self, cv_image):
+        # 여기서 Image-to-Image 처리
+        # 또는 저장, 표시, inference 등
+        pass
+
     def showModal(self):
         return super().exec_()
-    
-
-    ## Rest API 관련 ##
-    # 서버가 이미 실행 중인지 확인
-    def is_port_in_use(self, port):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            return sock.connect_ex(('localhost', port)) == 0
