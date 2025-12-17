@@ -4,18 +4,42 @@
 ## 설명 : Image-to-Image Enhancement 세팅 다이얼로그    ##
 ######################################################
 from PySide6 import QtWidgets, QtGui
-from PySide6.QtCore import Qt, QThread
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QMessageBox
 from dlgROSI2I_ui import Ui_DlgROSI2I
 import copy
-import rospy
 import socket
+import rospy
+
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 from constant import *
 from simulator import *
 
+class ROSImageThread(QThread):
+    image_received = Signal(object)  # cv2 image 전달
 
+    def __init__(self, topic_name):
+        super().__init__()
+        self.topic_name = topic_name
+        self.bridge = CvBridge()
+        self.running = True
+
+    def run(self):
+        rospy.Subscriber(self.topic_name, Image, self.callback)
+        rospy.spin()
+
+    def callback(self, msg):
+        if not self.running:
+            return
+        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        self.image_received.emit(cv_image)
+
+    def stop(self):
+        self.running = False
+        rospy.signal_shutdown("Thread stopped")
 
 class DialogROSI2I(
     QtWidgets.QDialog):
