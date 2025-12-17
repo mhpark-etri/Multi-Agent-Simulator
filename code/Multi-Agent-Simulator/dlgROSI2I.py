@@ -145,20 +145,6 @@ class DialogROSI2I(
         self.image_thread.start()
 
         self.accept()
-    
-        ## Rest API 더이상 사용 안할 예정
-        # # 1. Rest API Server 실행
-        # if self.is_port_in_use(self.m_RESTportNum):
-        #     QtWidgets.QMessageBox.warning(self, 'Warning', f"Server is already running on port {self.m_RESTportNum}.", QtWidgets.QMessageBox.Ok)
-        #     return
-
-        # if not self.server_running:
-        #     # Flask 서버를 QThread로 실행
-        #     global flask_thread  # 전역 변수를 사용합니다.
-        #     flask_thread = FlaskThread(self.m_RESTportNum, topicImageRaw)
-        #     flask_thread.start()
-        #     self.server_running = True
-        #     print(f"Server is running. Access it at http://localhost:{self.m_RESTportNum}/get_topic_image_raw")
 
         ## 변경된 부분 -> 스크립트 형태로 실행
         # 1. Image 저장 경로를 가져오고
