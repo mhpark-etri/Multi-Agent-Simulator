@@ -67,6 +67,12 @@ class DialogRViz(QtWidgets.QDialog):
              pass
         elif robotName == CMD_JETBOT_DEFAULT_NAME:
              pass
+        elif robotName == CMD_INTERBOTIX_ROBOT_NAME_DEFAULT:
+            pass
+        elif robotName == CMD_UNI_DEFAULT_NAME_UNDERBAR:
+            pass
+        elif robotName == CMD_HELLO_STRETCH2_MODEL_NAME_UNDERBAR:
+            pass
         
     def showModal(self):
         return super().exec_()
