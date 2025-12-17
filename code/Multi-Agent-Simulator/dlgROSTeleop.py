@@ -32,40 +32,11 @@ class DialogTeleop(QtWidgets.QDialog):
 
     # 로봇 정보를 이용해 로봇에 해당하는 패널을 생성한다.
     def CreateSelectRobotPanel(self, ui):
-        # # Test
-        # lstRobots = []
-        # robot = Robot()
-        # robot.id = 0
-        # robot.rosNamespace = "turtlebot3_waffle_0"
-        # robot.type = ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER
-        # # Option Check
-        # option = Option()
-        # robot.option = option
-        # # 로봇 정보 입력
-        # lstRobots.append(robot)
-        # robot = Robot()
-        # robot.id = 1
-        # robot.rosNamespace = "locobot_0"
-        # robot.type = ENUM_ROBOT_TYPE.LOCOBOT
-        # # Option Check
-        # option = Option()
-        # robot.option = option
-        # lstRobots.append(robot)
-        # # Test end
-
         # 1. 로봇 대수 별로 패널 생성
         robotCount = len(self.m_simulator.robots)
         for i in range(0, robotCount):
             # 버튼 생성
             btnPush = QPushButton(ui.fmain)
-            # btnName = CONST_LOCOBOT_NAME
-            # if lstRobots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER:
-            #         btnName = CONST_TURTLEBOT3_BUTGER_NAME
-            # elif lstRobots[i].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE:
-            #         btnName = CONST_TURTLEBOT3_WAFFLE_NAME
-            # elif lstRobots[i].type == ENUM_ROBOT_TYPE.JETBOT:
-            #         btnName = CONST_JETBOT_NAME
-            # btnName = btnName + "_" + str(lstRobots[i].id)
             btnName = self.m_simulator.robots[i].name
             btnPush.setObjectName(btnName)
             btnPush.setMinimumSize(QSize(0, 40))
