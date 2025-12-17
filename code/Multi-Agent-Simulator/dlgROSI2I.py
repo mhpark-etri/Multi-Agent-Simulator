@@ -129,13 +129,17 @@ class DialogROSI2I(
     # I2I 작업 시작
     def StartROSI2I(self):
         selected_items = self.ui.lstwROSI2ITopicList.selectedItems()
-        topicImageRaw = ""
-        if selected_items:
-            topicImageRaw = selected_items[0].text()
-        else:
-            # 선택된 아이템이 없을 때 경고 메시지 표시
-            QtWidgets.QMessageBox.warning(self, 'Warning', "No item is selected. Please select a topic.", QtWidgets.QMessageBox.Ok)
+        if not selected_items:
+            QMessageBox.warning(self, "Warning", "No topic selected")
             return
+
+        topic = selected_items[0].text()
+
+        self.image_thread = ROSImageThread(topic)
+        self.image_thread.image_received.connect(self.OnImageReceived)
+        self.image_thread.start()
+
+        self.accept()
     
         ## Rest API 더이상 사용 안할 예정
         # # 1. Rest API Server 실행
