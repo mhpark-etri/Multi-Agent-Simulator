@@ -23,7 +23,8 @@ PATH_I2I_SCRIPT = "/root/tesla/I2I_Simulator/infer.py"
 PATH_I2I_RESULT_ORGIN = "/root/tesla/I2I_Simulator/result/origin"
 PATH_I2I_RESULT_ENHANCED = "/root/tesla/I2I_Simulator/result/enhanced"
 
-class ROSImageThread(QThread):
+## 이미지 캡쳐 스레드
+class EnhancedImageThread(QThread):
     image_received = Signal(object)  # cv2 image 전달
 
     def __init__(self, topic_name):
@@ -46,6 +47,7 @@ class ROSImageThread(QThread):
         self.running = False
         rospy.signal_shutdown("Thread stopped")
 
+## 메인 클래스
 class DialogROSI2I(
     QtWidgets.QDialog):
     # Init
@@ -55,9 +57,7 @@ class DialogROSI2I(
         self.ui.setupUi(self)
 
         self.m_simulator = copy.deepcopy(rosInfo)
-        self.m_RESTportNum = 5000
-        self.server_thread = None
-        self.server_running = False  # 서버 상태 플래그
+        self.enhanced_jpg_list = []
 
         # 이벤트 연결
         self.ui.cbROSI2IName.currentIndexChanged.connect(self.SetRobotInfo)
@@ -138,19 +138,6 @@ class DialogROSI2I(
 
     # I2I 작업 시작
     def StartROSI2I(self):
-        selected_items = self.ui.lstwROSI2ITopicList.selectedItems()
-        if not selected_items:
-            QMessageBox.warning(self, "Warning", "No topic selected")
-            return
-
-        topic = selected_items[0].text()
-
-        self.image_thread = ROSImageThread(topic)
-        self.image_thread.image_received.connect(self.OnImageReceived)
-        self.image_thread.start()
-
-        self.accept()
-
         ## 변경된 부분 -> 스크립트 형태로 실행
         # 1. Image 저장 경로를 가져오고
         path_origin = Path(PATH_I2I_RESULT_ORGIN)
@@ -175,17 +162,24 @@ class DialogROSI2I(
             path_enhanced.mkdir(parents=True, exist_ok=True)
             print(f"[CREATE] enhanced 폴더 생성: {path_enhanced}")
 
-        # 2. 해당 경로에 Image가 있을 때 마다 실행
-        
+        selected_items = self.ui.lstwROSI2ITopicList.selectedItems()
+        if not selected_items:
+            QMessageBox.warning(self, "Warning", "No topic selected")
+            return
 
-        # 3. 텍스트 버퍼를 하나 만들어 거기에 작업했던 이미지 파일명을 저장 해두고 버퍼 비교해서 없으면 실행
-        
+        ## 로봇 카메라 이미지 저장 스레드 시작
+        topic = selected_items[0].text()
+
+        self.image_thread = EnhancedImageThread(topic)
+        self.image_thread.image_received.connect(self.OnImageReceived)
+        self.image_thread.start()
 
         self.accept()
 
     # 이미지 처리 루틴
     def OnImageReceived(self, cv_image):
-        # 
+        # 스크립트 실행
+        path_script = PATH_I2I_SCRIPT
         pass
 
     def showModal(self):
