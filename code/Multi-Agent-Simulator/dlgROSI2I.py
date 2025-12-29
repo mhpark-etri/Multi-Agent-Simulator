@@ -11,6 +11,7 @@ from dlgROSI2I_ui import Ui_DlgROSI2I
 import copy
 import socket
 import rospy
+from pathlib import Path
 
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -18,7 +19,8 @@ from cv_bridge import CvBridge
 from constant import *
 from simulator import *
 
-PATH_ISI_SCRIPT = "source /root/tesla/I2I_Simulator/infer.py"
+PATH_I2I_SCRIPT = "/root/tesla/I2I_Simulator/infer.py"
+PATH_I2I_RESULT = "/root/tesla/I2I_Simulator/result"
 
 class ROSImageThread(QThread):
     image_received = Signal(object)  # cv2 image 전달
@@ -150,6 +152,17 @@ class DialogROSI2I(
 
         ## 변경된 부분 -> 스크립트 형태로 실행
         # 1. Image 저장 경로를 가져오고
+        path = Path(PATH_I2I_RESULT)
+        if path.exists():
+            if path.is_dir():
+                print(f"[OK] 폴더가 이미 존재: {path}")
+            else:
+                raise RuntimeError(f"[ERR재OR] 경로는 존재하지만 폴더가 아님(파일 등): {path}")
+        else:
+            # 중간 경로까지 함께 생성, 이미 있으면 에러 없이 통과
+            path.mkdir(parents=True, exist_ok=True)
+            print(f"[CREATE] 폴더 생성: {path}")
+
         # 2. 해당 경로에 Image가 있을 때 마다 실행
         # 3. 텍스트 버퍼를 하나 만들어 거기에 작업했던 이미지 파일명을 저장 해두고 버퍼 비교해서 없으면 실행
         
