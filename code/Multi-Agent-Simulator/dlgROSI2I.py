@@ -18,6 +18,8 @@ from cv_bridge import CvBridge
 from constant import *
 from simulator import *
 
+PATH_ISI_SCRIPT = "source /root/tesla/I2I_Simulator/infer.py"
+
 class ROSImageThread(QThread):
     image_received = Signal(object)  # cv2 image 전달
 
