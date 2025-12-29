@@ -20,7 +20,8 @@ from constant import *
 from simulator import *
 
 PATH_I2I_SCRIPT = "/root/tesla/I2I_Simulator/infer.py"
-PATH_I2I_RESULT = "/root/tesla/I2I_Simulator/result"
+PATH_I2I_RESULT_ORGIN = "/root/tesla/I2I_Simulator/result/origin"
+PATH_I2I_RESULT_ENHANCED = "/root/tesla/I2I_Simulator/result/enhanced"
 
 class ROSImageThread(QThread):
     image_received = Signal(object)  # cv2 image 전달
@@ -152,18 +153,31 @@ class DialogROSI2I(
 
         ## 변경된 부분 -> 스크립트 형태로 실행
         # 1. Image 저장 경로를 가져오고
-        path = Path(PATH_I2I_RESULT)
-        if path.exists():
-            if path.is_dir():
-                print(f"[OK] 폴더가 이미 존재: {path}")
+        path_origin = Path(PATH_I2I_RESULT_ORGIN)
+        if path_origin.exists():
+            if path_origin.is_dir():
+                print(f"[OK] origin 폴더가 이미 존재: {path_origin}")
             else:
-                raise RuntimeError(f"[ERR재OR] 경로는 존재하지만 폴더가 아님(파일 등): {path}")
+                raise RuntimeError(f"[ERROR] origin 경로는 존재하지만 폴더가 아님(파일 등): {path_origin}")
         else:
             # 중간 경로까지 함께 생성, 이미 있으면 에러 없이 통과
-            path.mkdir(parents=True, exist_ok=True)
-            print(f"[CREATE] 폴더 생성: {path}")
+            path_origin.mkdir(parents=True, exist_ok=True)
+            print(f"[CREATE] origin 폴더 생성: {path_origin}")
+
+        path_enhanced = Path(PATH_I2I_RESULT_ENHANCED)
+        if path_enhanced.exists():
+            if path_enhanced.is_dir():
+                print(f"[OK] enhanced 폴더가 이미 존재: {path_enhanced}")
+            else:
+                raise RuntimeError(f"[ERROR] enhanced 경로는 존재하지만 폴더가 아님(파일 등): {path_enhanced}")
+        else:
+            # 중간 경로까지 함께 생성, 이미 있으면 에러 없이 통과
+            path_enhanced.mkdir(parents=True, exist_ok=True)
+            print(f"[CREATE] enhanced 폴더 생성: {path_enhanced}")
 
         # 2. 해당 경로에 Image가 있을 때 마다 실행
+        
+
         # 3. 텍스트 버퍼를 하나 만들어 거기에 작업했던 이미지 파일명을 저장 해두고 버퍼 비교해서 없으면 실행
         
 
@@ -171,8 +185,7 @@ class DialogROSI2I(
 
     # 이미지 처리 루틴
     def OnImageReceived(self, cv_image):
-        # 여기서 Image-to-Image 처리
-        # 또는 저장, 표시, inference 등
+        # 
         pass
 
     def showModal(self):
