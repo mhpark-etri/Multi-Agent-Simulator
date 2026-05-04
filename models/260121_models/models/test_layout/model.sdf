@@ -1,0 +1,88 @@
+<?xml version='1.0'?>
+<sdf version='1.7'>
+  <model name='test_layout'>
+    <pose>0.876914 -0.492619 0 0 -0 0</pose>
+    <link name='Wall_5'>
+      <pose>0 -0.417619 0 0 -0 0</pose>
+      <visual name='Wall_5_Visual_0'>
+        <pose>-2.25971 0 2.5 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>1.98057 0.15 5</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+          <ambient>0.760784 0.662745 0.627451 1</ambient>
+        </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+      <collision name='Wall_5_Collision_0'>
+        <geometry>
+          <box>
+            <size>1.98057 0.15 5</size>
+          </box>
+        </geometry>
+        <pose>-2.25971 0 2.5 0 -0 0</pose>
+      </collision>
+      <visual name='Wall_5_Visual_1'>
+        <pose>1.48529 0 2.5 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>3.52943 0.15 5</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+          <ambient>0.760784 0.662745 0.627451 1</ambient>
+        </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+      <collision name='Wall_5_Collision_1'>
+        <geometry>
+          <box>
+            <size>3.52943 0.15 5</size>
+          </box>
+        </geometry>
+        <pose>1.48529 0 2.5 0 -0 0</pose>
+      </collision>
+      <visual name='Wall_5_Visual_2'>
+        <pose>-0.774428 0 3.5 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>0.99 0.15 3</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/Grey</name>
+          </script>
+          <ambient>0.760784 0.662745 0.627451 1</ambient>
+        </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+      <collision name='Wall_5_Collision_2'>
+        <geometry>
+          <box>
+            <size>0.99 0.15 3</size>
+          </box>
+        </geometry>
+        <pose>-0.774428 0 3.5 0 -0 0</pose>
+      </collision>
+    </link>
+    <static>1</static>
+  </model>
+</sdf>

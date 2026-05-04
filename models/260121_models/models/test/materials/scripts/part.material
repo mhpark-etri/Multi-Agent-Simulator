@@ -1,0 +1,9 @@
+material MyModel/Parts
+{
+  technique { pass {
+    texture_unit { texture ../../meshes/locker_color.png }
+
+    specular 1 1 1 1
+    shininess 80
+  }}
+}

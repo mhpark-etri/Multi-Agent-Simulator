@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="gray_brick_pile">
+    <static>true</static>
+    <pose>0 0 0 0 0 0</pose>
+
+    <link name="brick_pile_link">
+
+      <!-- =================
+           Collision (전체 더미)
+           ================= -->
+      <collision name="col_pile">
+        <pose>0 0 0.18 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.70 0.50 0.36</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <!-- =================
+           Visual bricks
+           ================= -->
+
+      <!-- 공통 회색 벽돌 재질 -->
+      <!-- ambient/diffuse/specular로 콘크리트 느낌 -->
+
+      <!-- Layer 1 -->
+      <visual name="brick_1_1">
+        <pose>-0.20 -0.10 0.03 0 0 0</pose>
+        <geometry><box><size>0.20 0.10 0.06</size></box></geometry>
+        <material>
+          <ambient>0.55 0.55 0.55 1</ambient>
+          <diffuse>0.60 0.60 0.60 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+          <shininess>5</shininess>
+        </material>
+      </visual>
+
+      <visual name="brick_1_2">
+        <pose>0.00 -0.10 0.03 0 0 0</pose>
+        <geometry><box><size>0.20 0.10 0.06</size></box></geometry>
+        <material>
+          <ambient>0.55 0.55 0.55 1</ambient>
+          <diffuse>0.60 0.60 0.60 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+          <shininess>5</shininess>
+        </material>
+      </visual>
+
+      <visual name="brick_1_3">
+        <pose>0.20 -0.10 0.03 0 0 0</pose>
+        <geometry><box><size>0.20 0.10 0.06</size></box></geometry>
+        <material>
+          <ambient>0.55 0.55 0.55 1</ambient>
+          <diffuse>0.60 0.60 0.60 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+          <shininess>5</shininess>
+        </material>
+      </visual>
+
+      <!-- Layer 2 -->
+      <visual name="brick_2_1">
+        <pose>-0.10 0.00 0.09 0 0 0</pose>
+        <geometry><box><size>0.20 0.10 0.06</size></box></geometry>
+        <material>
+          <ambient>0.58 0.58 0.58 1</ambient>
+          <diffuse>0.63 0.63 0.63 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+          <shininess>5</shininess>
+        </material>
+      </visual>
+
+      <visual name="brick_2_2">
+        <pose>0.10 0.00 0.09 0 0 0</pose>
+        <geometry><box><size>0.20 0.10 0.06</size></box></geometry>
+        <material>
+          <ambient>0.58 0.58 0.58 1</ambient>
+          <diffuse>0.63 0.63 0.63 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+          <shininess>5</shininess>
+        </material>
+      </visual>
+
+      <!-- Layer 3 -->
+      <visual name="brick_3_1">
+        <pose>0 0.10 0.15 0 0 0</pose>
+        <geometry><box><size>0.20 0.10 0.06</size></box></geometry>
+        <material>
+          <ambient>0.60 0.60 0.60 1</ambient>
+          <diffuse>0.65 0.65 0.65 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+          <shininess>5</shininess>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>
+
