@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="door_steel_round">
+    <static>true</static>
+
+    <!--
+      Static (no physics). Perfect alignment version.
+      - Opening: 1.30(W) x 2.00(H) (frame inner)
+      - Door leaf: 1.20(W) x 0.04(T) x 1.92(H)
+      - Bottom gap: 0.04m
+      - Door is rotated around hinge by setting door_leaf yaw in its pose.
+    -->
+
+    <!-- =========================
+         LINK: frame (trim around opening)
+       ========================= -->
+    <link name="frame">
+      <pose>0 0 0 0 0 0</pose>
+
+      <!-- Frame params -->
+      <!-- trim_w (thickness in X) = 0.05 -->
+      <!-- trim_d (depth in Y)     = 0.04 (matches door thickness vibe) -->
+      <!-- opening_w              = 1.30 -->
+      <!-- opening_h              = 2.00 -->
+      <!-- trim centers -->
+      <!-- left  x = 
+       + 0.025 = -0.625 -->
+      <!-- right x = +0.65 - 0.025 = +0.625 -->
+      <!-- vertical center z = opening_h/2 = 1.00 -->
+      <!-- top trim center z = opening_h + trim_w/2 = 2.00 + 0.025 = 2.025 -->
+
+      <visual name="trim_left_vis">
+        <pose>-0.625 0 1.00 0 0 0</pose>
+        <geometry><box><size>0.05 0.04 2.00</size></box></geometry>
+        <material>
+          <ambient>0.28 0.28 0.28 1</ambient>
+          <diffuse>0.42 0.42 0.42 1</diffuse>
+          <specular>0.65 0.65 0.65 1</specular>
+          <shininess>70</shininess>
+        </material>
+      </visual>
+
+      <visual name="trim_right_vis">
+        <pose>0.625 0 1.00 0 0 0</pose>
+        <geometry><box><size>0.05 0.04 2.00</size></box></geometry>
+        <material>
+          <ambient>0.28 0.28 0.28 1</ambient>
+          <diffuse>0.42 0.42 0.42 1</diffuse>
+          <specular>0.65 0.65 0.65 1</specular>
+          <shininess>70</shininess>
+        </material>
+      </visual>
+
+      <visual name="trim_top_vis">
+        <pose>0 0 2.025 0 0 0</pose>
+        <geometry><box><size>1.30 0.04 0.05</size></box></geometry>
+        <material>
+          <ambient>0.28 0.28 0.28 1</ambient>
+          <diffuse>0.42 0.42 0.42 1</diffuse>
+          <specular>0.65 0.65 0.65 1</specular>
+          <shininess>70</shininess>
+        </material>
+      </visual>
+    </link>
+
+    <!-- =========================
+         LINK: door_leaf (hinge origin at hinge point)
+       ========================= -->
+    <link name="door_leaf">
+      <!--
+        Hinge point is at left edge of opening: x=-0.65, y=0
+        Door height 1.92 with bottom gap 0.04 => center z = 0.04 + 0.96 = 1.00
+        IMPORTANT: To set open angle, edit the last yaw value below.
+          0       = closed
+          1.5708  = 90deg open
+          -1.5708 = 90deg open opposite
+      -->
+      <pose>-0.6 0 1.00 0 0 1.5708</pose>
+
+      <!-- Door panel (offset from hinge) -->
+      <visual name="door_vis">
+        <!-- door center is +0.60 in X from hinge -->
+        <pose>0.60 0 0 0 0 0</pose>
+        <geometry><box><size>1.20 0.04 1.92</size></box></geometry>
+        <material>
+          <ambient>0.22 0.22 0.22 1</ambient>
+          <diffuse>0.38 0.38 0.38 1</diffuse>
+          <specular>0.75 0.75 0.75 1</specular>
+          <shininess>85</shininess>
+        </material>
+      </visual>
+
+      <!-- Knobs near latch side: x ~ 1.10 from hinge -->
+      <visual name="knob_out_vis">
+        <pose>1.10 0.030 0.00 0 0 0</pose>
+        <geometry><sphere><radius>0.035</radius></sphere></geometry>
+        <material>
+          <ambient>0.60 0.60 0.60 1</ambient>
+          <diffuse>0.80 0.80 0.80 1</diffuse>
+          <specular>1 1 1 1</specular>
+          <shininess>120</shininess>
+        </material>
+      </visual>
+
+      <visual name="knob_in_vis">
+        <pose>1.10 -0.030 0.00 0 0 0</pose>
+        <geometry><sphere><radius>0.035</radius></sphere></geometry>
+        <material>
+          <ambient>0.60 0.60 0.60 1</ambient>
+          <diffuse>0.80 0.80 0.80 1</diffuse>
+          <specular>1 1 1 1</specular>
+          <shininess>120</shininess>
+        </material>
+      </visual>
+    </link>
+
+  </model>
+</sdf>
+

@@ -1,0 +1,74 @@
+material WallMaterial
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture wall_1.jpg
+        scale 0.1 0.8
+      }
+    }
+  }
+}
+
+material Wall2Material
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture wall_2.jpg
+        scale 0.1 1
+      }
+    }
+  }
+}
+
+material Wall3Material
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture wall_3.jpeg
+        scale 1 1
+      }
+    }
+  }
+}
+
+material InnerWallMaterial
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture innerwall.jpg
+        scale 1 1
+      }
+    }
+  }
+}
+
+material FloorMaterial
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture floor.jpg
+        scale 1 1
+      }
+    }
+  }
+}

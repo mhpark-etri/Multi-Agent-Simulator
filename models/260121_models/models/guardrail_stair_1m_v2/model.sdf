@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="guardrail_stair_1m_v2">
+    <static>true</static>
+
+    <!--
+      Stair assumptions (for geometry):
+        run_per_step  = 0.25
+        rise_per_step = 0.18
+        steps         = 4
+        total_run     = 1.00
+        total_rise    = 0.72
+        pitch         = atan(0.18/0.25) = 0.624023 rad (~35.8deg)
+
+      This model assumes stairs go DOWN along +X:
+        pitch_down = -0.624023
+    -->
+
+    <link name="guardrail_link">
+      <pose>0 0 0 0 0 0</pose>
+
+      <!-- ========= Derived values used below =========
+        Top rail height at x=-0.5 : z_top0 = 0.95
+        Bottom rail height at x=-0.5 : z_bot0 = 0.30
+        Rail vertical gap: z_top0 - z_bot0 = 0.65  (IMPORTANT!)
+        Slope: dz/dx = -total_rise/total_run = -0.72
+        Along-slope rail length = sqrt(1.0^2 + 0.72^2) = 1.2328828 -> use 1.233
+        Midpoints:
+          top rail midpoint z = (0.95 + (0.95-0.72))/2 = 0.59
+          bot rail midpoint z = (0.30 + (0.30-0.72))/2 = -0.06
+        Bars:
+          bar height MUST be 0.65 so bar top touches top-rail line and bottom touches bottom-rail line.
+          bar center z(x) = (z_top(x)+z_bot(x))/2 = 0.625 - 0.72*(x+0.5)
+      =============================================== -->
+
+      <!-- ==========================
+           COLLISION
+           ========================== -->
+
+      <!-- Sloped TOP handrail -->
+      <collision name="col_handrail_top">
+        <pose>0 0 0.59 0 -0.624023 0</pose>
+        <geometry><box><size>1.233 0.05 0.05</size></box></geometry>
+      </collision>
+
+      <!-- Sloped BOTTOM rail -->
+      <collision name="col_rail_bottom">
+        <pose>0 0 -0.06 0 -0.624023 0</pose>
+        <geometry><box><size>1.233 0.045 0.045</size></box></geometry>
+      </collision>
+
+      <!-- Main posts (upright) - lightweight collision only -->
+      <collision name="col_post_0">
+        <pose>-0.50 0 0.475 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+      </collision>
+      <collision name="col_post_2">
+        <pose>0.00 0 0.115 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+      </collision>
+      <collision name="col_post_4">
+        <pose>0.50 0 -0.245 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+      </collision>
+
+      <!-- Feet pads -->
+      <collision name="col_foot_left">
+        <pose>-0.38 0 0.03 0 0 0</pose>
+        <geometry><box><size>0.18 0.14 0.06</size></box></geometry>
+      </collision>
+      <collision name="col_foot_right">
+        <pose>0.38 0 -0.69 0 0 0</pose>
+        <geometry><box><size>0.18 0.14 0.06</size></box></geometry>
+      </collision>
+
+      <!-- ==========================
+           VISUAL
+           ========================== -->
+
+      <!-- Top sloped handrail (black) -->
+      <visual name="vis_handrail_top">
+        <pose>0 0 0.59 0 -0.624023 0</pose>
+        <geometry><box><size>1.233 0.05 0.05</size></box></geometry>
+        <material>
+          <ambient>0.02 0.02 0.02 1</ambient>
+          <diffuse>0.05 0.05 0.05 1</diffuse>
+          <specular>0.25 0.25 0.25 1</specular>
+        </material>
+      </visual>
+
+      <!-- Bottom sloped rail (black/dark) -->
+      <visual name="vis_rail_bottom">
+        <pose>0 0 -0.06 0 -0.624023 0</pose>
+        <geometry><box><size>1.233 0.045 0.045</size></box></geometry>
+        <material>
+          <ambient>0.03 0.03 0.03 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- Upright posts (white): x=-0.5,-0.25,0,0.25,0.5  / base z: 0,-0.18,-0.36,-0.54,-0.72 -->
+      <!-- Height stays 0.95, because base and top rail descend with same slope -->
+      <visual name="vis_post_0">
+        <pose>-0.50 0 0.475 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+        <material><diffuse>0.95 0.95 0.95 1</diffuse></material>
+      </visual>
+
+      <visual name="vis_post_1">
+        <pose>-0.25 0 0.295 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+        <material><diffuse>0.95 0.95 0.95 1</diffuse></material>
+      </visual>
+
+      <visual name="vis_post_2">
+        <pose>0.00 0 0.115 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+        <material><diffuse>0.95 0.95 0.95 1</diffuse></material>
+      </visual>
+
+      <visual name="vis_post_3">
+        <pose>0.25 0 -0.065 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+        <material><diffuse>0.95 0.95 0.95 1</diffuse></material>
+      </visual>
+
+      <visual name="vis_post_4">
+        <pose>0.50 0 -0.245 0 0 0</pose>
+        <geometry><box><size>0.06 0.06 0.95</size></box></geometry>
+        <material><diffuse>0.95 0.95 0.95 1</diffuse></material>
+      </visual>
+
+      <!-- Feet pads -->
+      <visual name="vis_foot_left">
+        <pose>-0.38 0 0.03 0 0 0</pose>
+        <geometry><box><size>0.18 0.14 0.06</size></box></geometry>
+        <material><diffuse>0.10 0.10 0.10 1</diffuse></material>
+      </visual>
+
+      <visual name="vis_foot_right">
+        <pose>0.38 0 -0.69 0 0 0</pose>
+        <geometry><box><size>0.18 0.14 0.06</size></box></geometry>
+        <material><diffuse>0.10 0.10 0.10 1</diffuse></material>
+      </visual>
+
+      <!-- Vertical bars (white) - UPRIGHT and CORRECT HEIGHT (0.65) -->
+      <!-- Bar center z(x) = 0.625 - 0.72*(x+0.5); bar height = 0.65 -->
+      <visual name="vis_bar_01"><pose>-0.40 0 0.517 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_02"><pose>-0.30 0 0.445 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_03"><pose>-0.20 0 0.373 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_04"><pose>-0.10 0 0.301 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_05"><pose>0.00  0 0.229 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_06"><pose>0.10  0 0.157 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_07"><pose>0.20  0 0.085 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_08"><pose>0.30  0 0.013 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+      <visual name="vis_bar_09"><pose>0.40  0 -0.059 0 0 0</pose><geometry><box><size>0.015 0.03 0.65</size></box></geometry><material><diffuse>0.92 0.92 0.92 1</diffuse></material></visual>
+
+      <!-- connector blocks (optional aesthetics) -->
+      <visual name="vis_joint_left">
+        <pose>-0.62 0 0.60 0 0 0</pose>
+        <geometry><box><size>0.08 0.06 0.20</size></box></geometry>
+        <material><diffuse>0.14 0.14 0.14 1</diffuse></material>
+      </visual>
+
+      <visual name="vis_joint_right">
+        <pose>0.62 0 -0.12 0 0 0</pose>
+        <geometry><box><size>0.08 0.06 0.20</size></box></geometry>
+        <material><diffuse>0.14 0.14 0.14 1</diffuse></material>
+      </visual>
+
+      <self_collide>false</self_collide>
+      <enable_wind>false</enable_wind>
+      <kinematic>false</kinematic>
+    </link>
+  </model>
+</sdf>
+

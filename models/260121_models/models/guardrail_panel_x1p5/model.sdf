@@ -1,0 +1,231 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="guardrail_panel_x1p5">
+    <static>true</static>
+
+    <!--
+      Uniform scale factor: 1.5x (XYZ)
+      Original -> x1.5:
+        - Panel length: 3.00 -> 4.50
+        - Rail thickness Y/Z: 0.05 -> 0.075
+        - Top rail Z: 0.95 -> 1.425
+        - Bottom rail Z: 0.30 -> 0.45
+        - Post positions: -1.45/0/1.45 -> -2.175/0/2.175
+        - Post size: 0.06 -> 0.09 (W/D), height 1.00 -> 1.50
+        - Foot positions: -1.20/0/1.20 -> -1.80/0/1.80
+        - Foot size: 0.18x0.14x0.06 -> 0.27x0.21x0.09
+        - Bar spacing: 0.12 -> 0.18 (keeps similar density)
+    -->
+
+    <link name="guardrail_link">
+      <pose>0 0 0 0 0 0</pose>
+
+      <!-- ==========================
+           Collision (lightweight)
+           ========================== -->
+
+      <!-- Top rail collision -->
+      <collision name="col_top_rail">
+        <pose>0 0 1.425 0 0 0</pose>
+        <geometry>
+          <box><size>4.50 0.075 0.075</size></box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.2</mu>
+              <mu2>1.2</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1000000</kp>
+              <kd>10</kd>
+            </ode>
+          </contact>
+        </surface>
+      </collision>
+
+      <!-- Bottom rail collision -->
+      <collision name="col_bottom_rail">
+        <pose>0 0 0.45 0 0 0</pose>
+        <geometry>
+          <box><size>4.50 0.075 0.075</size></box>
+        </geometry>
+      </collision>
+
+      <!-- Posts collision (3 posts: left/mid/right) -->
+      <collision name="col_post_left">
+        <pose>-2.175 0 0.75 0 0 0</pose>
+        <geometry>
+          <box><size>0.09 0.09 1.50</size></box>
+        </geometry>
+      </collision>
+
+      <collision name="col_post_mid">
+        <pose>0 0 0.75 0 0 0</pose>
+        <geometry>
+          <box><size>0.09 0.09 1.50</size></box>
+        </geometry>
+      </collision>
+
+      <collision name="col_post_right">
+        <pose>2.175 0 0.75 0 0 0</pose>
+        <geometry>
+          <box><size>0.09 0.09 1.50</size></box>
+        </geometry>
+      </collision>
+
+      <!-- Feet collision (scaled pads) -->
+      <collision name="col_foot_left">
+        <pose>-1.80 0 0.045 0 0 0</pose>
+        <geometry>
+          <box><size>0.27 0.21 0.09</size></box>
+        </geometry>
+      </collision>
+
+      <collision name="col_foot_mid">
+        <pose>0.00 0 0.045 0 0 0</pose>
+        <geometry>
+          <box><size>0.27 0.21 0.09</size></box>
+        </geometry>
+      </collision>
+
+      <collision name="col_foot_right">
+        <pose>1.80 0 0.045 0 0 0</pose>
+        <geometry>
+          <box><size>0.27 0.21 0.09</size></box>
+        </geometry>
+      </collision>
+
+      <!-- ==========================
+           Visual (detailed)
+           ========================== -->
+
+      <visual name="vis_top_rail">
+        <pose>0 0 1.425 0 0 0</pose>
+        <geometry><box><size>4.50 0.075 0.075</size></box></geometry>
+        <material>
+          <ambient>0.06 0.06 0.06 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse>
+          <specular>0.20 0.20 0.20 1</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+
+      <visual name="vis_bottom_rail">
+        <pose>0 0 0.45 0 0 0</pose>
+        <geometry><box><size>4.50 0.075 0.075</size></box></geometry>
+        <material>
+          <ambient>0.06 0.06 0.06 1</ambient>
+          <diffuse>0.12 0.12 0.12 1</diffuse>
+          <specular>0.20 0.20 0.20 1</specular>
+        </material>
+      </visual>
+
+      <visual name="vis_post_left">
+        <pose>-2.175 0 0.75 0 0 0</pose>
+        <geometry><box><size>0.09 0.09 1.50</size></box></geometry>
+        <material>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.10 0.10 0.10 1</diffuse>
+        </material>
+      </visual>
+
+      <visual name="vis_post_mid">
+        <pose>0 0 0.75 0 0 0</pose>
+        <geometry><box><size>0.09 0.09 1.50</size></box></geometry>
+        <material>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.10 0.10 0.10 1</diffuse>
+        </material>
+      </visual>
+
+      <visual name="vis_post_right">
+        <pose>2.175 0 0.75 0 0 0</pose>
+        <geometry><box><size>0.09 0.09 1.50</size></box></geometry>
+        <material>
+          <ambient>0.05 0.05 0.05 1</ambient>
+          <diffuse>0.10 0.10 0.10 1</diffuse>
+        </material>
+      </visual>
+
+      <visual name="vis_foot_left">
+        <pose>-1.80 0 0.045 0 0 0</pose>
+        <geometry><box><size>0.27 0.21 0.09</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+        </material>
+      </visual>
+
+      <visual name="vis_foot_mid">
+        <pose>0.00 0 0.045 0 0 0</pose>
+        <geometry><box><size>0.27 0.21 0.09</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+        </material>
+      </visual>
+
+      <visual name="vis_foot_right">
+        <pose>1.80 0 0.045 0 0 0</pose>
+        <geometry><box><size>0.27 0.21 0.09</size></box></geometry>
+        <material>
+          <ambient>0.04 0.04 0.04 1</ambient>
+          <diffuse>0.08 0.08 0.08 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- ==========================
+           Vertical bars (visual only)
+           Spacing scaled: 0.18m
+           Keep 23 bars like original, spread wider (-1.98 ~ +1.98)
+           ========================== -->
+      <!-- Bars: size scaled -> 0.0225 x 0.045 x 1.20 -->
+      <!-- Center Z: 0.55 -> 0.825 ; height: 0.80 -> 1.20 -->
+
+      <visual name="vis_bar_01"><pose>-1.98 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_02"><pose>-1.80 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_03"><pose>-1.62 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_04"><pose>-1.44 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_05"><pose>-1.26 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_06"><pose>-1.08 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_07"><pose>-0.90 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_08"><pose>-0.72 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_09"><pose>-0.54 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_10"><pose>-0.36 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_11"><pose>-0.18 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_12"><pose>0.00 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_13"><pose>0.18 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_14"><pose>0.36 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_15"><pose>0.54 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_16"><pose>0.72 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_17"><pose>0.90 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_18"><pose>1.08 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_19"><pose>1.26 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_20"><pose>1.44 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_21"><pose>1.62 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_22"><pose>1.80 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+      <visual name="vis_bar_23"><pose>1.98 0 0.825 0 0 0</pose><geometry><box><size>0.0225 0.045 1.20</size></box></geometry></visual>
+
+      <!-- End joints (scaled) -->
+      <visual name="vis_joint_left">
+        <pose>-2.25 0 0.825 0 0 0</pose>
+        <geometry><box><size>0.12 0.09 0.30</size></box></geometry>
+        <material><diffuse>0.14 0.14 0.14 1</diffuse></material>
+      </visual>
+
+      <visual name="vis_joint_right">
+        <pose>2.25 0 0.825 0 0 0</pose>
+        <geometry><box><size>0.12 0.09 0.30</size></box></geometry>
+        <material><diffuse>0.14 0.14 0.14 1</diffuse></material>
+      </visual>
+
+      <self_collide>false</self_collide>
+      <enable_wind>false</enable_wind>
+      <kinematic>false</kinematic>
+    </link>
+  </model>
+</sdf>
+

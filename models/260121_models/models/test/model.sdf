@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="test">
+    <static>true</static>
+    
+    <link name="main_link">
+
+      <visual name="visual_locker_body">
+        <geometry>
+          <mesh><uri>model://test/meshes/locker.dae</uri></mesh>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://test/materials/scripts/locker.material</uri>
+            <name>MyModel/DullBody</name>
+          </script>
+        </material>
+      </visual>
+
+      <visual name="visual_keypad">
+        <geometry>
+          <mesh><uri>model://test/meshes/keypad.dae</uri></mesh>
+        </geometry> 
+        <material>
+          <script>
+            <uri>model://test/materials/scripts/part.material</uri>
+            <name>MyModel/Parts</name>
+          </script>
+        </material>
+      </visual>
+
+      <visual name="visual_nametag">
+        <geometry>
+          <mesh><uri>model://test/meshes/nametag.dae</uri></mesh>
+        </geometry> 
+        <material>
+          <script>
+            <uri>model://test/materials/scripts/part.material</uri>
+            <name>MyModel/Parts</name>
+          </script>
+        </material>
+      </visual>
+
+      <collision name="collision">
+        <geometry>
+          <mesh><uri>model://test/meshes/locker.dae</uri></mesh>
+        </geometry>
+      </collision>
+
+    </link>
+  </model>
+</sdf>

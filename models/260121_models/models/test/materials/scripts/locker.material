@@ -1,0 +1,6 @@
+material MyModel/DullBody
+{
+  technique { pass {
+    texture_unit { texture ../../meshes/locker_color.png }
+  }}
+}
