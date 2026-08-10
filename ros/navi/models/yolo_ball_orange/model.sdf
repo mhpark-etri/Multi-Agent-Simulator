@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="yolo_ball_orange">
+    <static>true</static>
+    <link name="link">
+      <visual name="body">
+        <pose>0 0 0.11 0 0 0</pose>
+        <geometry><sphere><radius>0.11</radius></sphere></geometry>
+        <material>
+          <ambient>0.95 0.45 0.05 1</ambient>
+          <diffuse>0.95 0.45 0.05 1</diffuse>
+          <specular>0.6 0.6 0.6 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

@@ -1,0 +1,123 @@
+<launch>
+  <!-- 지도제작용 TB3 waffle 1대: 스폰 + gmapping SLAM + move_base (2026-08-09).
+       스폰 위치는 static anchor(map→<ns>/map_slam = 스폰 좌표)로 세계 정렬 —
+       gmapping 항등 초기화(자기 map 원점=스폰점)를 임의 스폰 좌표로 일반화. -->
+  <arg name="robot_name" default="tb3_waffle_0"/>
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <!-- SLAM 선택: slam_toolbox(기본) | gmapping | rtabmap (Nav 설정 콤보, 2026-08-09) -->
+  <arg name="slam_method" default="slam_toolbox"/>
+  <arg name="search_nav" default="false"/> <!-- 물건찾기: GlobalPlanner (2026-08-10) -->
+
+  <group ns="$(arg robot_name)">
+    <!-- group 레벨 tf_prefix 필수: gazebo diff-drive 플러그인이 /<ns>/tf_prefix 를
+         읽어 odom→base_footprint TF 를 프리픽스한다 (rsp 안 private 파라미터는
+         플러그인이 못 봄 → TF 사슬 단절, 2026-08-09 실측) -->
+    <param name="tf_prefix" value="$(arg robot_name)"/>
+    <param name="robot_description"
+           command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_waffle.urdf.xacro"/>
+    <!-- 스폰 8초 지연 — 4대 동시 스폰 경합으로 spawn 서비스가 실패하던 문제
+         (2026-08-09 실측: locobot_1 'Spawn service failed') -->
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf"
+          launch-prefix="bash -c 'sleep 8; exec &quot;$0&quot; &quot;$@&quot;'"
+          args="-urdf -model $(arg robot_name) -x $(arg x_pos) -y $(arg y_pos) -z 0.0 -param robot_description"/>
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+      <param name="publish_frequency" type="double" value="50.0"/>
+      <param name="tf_prefix" value="$(arg robot_name)"/>
+    </node>
+
+    <!-- 세계 정렬 anchor: tb3 diff-drive 플러그인은 odometrySource=world 라
+         odom 프레임이 '가제보 월드 원점'(스폰과 무관!) — gmapping 항등 초기화로
+         map_slam ≡ odom ≡ world → anchor 는 항등이다. 스폰 좌표를 넣으면 이중
+         오프셋 (2026-08-09 실측: base 가 스폰의 2배 y 로 밀림).
+         사슬: map →(항등) <ns>/map_slam →(gmapping) <ns>/odom →(플러그인) base -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="map_slam_anchor"
+          args="0 0 0 0 0 0 map $(arg robot_name)/map_slam"/>
+
+    <!-- ── SLAM 3종 (공통 계약: <ns>/map 그리드 + map_slam→odom TF) ── -->
+
+    <!-- ① slam_toolbox (기본): 스캔매칭 선명한 벽 + 루프클로저. tf2 기반이라
+         그룹 tf_prefix 무영향. map→odom 초기 항등(현재 odom 포즈에서 시작)이라
+         map_slam ≡ odom ≡ world 정렬 유지. ★지도를 절대 /map 으로 발행하므로
+         리맵 필수 — 안 하면 map_merge 병합 출력과 충돌 (2026-08-09 실측) -->
+    <!-- LDS 360빔 → 359빔 shim: karto 가 기대빔 359 로 계산해 스캔 전량을 조용히
+         거부(지도 미발행, 2026-08-09 실측). 마지막 빔만 제거, angle_max 유지.
+         (topic_tools transform: roslaunch args 는 공백 분리라 표현식 무공백 필수.
+          ★wait-for-start 플래그 필수: 런치 초반 scan 토픽 미존재로 즉사하던 원인) -->
+    <node if="$(eval slam_method == 'slam_toolbox')"
+          pkg="topic_tools" type="transform" name="scan_shim_karto" respawn="true"
+          args="/$(arg robot_name)/scan /$(arg robot_name)/scan_karto sensor_msgs/LaserScan sensor_msgs.msg.LaserScan(header=m.header,angle_min=m.angle_min,angle_max=m.angle_max,angle_increment=m.angle_increment,time_increment=m.time_increment,scan_time=m.scan_time,range_min=m.range_min,range_max=m.range_max,ranges=m.ranges[:-1],intensities=m.intensities[:-1]) --wait-for-start --import sensor_msgs"/>
+    <node if="$(eval slam_method == 'slam_toolbox')"
+          pkg="slam_toolbox" type="sync_slam_toolbox_node" name="slam_toolbox" output="screen">
+      <remap from="/map" to="/$(arg robot_name)/map"/>
+      <remap from="/map_metadata" to="/$(arg robot_name)/map_metadata"/>
+      <param name="base_frame" value="$(arg robot_name)/base_footprint"/>
+      <param name="odom_frame" value="$(arg robot_name)/odom"/>
+      <param name="map_frame"  value="$(arg robot_name)/map_slam"/>
+      <param name="scan_topic" value="/$(arg robot_name)/scan_karto"/>
+      <param name="mode" value="mapping"/>
+      <param name="resolution" value="0.05"/>
+      <param name="max_laser_range" value="3.5"/>   <!-- LDS-01 실측 한계 -->
+      <param name="map_update_interval" value="2.0"/>
+      <param name="minimum_travel_distance" value="0.10"/>
+      <param name="minimum_travel_heading" value="0.15"/>
+      <param name="transform_publish_period" value="0.05"/>
+      <param name="debug_logging" value="false"/>
+    </node>
+
+    <!-- ② gmapping (기존): 구식 tf 노드라 그룹 tf_prefix 이중 적용 차단 필요 -->
+    <node if="$(eval slam_method == 'gmapping')"
+          pkg="gmapping" type="slam_gmapping" name="gmapping" output="screen">
+      <param name="tf_prefix" value=""/>
+      <param name="base_frame" value="$(arg robot_name)/base_footprint"/>
+      <param name="odom_frame" value="$(arg robot_name)/odom"/>
+      <param name="map_frame"  value="$(arg robot_name)/map_slam"/>
+      <param name="map_update_interval" value="2.0"/>
+      <param name="maxUrange" value="6.0"/>
+      <param name="particles" value="30"/>
+      <param name="delta" value="0.05"/>
+      <param name="xmin" value="-6.0"/><param name="xmax" value="6.0"/>
+      <param name="ymin" value="-6.0"/><param name="ymax" value="6.0"/>
+      <remap from="scan" to="/$(arg robot_name)/scan"/>
+    </node>
+
+    <!-- ③ rtabmap (locobot 과 동일 스택, 라이다 그리드 모드): 외부 odom 사용,
+         DB 는 로봇 전용 경로 + 시작 시 삭제 (stale-DB 함정 방지) -->
+    <node if="$(eval slam_method == 'rtabmap')"
+          pkg="rtabmap_slam" type="rtabmap" name="rtabmap" output="screen"
+          args="--delete_db_on_start">
+      <param name="database_path" value="/root/.ros/rtabmap_$(arg robot_name).db"/>
+      <param name="frame_id" value="$(arg robot_name)/base_footprint"/>
+      <param name="odom_frame_id" value="$(arg robot_name)/odom"/>
+      <param name="map_frame_id" value="$(arg robot_name)/map_slam"/>
+      <param name="subscribe_depth" value="false"/>
+      <param name="subscribe_rgb" value="false"/>
+      <param name="subscribe_scan" value="true"/>
+      <param name="Reg/Strategy" value="1"/>          <!-- ICP (라이다) -->
+      <param name="Grid/Sensor" value="0"/>           <!-- 그리드는 스캔에서 -->
+      <param name="Grid/RangeMax" value="3.5"/>
+      <param name="RGBD/NeighborLinkRefining" value="true"/>
+      <param name="Rtabmap/DetectionRate" value="1.0"/>
+      <remap from="scan" to="/$(arg robot_name)/scan"/>
+      <remap from="odom" to="/$(arg robot_name)/odom"/>
+      <remap from="grid_map" to="/$(arg robot_name)/map"/>
+    </node>
+
+    <!-- 물건찾기: waffle 전역 플래너도 GlobalPlanner 로 통일 (2026-08-10).
+         roslaunch 는 param 전부 업로드 후 노드를 띄우므로 include 앞 선언으로 충분.
+         move_base_ns2.launch 는 base_global_planner 를 안 건드림(실측) -->
+    <param if="$(arg search_nav)" name="move_base/base_global_planner" value="global_planner/GlobalPlanner"/>
+    <param if="$(arg search_nav)" name="move_base/GlobalPlanner/allow_unknown" value="true"/>
+    <param if="$(arg search_nav)" name="move_base/GlobalPlanner/default_tolerance" value="0.3"/>
+    <include file="$(find turtlebot3_navigation)/launch/move_base_ns2.launch">
+      <arg name="model" value="waffle"/>
+      <arg name="move_forward_only" value="false"/>
+      <arg name="robot_name" value="$(arg robot_name)"/>
+      <!-- 전역 costmap: 병합 지도(자기-박제 벽 제거본) — 자기 gmapping 지도가
+           어릴 때 병합 기준 목표가 'off the global costmap' 나던 문제 (2026-08-09).
+           map_slam ≡ map(항등 anchor)이라 프레임은 map 그대로가 정확 -->
+      <arg name="global_frame" value="map"/>
+      <arg name="map_topic" value="/map_nav/$(arg robot_name)"/>
+    </include>
+  </group>
+</launch>

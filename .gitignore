@@ -1,0 +1,23 @@
+# ── 파이썬 산출물 ───────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ── 실행 시 생성되는 런타임 산출물 (커밋 금지) ──
+# GUI 가 Start 마다 새로 쓰는 launch/셸 스크립트 (내용에 상류 launch XML 이 박힌다)
+code/Multi-Agent-Simulator/launch/*.launch
+code/Multi-Agent-Simulator/launch/*.sh
+launch/shelltemp*.sh
+ros/navi/launch/locobot/nav_overrides_generated.launch
+
+# 태스크 실행 산출물
+ros/navi/found_objects/
+*.bak
+*.bak-*
+*.log
+.ros/
+
+# 편집기/OS
+.vscode/
+.idea/
+.DS_Store

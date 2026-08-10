@@ -156,8 +156,52 @@ class TaskRelay:
         else:
             rospy.loginfo("Failed to reach the goal.")
 
-    # 작업 시작
+    # 작업 시작 — 연쇄 릴레이 (2026-08-08)
+    # robot1 이 robot2 위치 '근처'로, robot2 가 robot3 위치 근처로, ...
+    # 마지막 로봇만 자신의 Move-To(최종 목표)로 이동한다.
     def StartTask(self, robots):
-        rospy.init_node('locobot_agent')
-        for robot in robots:
-            self.move_to_goal(robot.name, robot.moveToX, robot.moveToY, robot.moveToZ)
+        import math
+        from geometry_msgs.msg import PoseStamped
+        # ★ 백그라운드 스레드에서 호출되므로 signal 핸들러 등록 불가(disable_signals)
+        #   + 두 번째 실행에서 init_node 중복 호출이 되지 않게 가드
+        if not rospy.core.is_initialized():
+            rospy.init_node('locobot_agent', disable_signals=True)
+        n = len(robots)
+        # ── 체인 goal 전체를 먼저 계산 ──
+        plans = []
+        for i in range(n):
+            cur = robots[i]
+            if i < n - 1:
+                nxt = robots[i + 1]
+                cx, cy = float(cur.startX), float(cur.startY)
+                nx, ny = float(nxt.startX), float(nxt.startY)
+                dx, dy = nx - cx, ny - cy
+                d = math.hypot(dx, dy) or 1.0
+                # 다음 로봇 0.9m 앞에서 정지 (로봇 반경+inflation 여유), 진행 방향을 바라봄
+                gx = nx - 0.9 * dx / d
+                gy = ny - 0.9 * dy / d
+                th = math.atan2(dy, dx)
+            else:
+                gx, gy, th = float(cur.moveToX), float(cur.moveToY), 0.0
+            plans.append((cur.name, gx, gy, th))
+        # ── 계획 전체를 미리 발행 → RViz/Gazebo 에 4개 목표가 시작 즉시 표시됨 ──
+        self._plan_pubs = []
+        for name, gx, gy, th in plans:
+            pub = rospy.Publisher('/relay_plan/' + name, PoseStamped,
+                                  queue_size=1, latch=True)
+            ps = PoseStamped()
+            ps.header.frame_id = 'map'
+            ps.header.stamp = rospy.Time.now()
+            ps.pose.position.x = gx
+            ps.pose.position.y = gy
+            q = tf.transformations.quaternion_from_euler(0, 0, th)
+            ps.pose.orientation.x, ps.pose.orientation.y = q[0], q[1]
+            ps.pose.orientation.z, ps.pose.orientation.w = q[2], q[3]
+            pub.publish(ps)
+            self._plan_pubs.append(pub)     # latch 유지를 위해 보관
+        rospy.sleep(0.5)
+        # ── 순차 주행 ──
+        for i, (name, gx, gy, th) in enumerate(plans):
+            tgt = robots[i + 1].name + " 위치 근처" if i < n - 1 else "최종 목표"
+            print(f"[RELAY {i+1}/{n}] {name} → {tgt} ({gx:.2f},{gy:.2f})")
+            self.move_to_goal(name, gx, gy, th)

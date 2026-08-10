@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QDialog, QFrame,
-    QHBoxLayout, QListView, QListWidget, QListWidgetItem,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QDialog,
+    QFrame, QHBoxLayout, QLabel, QListView,
+    QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_DlgROSCollaborationTask(object):
     def setupUi(self, DlgROSCollaborationTask):
@@ -91,6 +91,19 @@ class Ui_DlgROSCollaborationTask(object):
 
         self.horizontalLayout_2.addItem(self.horizontalSpacer)
 
+        self.lbExecMode = QLabel(self.frame_3)
+        self.lbExecMode.setObjectName(u"lbExecMode")
+
+        self.horizontalLayout_2.addWidget(self.lbExecMode)
+
+        self.cmbExecMode = QComboBox(self.frame_3)
+        self.cmbExecMode.addItem("")
+        self.cmbExecMode.addItem("")
+        self.cmbExecMode.setObjectName(u"cmbExecMode")
+        self.cmbExecMode.setMinimumSize(QSize(150, 0))
+
+        self.horizontalLayout_2.addWidget(self.cmbExecMode)
+
         self.btnROSCollaborationTaskStart = QPushButton(self.frame_3)
         self.btnROSCollaborationTaskStart.setObjectName(u"btnROSCollaborationTaskStart")
 
@@ -113,6 +126,13 @@ class Ui_DlgROSCollaborationTask(object):
 
     def retranslateUi(self, DlgROSCollaborationTask):
         DlgROSCollaborationTask.setWindowTitle(QCoreApplication.translate("DlgROSCollaborationTask", u"Start Collaboration Task", None))
+        self.lbExecMode.setText(QCoreApplication.translate("DlgROSCollaborationTask", u"\uc2e4\ud589 \ubc29\uc2dd (Execution) :", None))
+        self.cmbExecMode.setItemText(0, QCoreApplication.translate("DlgROSCollaborationTask", u"JnP 0.8.1", None))
+        self.cmbExecMode.setItemText(1, QCoreApplication.translate("DlgROSCollaborationTask", u"\uae30\uc874 launch (Legacy)", None))
+
+#if QT_CONFIG(tooltip)
+        self.cmbExecMode.setToolTip(QCoreApplication.translate("DlgROSCollaborationTask", u"JnP 0.8.1: \uc5d0\uc774\uc804\ud2b8 coalition\uc774 task tree\ub85c \uc2e4\ud589 (\ubbf8\uae30\ub3d9 \uc2dc \uc790\ub3d9 \uc2dc\uc791) / \uae30\uc874 launch: \uc9c1\uc811 move_base \uc21c\ucc28 \uc2e4\ud589", None))
+#endif // QT_CONFIG(tooltip)
         self.btnROSCollaborationTaskStart.setText(QCoreApplication.translate("DlgROSCollaborationTask", u"Start", None))
     # retranslateUi
 

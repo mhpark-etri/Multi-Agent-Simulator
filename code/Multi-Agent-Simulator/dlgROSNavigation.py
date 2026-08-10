@@ -121,7 +121,7 @@ class DialogNavigation(
 
     # 경고창 출력
     def ShowWarningMsg(self, msg):
-        msg_box = QMessageBox()
+        msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Warning)
         msg_box.setWindowTitle("Warning")
         msg_box.setText(msg)
@@ -157,7 +157,7 @@ class DialogNavigation(
         # 맵 경로 획득
         mapPath = self.ui.ledtROSNaviMapPath.text()
         if mapPath == "" :
-            msg = QMessageBox()
+            msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Warning)
             msg.setText("맵 파일을 먼저 선택해 주세요")
             msg.setWindowTitle("경고")
