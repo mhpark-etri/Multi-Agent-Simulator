@@ -37,6 +37,56 @@
      <number>0</number>
     </property>
     <item>
+     <layout class="QHBoxLayout" name="hlUiLangBar">
+      <item>
+       <spacer name="hsUiLang">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>10</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbUiLang">
+        <property name="styleSheet">
+         <string notr="true">color: white;</string>
+        </property>
+        <property name="text">
+         <string>메시지 언어 (Message Language) :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cmbUiLang">
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="toolTip">
+         <string>팝업/확인창 메시지를 한국어 또는 영어로 표시합니다 / Show popup messages in Korean or English</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>한국어</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>English</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -991,7 +1041,7 @@ QGroupBox#gbRobotROS::title {
 }</string>
          </property>
          <property name="title">
-          <string>ROS</string>
+          <string>Behavior (Action)</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_19">
           <property name="spacing">
@@ -1377,16 +1427,29 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLabel" name="label_5">
-                        <property name="text">
-                         <string/>
+                       <widget class="QComboBox" name="cmbJnpVersion">
+                        <property name="toolTip">
+                         <string>JnP 에이전트 버전 선택</string>
                         </property>
+                        <item>
+                         <property name="text">
+                          <string>JnP 0.2.1 (기존)</string>
+                         </property>
+                        </item>
+                        <item>
+                         <property name="text">
+                          <string>JnP 0.8.1</string>
+                         </property>
+                        </item>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLabel" name="label_7">
+                       <widget class="QPushButton" name="btnRobotROSJNPMonitor">
+                        <property name="toolTip">
+                         <string>JnP 동작(discovery/coalition/scheduling)을 그래픽 창으로 표시</string>
+                        </property>
                         <property name="text">
-                         <string/>
+                         <string>Monitor</string>
                         </property>
                        </widget>
                       </item>
@@ -1903,6 +1966,19 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                        </widget>
                       </item>
                       <item>
+                       <widget class="QCheckBox" name="chkRelayRviz">
+                        <property name="toolTip">
+                         <string>협업 태스크 실행 시 RViz 2D 뷰 창 표시 (끄면 창 없이 실행)</string>
+                        </property>
+                        <property name="text">
+                         <string>RViz</string>
+                        </property>
+                        <property name="checked">
+                         <bool>false</bool>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
                        <widget class="QLabel" name="label_10">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -2011,6 +2087,56 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
             </size>
            </property>
           </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnExitSimulator">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">    color: #dddddd;</string>
+           </property>
+           <property name="toolTip">
+            <string>시뮬레이션 정리 후 프로그램 종료</string>
+           </property>
+           <property name="text">
+            <string>Exit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnStopSimulator">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">    color: #ffb0b0;</string>
+           </property>
+           <property name="toolTip">
+            <string>시뮬레이션 정지 — Gazebo/ROS/JnP/RViz 전부 정리 (GUI 창은 유지)</string>
+           </property>
+           <property name="text">
+            <string>Stop</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="btnStartSimulator">

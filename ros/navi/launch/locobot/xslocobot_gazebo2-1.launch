@@ -1,3 +1,8 @@
+<!-- 이 파일은 Trossen Robotics interbotix_ros_rovers (BSD 3-Clause) 의 launch
+     파일에서 파생되었으며 이 저장소에서 수정되었습니다.
+     원본: https://github.com/Interbotix/interbotix_ros_rovers
+     Copyright (c) 2023, Trossen Robotics. All rights reserved.
+     전문: licenses/interbotix-BSD-3-Clause.txt · 요약: 루트의 NOTICE 참조. -->
 <launch>
 
   <arg name="robot_model"                       default=""/>
@@ -7,9 +12,13 @@
   <arg name="show_gripper_bar"                  default="true"/>
   <arg name="show_gripper_fingers"              default="true"/>
   <arg name="external_urdf_loc"                 default=""/>
+  <arg name="robot1_x"                          default="1.5"/>
+  <arg name="robot1_y"                          default="0.0"/>
+  <arg name="robot2_x"                          default="0.0"/>
+  <arg name="robot2_y"                          default="0.0"/>
   <arg name="use_rviz"                          default="false"/>
   <arg name="rviz_frame"                        default="$(arg robot_name)/base_footprint"/>
-  <arg name="world_name"                        default="$(find interbotix_xslocobot_gazebo)/worlds/xslocobot_gazebo.world"/>
+  <arg name="world_name"                        default="$(find aws_robomaker_small_warehouse_world)/worlds/no_roof_small_warehouse.world"/>
   <arg name="gui"                               default="true"/>
   <arg name="debug"                             default="false"/>
   <arg name="paused"                            default="true"/>
@@ -25,7 +34,8 @@
 
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find aws_robomaker_small_warehouse_world)/worlds/no_roof_small_warehouse.world"/>
+    <!-- 월드는 상위 launch 인자로 (기본=warehouse — 기존 동작 유지, 2026-08-08 인자화) -->
+    <arg name="world_name" value="$(arg world_name)"/>
     <arg name="gui"                               value="$(arg gui)" />
     <arg name="debug"                             value="$(arg debug)" />
     <arg name="paused"                            value="$(arg paused)"/>
@@ -95,7 +105,7 @@
     respawn="false"
     output="screen"
     ns="$(arg robot_name1)"
-	  args="-urdf -x 1.5 -y 0.0 -z 0.0 -model $(arg robot_name1) -param /$(arg robot_name1)/robot_description"/>
+	  args="-urdf -x $(arg robot1_x) -y $(arg robot1_y) -z 0.0 -model $(arg robot_name1) -param /$(arg robot_name1)/robot_description"/>
   <node
     name="urdf_spawner"
     pkg="gazebo_ros"
@@ -103,6 +113,6 @@
     respawn="false"
     output="screen"
     ns="$(arg robot_name2)"
-	  args="-urdf -x 0.0 -y 0.0 -z 0.0 -model $(arg robot_name2) -param /$(arg robot_name2)/robot_description"/>
+	  args="-urdf -x $(arg robot2_x) -y $(arg robot2_y) -z 0.0 -model $(arg robot_name2) -param /$(arg robot_name2)/robot_description"/>
 
 </launch>

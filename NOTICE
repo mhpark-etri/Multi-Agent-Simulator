@@ -1,0 +1,65 @@
+Multi-Agent-Simulator
+Copyright 2024-2026 Electronics and Telecommunications Research Institute (ETRI)
+
+This product includes software developed at ETRI, licensed under the
+Apache License, Version 2.0 (see LICENSE).
+
+================================================================================
+Third-party components
+================================================================================
+
+1) ROBOTIS TurtleBot3  —  Apache License 2.0
+   https://github.com/ROBOTIS-GIT/turtlebot3
+   Copyright (c) ROBOTIS CO., LTD.
+   The following files in this repository are copies of, or are derived from,
+   TurtleBot3 launch/RViz files and have been MODIFIED (namespacing for
+   multi-robot operation, parameter changes):
+     ros/navi/launch/turtlebot/turtlebot3_navigation.launch      (unmodified copy)
+     ros/navi/launch/turtlebot/amcl_ns2.launch                   (modified)
+     ros/navi/launch/turtlebot/move_base1.launch                 (modified)
+     ros/navi/launch/turtlebot/move_base_ns2.launch              (modified)
+     ros/navi/launch/turtlebot/turtlebot3_navigation_with_gazebo_ns4*.launch (modified,
+         derived from turtlebot3_gazebo/launch/multi_turtlebot3.launch)
+     ros/navi/rviz/turtlebot/turtlebot3_navigation_together.rviz (modified)
+
+2) Trossen Robotics Interbotix ROS Rovers  —  BSD 3-Clause License
+   https://github.com/Interbotix/interbotix_ros_rovers
+   Copyright (c) 2023, Trossen Robotics. All rights reserved.
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the conditions of the BSD
+   3-Clause License are met.  Full text: licenses/interbotix-BSD-3-Clause.txt
+   The following files are derived from Interbotix launch/RViz files and have
+   been MODIFIED (multi-robot spawn, rtabmap/move_base parameter changes):
+     ros/navi/launch/locobot/xslocobot_gazebo_one_robot.launch
+     ros/navi/launch/locobot/xslocobot_gazebo2-1.launch
+     ros/navi/launch/locobot/locobot_turtle_nav_sim2.launch   (rtabmap/move_base sections)
+     ros/navi/rviz/locobot/many_locobots_with_gazebo2.rviz
+
+3) rrt_exploration  —  MIT License   (vendored in third_party/, MODIFIED)
+   https://github.com/hasauino/rrt_exploration
+   Copyright (c) 2016 Hassan Umari
+   See third_party/rrt_exploration/LICENSE.md and third_party/README.md.
+
+4) multirobot_map_merge (m-explore)  —  BSD 3-Clause License
+   (vendored in third_party/, UNMODIFIED upstream 2.1.5 source)
+   https://github.com/hrnr/m-explore
+   Copyright (c) 2014, Zhi Yan.  Copyright (c) 2015-2016, Jiri Horner.
+   See third_party/map_merge/LICENSE and third_party/README.md.
+
+5) Gazebo models under models/
+   Some models were obtained from public collections listed in models/README
+   (gazebo-classic worlds, osrf/gazebo_models, and others). Where a model
+   originates from OSRF's gazebo_models it is distributed under CC-BY-4.0 and
+   attribution to the Open Source Robotics Foundation is required.
+
+================================================================================
+Optional component NOT included in this repository or image
+================================================================================
+
+The "Distributed Search: Find Object" task calls Ultralytics YOLOv8
+(https://github.com/ultralytics/ultralytics), which is licensed under
+**AGPL-3.0**. Neither the Ultralytics package nor its pre-trained weights are
+distributed with this repository or with the Docker image, in order to keep this
+work distributable under Apache-2.0. Users who enable that task install
+Ultralytics themselves and are then subject to AGPL-3.0 for that component.
+See the notes in the Dockerfile.

@@ -11,7 +11,7 @@ import subprocess
 from datetime import datetime  
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
-from PySide6.QtCore import Qt, QSettings
+from PySide6.QtCore import Qt, QSettings, QProcess
 from ui_main import Ui_MainWindow
 from dlgROSTeleop import DialogTeleop
 from dlgROSSlam import DialogSmal
@@ -20,6 +20,9 @@ from dlgWorldOptionFire import DialogWorldOptionFire
 from dlgROSRViz import DialogRViz
 from dlgROSI2I import DialogROSI2I
 from dlgStartROSCollaborationTask import DialogStartROSCollaborationTask
+from dlgJnpMonitor import DialogJnpMonitor
+from dlgNavSettings import (DialogNavSettings, generate_nav_overrides,
+                            nav_check_value, task_nav_key)
 # from dlgDBOpen import DialogDBOpen
 from widgetRobotItem import WidgetRobotItem
 from widgetROSCollaborationTaskItem import widgetROSCollaborationTaskItem
@@ -50,6 +53,30 @@ PATH_SOURCE_STRETCH2 ="source /root/catkin_ws_stretch2/devel/setup.bash"
 MAX_MODEL_COUNT_ROBOT = 10  # Max robot model count
 MAX_MODEL_COUNT_PERSON = 3 # Max person model count
 PATH_SOURCE_JNP_SETUP = "source /root/catkin_ws_jnp/devel/setup.sh"
+# 연쇄 릴레이 일렬 배치 (2026-08-08, warehouse 지도 실측: x=1.0 통로 y+5~-8.5 자유)
+# 스폰 위치·체인 goal 계산·GUI 목록이 전부 이 상수 하나를 기준으로 동기화된다
+RELAY_LINE_POSITIONS = {'locobot_0': (1.0, 4.0), 'locobot_1': (1.0, 1.5),
+                        'tb3_burger_0': (1.0, -1.0), 'tb3_burger_1': (1.0, -3.5)}
+# 다목적 이동: 공동 출발지(베이스) 한 곳에 2×2 클러스터로 모여 스폰
+# — 로봇들이 베이스에서 goal 로 왕복. 2026-08-08 지시로 0.8m 뒤(−x)로 이동
+#   (지도 실측: 네 지점 모두 자유 공간, free>=250 확인)
+# 간격 1.5m (0.8m 은 위치공유 lethal+인플레이션과 겹쳐 복귀 리커버리 회전 유발 — 2026-08-08 실측)
+MULTIGOAL_BASE_POSITIONS = {'locobot_0': (-1.25, -0.15), 'locobot_1': (-2.75, -0.15),
+                            'tb3_burger_0': (-1.25, -1.65), 'tb3_burger_1': (-2.75, -1.65)}
+# 충돌회피(Avoidance): bnt_partition_scaled 월드 — R1=locobot_0(A영역), R2=locobot_1(B영역),
+# R3=tb3_burger_0(C영역). tb3_burger_1 은 B영역 구석에 주차(태스크 불참, spawn 만).
+# 좌표는 world 벽 실측 해독(2026-08-08). 병목 중심 (0.08,0.24) r=1.35
+# ★ world 의 벽 모델 자체가 (0.2009,-0.3634) 이동 배치 — 모든 좌표에 반영 (리뷰 결함 #10/#12)
+AVOID_POSITIONS = {'locobot_0': (-2.80, 1.04), 'locobot_1': (3.30, -1.96),
+                   'tb3_burger_0': (-2.70, -3.66), 'tb3_burger_1': (4.40, -4.26)}
+AVOID_WORLD = '/root/tesla/ros/navi/worlds/bnt_partition_scaled.world'
+AVOID_MAP = '/root/tesla/ros/navi/maps/bnt_partition/map.yaml'
+SEARCH_WORLD = '/root/tesla/ros/navi/worlds/bnt_partition_scaled_aligned_desk_v3.world'  # 물건찾기 (desk 포함)
+SEARCH_TARGETS = 'sports_ball,orange'   # 공 2개 — 주황 공은 YOLO 가 'orange' 로 인식(실측)
+# 분산 탐색(지도 제작): locobot 2대 — A/C 영역에서 출발해 커버리지 분담
+# 중앙 통로 세로 배치 (2026-08-09 그림 지시: 세 점) — waffle 은 원점(gmapping 정렬)
+EXPLORE_POSITIONS = {'locobot_0': (0.30, -0.40), 'locobot_1': (0.30, -2.30),
+                     'tb3_waffle_0': (0.0, -1.30)}  # 중앙 통로 일렬, 아래로 -1.3m (2026-08-09 지시; 지도 여유 실측 OK)
 PATH_ROS_INTERBOTIX_LAUNCH = "/root/interbotix_ws/src/interbotix_ros_rovers/interbotix_ros_xslocobots/interbotix_xslocobot_gazebo/launch"
 PATH_ROS_INTERBOTIX_RVIZ = "/root/interbotix_ws/src/interbotix_ros_rovers/interbotix_ros_xslocobots/interbotix_xslocobot_descriptions/rviz"
 PATH_ROS_COLLABORATION_TASK_LAUNCH = "/root/tesla/ros/navi/launch/locobot/"
@@ -93,6 +120,8 @@ class MainWindow(QtWidgets.QMainWindow):
     m_orgPersonColorJeans = []              # OrgPersonJeansColor x,y,z    
     m_exeSimulator = None                   # 현재 실핼중인 Gazebo Process
     m_arrJnpProcess = []                    # Jnp sub proecess
+    m_startedJnp081 = False                 # JnP 0.8.1 모드로 에이전트를 띄웠는지 (협업태스크 분기용)
+    m_startedJnp021 = False                 # JnP 0.2.1 모드로 에이전트를 띄웠는지 (협업태스크 미지원 안내용)
     m_arrROSCollaborationTask = []          # ROS Collaboration Task
     m_prevSelectedCollaborationTask = 0     # 이전 선택된 협업태스크 작업 목록
     m_settings = QSettings(SETTING_COMPANY, SETTING_APP)  # 설정 파일 이름 설정
@@ -108,6 +137,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         ## UI Event
         self.ui.btnStartSimulator.clicked.connect(self.StartSimualtor)
+        self.ui.btnStopSimulator.clicked.connect(self.StopSimulator)
+        self.ui.btnExitSimulator.clicked.connect(self.ExitApplication)
+        self.ui.actionExit.triggered.connect(self.ExitApplication)   # File>Exit (기존 미연결)
+        # 팝업 메시지 언어 (한국어/English) — 설정에 저장/복원
+        savedLang = self.m_settings.value('ui_lang')
+        if savedLang is not None:
+            self.ui.cmbUiLang.setCurrentIndex(int(savedLang))
+        self.ui.cmbUiLang.currentIndexChanged.connect(
+            lambda i: self.m_settings.setValue('ui_lang', i))
 
         # Wolrd option
         self.ui.btnWorldOptionFire.clicked.connect(self.OpenWorldOptionFireDialog)
@@ -136,6 +174,59 @@ class MainWindow(QtWidgets.QMainWindow):
         self.btnGroupROS.addButton(self.ui.rbROSNavigation)
         self.btnGroupROS.buttonToggled.connect(self.ROSRadioButtonItemSelected)
         self.ui.btnRobotROSJNPStart.clicked.connect(self.StartJnp)
+        self.ui.btnRobotROSJNPMonitor.clicked.connect(self.ShowJnpMonitor)
+        # RViz 체크박스는 토글 즉시 반영 (켜면 2D 뷰 기동, 끄면 종료)
+        self.ui.chkRelayRviz.stateChanged.connect(lambda _s: self.EnsureRelayRviz())
+        # Nav 설정 — 매 시뮬레이션(Start)마다 반영되는 항법 파라미터 프리셋
+        self.btnNavSettings = QtWidgets.QPushButton("Nav 설정 (Nav Settings)")
+        # 이웃 Setting 버튼과 동일 스타일 — 밋밋한 라벨처럼 보여 못 찾는 문제 방지
+        self.btnNavSettings.setStyleSheet(
+            self.ui.btnRobotROSCollaborationSetting.styleSheet())
+        # ★ 이웃 버튼의 minimumSize 복사 금지 — 명시 최소폭(114)이 이 버튼이
+        #   필요로 하는 폭(162)보다 작아 레이아웃이 글자보다 좁게 찌그러뜨려
+        #   라벨이 잘렸다(실측 2026-08-10). 스타일시트의 margin 10+padding 5+
+        #   border 2 (양쪽 ≈34px)까지 포함한 sizeHint 를 최소폭으로 쓴다
+        #   — 폰트/언어가 바뀌어도 따라간다.
+        #   ※ ensurePolished() 필수 — polish 전에는 스타일시트가 sizeHint 에
+        #     반영되지 않아 작은 값(114)을 그대로 최소폭으로 굳혀 버린다(실측).
+        self.btnNavSettings.ensurePolished()
+        self.btnNavSettings.setMinimumWidth(max(
+            self.btnNavSettings.sizeHint().width(),
+            self.ui.btnRobotROSCollaborationSetting.minimumWidth()))
+        self.btnNavSettings.setMinimumHeight(
+            self.ui.btnRobotROSCollaborationSetting.minimumHeight())
+        # 줄 순서 재배치 (2026-08-08 지시): [Start][RViz] 먼저 — 패널이 좁아도
+        # 핵심 조작이 안 잘리게 — 그 다음 [Nav 설정][Setting]
+        _lay = self.ui.horizontalLayout_20
+        # label_10(빈 라벨)이 앞에 남으면 줄 전체가 오른쪽으로 밀린다 — 맨 뒤로
+        _order = [self.ui.btnRobotROSCollaborationStartTask, self.ui.chkRelayRviz,
+                  self.btnNavSettings, self.ui.btnRobotROSCollaborationSetting,
+                  self.ui.label_10]
+        for _w in _order:
+            _lay.removeWidget(_w)
+        for _w in _order:
+            _lay.addWidget(_w)
+        _lay.addStretch(1)                  # 왼쪽 정렬 고정
+        # 이 줄(Start·RViz·Nav 설정·Setting)이 통째로 들어갈 만큼 Behavior 패널을
+        # 가로로 넓힌다 — 패널이 좁으면 버튼 라벨이 잘린다 (2026-08-10 지시).
+        # 위젯 sizeHint 합으로 계산하므로 폰트/언어가 바뀌어도 따라간다.
+        # 오버헤드 128 = 그룹박스/스크롤영역 여백 + 세로 스크롤바 (이분탐색 실측
+        # 2026-08-10). 스크롤영역은 내용의 최소폭을 창까지 전파하지 않아 계산이
+        # 아니라 실측값이 필요했다.
+        _need = (sum(max(_w.sizeHint().width(), _w.minimumWidth())
+                     for _w in _order[:-1])
+                 + max(0, _lay.spacing()) * (len(_order) - 2) + 128)
+        self.ui.gbRobotROS.setMinimumWidth(
+            max(self.ui.gbRobotROS.minimumWidth(), _need))
+        # 하단 버튼 순서: [Start][Stop][Exit] (2026-08-09 지시 — 기존 Exit-Stop-Start)
+        _bl = self.ui.horizontalLayout_5
+        _border = [self.ui.btnStartSimulator, self.ui.btnStopSimulator,
+                   self.ui.btnExitSimulator]
+        for _w in _border:
+            _bl.removeWidget(_w)
+        for _w in _border:
+            _bl.addWidget(_w)
+        self.btnNavSettings.clicked.connect(lambda: DialogNavSettings(self).exec())
         self.ui.gbRobotROSNavigation.setVisible(False)
         self.ui.gbRobotROSJnl.setVisible(False)
         self.ui.gbRobotROSI2IEnhancement.setVisible(True)
@@ -167,8 +258,13 @@ class MainWindow(QtWidgets.QMainWindow):
             row.AddCollaborationTask(task.type.value, task.thumbPath)
             self.ui.lstwRobotROSCollaborationTasks.setItemWidget(item, row)
 
-            # TODO : 현재는 Relay를 제외한 다른 협업 태스크는 Disable 처리 한다
-            if task.type != ENUM_ROS_COLLABORATION_TASK_TYPE.NONE and task.type != ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY :
+            # Relay / 다목적 이동 / 충돌회피 활성 — 나머지는 아직 Disable
+            if task.type not in (ENUM_ROS_COLLABORATION_TASK_TYPE.NONE,
+                                 ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY,
+                                 ENUM_ROS_COLLABORATION_TASK_TYPE.MOVE,
+                                 ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE,
+                                 ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                                 ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND):
                 item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
 
         self.ui.lstwRobotROSCollaborationTasks.setCurrentRow(0)
@@ -194,13 +290,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # DeInit
     def CleanUp(self):
-        os.system("killall gzserver")
+        os.system("pkill -9 -f gz[s]erver")   # killall 은 이 컨테이너에 없음
         os.system("pkill gnome-terminal")
 
     # Check world file
     def CheckWorldFile(self, worldFileName):
         # Custom 맵일 경우에는 그냥 통과
-        if worldFileName == "collaboration.world":
+        if worldFileName in ("collaboration.world", "collaboration_bnt.world",
+                             "collaboration_empty.world"):
             return True
 
         # check..
@@ -220,16 +317,16 @@ class MainWindow(QtWidgets.QMainWindow):
         row = self.ui.lstwRobotROSCollaborationTasks.row(item)
         if self.m_arrROSCollaborationTask[row].type == ENUM_ROS_COLLABORATION_TASK_TYPE.NONE:
             if self.m_simulator.categoryMain == ENUM_WORLD_CATEGORY_MAIN.CUSTOM:
-                msg = QtWidgets.QMessageBox()
+                msg = QtWidgets.QMessageBox(self)
                 msg.setIcon(QtWidgets.QMessageBox.Warning)
                 msg.setWindowTitle("Warning")
-                msg.setText("Custom maps can only be used for specialized purposes.")
+                msg.setText(self._msg("Custom 맵은 전용 목적에만 사용할 수 있습니다.", "Custom maps can only be used for specialized purposes."))
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
                 msg.exec_()
                 return
 
         # 시작전 서버 전부 비활성화
-        os.system("killall gzserver")
+        os.system("pkill -9 -f gz[s]erver")   # killall 은 이 컨테이너에 없음
         # Simulator 구조체 초기화
         if len(self.m_simulator.robots) > 0 :
             self.m_simulator.robots.clear()
@@ -282,7 +379,7 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write(cmdLine + CMD_COMMON_ENTER)
 
         f.write("roslaunch " + launchFile)
-        f.close
+        f.close()   # ★ 원본 버그: 괄호 없으면 호출 안 됨 → 쓰기-열림 파일 실행 시 Text file busy
         # Executable 권한 설정
         os.system('chmod 777 ' + tmpFile)  
         # roslaunch (shell)
@@ -897,6 +994,12 @@ class MainWindow(QtWidgets.QMainWindow):
         cmdLine = PATH_SOURCE_STRETCH2
         f.write(cmdLine + CMD_COMMON_ENTER)
 
+        # locobot(interbotix) source 지정 — Relay nav launch가 interbotix_xslocobot_gazebo 를
+        # $(find) 하므로 필수. GUI 를 어떤 셸에서 띄웠든 여기서 보장한다 (2026-08-08 실측:
+        # 이 줄이 없으면 ResourceNotFound 로 relay launch 즉사)
+        cmdLine = "source /root/interbotix_ws/devel/setup.bash"
+        f.write(cmdLine + CMD_COMMON_ENTER)
+
         # # TODO : 일단은 aws-robomaker-warehouse 모델을 강제로 로드하고 있으므로 source 명령이 필요, 나중에 동적 맵 로딩이 가능하게 되면 제거
         # cmdLine = PATH_SOURCE_WAREHOUSE_TASK
         # f.write(cmdLine + CMD_COMMON_ENTER)
@@ -908,11 +1011,136 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write(cmdLine + CMD_COMMON_ENTER)
 
         # 협력콜라보레이션 작업 타입 별 실행 구문 변경
-        if collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY:
-            f.write(f"roslaunch {PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY} robot_model:=locobot_wx250s use_lidar:=true use_position_controllers:=true rtabmap_args:=-d\n")
-            print("### value = " + f"roslaunch {PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY} robot_model:=locobot_wx250s use_lidar:=true use_position_controllers:=true rtabmap_args:=-d\n")
+        # Relay / 다목적 이동(MOVE) 은 동일한 warehouse+4로봇+항법 구성을 사용
+        if collaboTask in (ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY,
+                           ENUM_ROS_COLLABORATION_TASK_TYPE.MOVE,
+                           ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE,
+                           ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                           ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND):
+            # use_rviz:=false → 로봇별/tb3 RViz 를 끄고, 통합 RViz 하나만
+            # 2D 전용 설정(지도+경로+goal+로봇 위치)으로 띄운다 (2026-08-08)
+            # RViz 2D 뷰는 체크박스 옵션 (기본 꺼짐 — 시각화 없이 실행)
+            showRviz = 'true' if self.ui.chkRelayRviz.isChecked() else 'false'
+            # ── 태스크별 배치 ──
+            # Relay: 일렬(2.5m 간격 — 바톤 전달이 보이게)
+            # 다목적 이동: 공동 출발지(베이스) 2×2 클러스터 — 베이스↔goal 왕복
+            if collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.MOVE:
+                lp = MULTIGOAL_BASE_POSITIONS
+            elif collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE:
+                lp = AVOID_POSITIONS      # 충돌회피: bnt 월드 A/B/C 영역 + 주차 1대
+            elif collaboTask in (ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                                 ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND):
+                lp = EXPLORE_POSITIONS    # 지도제작/물건찾기: 동일 배치 (2026-08-10)
+            else:
+                lp = RELAY_LINE_POSITIONS
+            for rb in self.m_simulator.robots:
+                if rb.name in lp:
+                    rb.startX, rb.startY = lp[rb.name]
+            relayArgs = ("robot_model:=locobot_wx250s use_lidar:=true use_position_controllers:=true rtabmap_args:=-d"
+                         " use_rviz:=false rvizconfig:=/root/tesla/ros/navi/rviz/locobot/relay_2d.rviz"
+                         f" show_rviz2d:={showRviz}"
+                         f" loco0_x:={lp['locobot_0'][0]} loco0_y:={lp['locobot_0'][1]}"
+                         f" loco1_x:={lp['locobot_1'][0]} loco1_y:={lp['locobot_1'][1]}"
+                         f" tb3_0_x:={lp.get('tb3_burger_0', (0, -9))[0]} tb3_0_y:={lp.get('tb3_burger_0', (0, -9))[1]}"
+                         f" tb3_1_x:={lp.get('tb3_burger_1', (0, -9.5))[0]} tb3_1_y:={lp.get('tb3_burger_1', (0, -9.5))[1]}")
+            if collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE:
+                # 충돌회피 전용 월드(bnt)+합성 지도, 로봇 3대(2 locobot + 1 tb3)
+                relayArgs += (f" world_name:={AVOID_WORLD} map_file:={AVOID_MAP}"
+                              " spawn_second_tb3:=false use_known_map:=true")
+            elif collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP:
+                # 지도제작: bnt + SLAM 모드 — locobot 2 + waffle 1 (burger 미스폰)
+                wx, wy = EXPLORE_POSITIONS['tb3_waffle_0']
+                # waffle SLAM 선택 (Nav 설정 콤보; 기본 slam_toolbox)
+                _ws = str(self.m_settings.value('nav/SEARCH_MAKE_MAP/planner_waffle_slam')
+                           or self.m_settings.value('nav/planner_waffle_slam') or '')
+                _ws = ('gmapping' if 'gmapping' in _ws
+                       else 'rtabmap' if 'rtabmap' in _ws else 'slam_toolbox')
+                relayArgs += (f" world_name:={AVOID_WORLD}"
+                              " spawn_tb3s:=false spawn_waffle:=true explore_nav:=true"
+                              f" waffle_x:={wx} waffle_y:={wy} waffle_slam:={_ws}")
+            elif collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND:
+                # 물건찾기: desk 월드 + 알려진 지도 + 지도제작 로봇 편성.
+                # 카메라 틸트 위로(-0.12) — desk 상판(0.8m)이 보이게 (2026-08-10)
+                wx, wy = EXPLORE_POSITIONS['tb3_waffle_0']
+                _ws = str(self.m_settings.value('nav/SEARCH_FIND/planner_waffle_slam')
+                           or self.m_settings.value('nav/planner_waffle_slam') or '')
+                _ws = ('gmapping' if 'gmapping' in _ws
+                       else 'rtabmap' if 'rtabmap' in _ws else 'slam_toolbox')
+                relayArgs += (f" world_name:={SEARCH_WORLD} map_file:={AVOID_MAP}"
+                              " use_known_map:=true spawn_tb3s:=false"
+                              " perceive_high:=true search_nav:=true"
+                              " spawn_waffle:=true camera_tilt_angle:=-0.12"
+                              f" waffle_x:={wx} waffle_y:={wy} waffle_slam:={_ws}")
+            else:
+                # Relay/다목적: World 패널에서 외벽-only(empty) 를 골랐으면 교체 (RTF↑)
+                try:
+                    subItem = self.ui.lstwWorldSubCategory.currentItem()
+                    if subItem is not None and 'empty' in subItem.text():
+                        relayArgs += (
+                            " world_name:=/root/tesla/worlds/empty_warehouse_walls.world"
+                            " map_file:=/root/tesla/ros/navi/maps/empty_warehouse/map.yaml")
+                        print("### 외벽-only 월드 선택 (RTF 향상 모드)")
+                except Exception as e:
+                    print(f"월드 선택 확인 실패(기본 warehouse): {e}")
+            # Nav 설정(다이얼로그) → 이번 판 오버라이드 생성 + 위치공유 on/off
+            _navTask = task_nav_key(collaboTask)
+            useMutual = nav_check_value(self.m_settings, 'mutual', _navTask)
+            relayArgs += " mutual_obstacles:=" + ('true' if useMutual else 'false')
+            try:
+                generate_nav_overrides(
+                    self.m_settings,
+                    '/root/tesla/ros/navi/launch/locobot/nav_overrides.launch',
+                    task_key=_navTask)
+            except Exception as e:
+                print(f"nav_overrides 생성 실패(기본값으로 진행): {e}")
+            # 헬퍼 노드 로봇 목록 — 태스크별 실제 편성 (기본값은 burger 2대 편성)
+            if collaboTask in (ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                               ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND):
+                _task_robots = ' _robots:=locobot_0,locobot_1,tb3_waffle_0'
+            elif collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE:
+                _task_robots = ' _robots:=locobot_0,locobot_1,tb3_burger_0'
+            else:
+                _task_robots = ''
+            # 헬퍼는 roslaunch(=roscore)보다 먼저 실행되므로 마스터 대기 필수 —
+            # roscore 완전 종료 후 첫 Start 에서 즉사하던 문제 (2026-08-09 실측)
+            _wait_master = ("( until rostopic list >/dev/null 2>&1; do sleep 2; done; "
+                            "sleep 2; ")
+            # ★ 이전 Start 의 헬퍼 잔존 정리 — Start 마다 누적돼 이름 쟁탈·CPU 잠식
+            #   (yolo_detector 6개/map_nav_clear 8개 실측, 2026-08-10).
+            #   ^python3 앵커 = bash 래퍼/자기 자신 오살 방지
+            f.write("pkill -f '^python3 /root/tesla/ros/navi/scripts/"
+                    "(goal_labels|map_nav_clear|object_spawner|yolo_detector|"
+                    "traffic_zones|mutual_obstacles)\\.py' 2>/dev/null; sleep 1\n")
+            # goal 위치에 로봇 이름 라벨 마커 (rviz 의 Goal Labels 표시가 구독)
+            f.write(f"{_wait_master}python3 /root/tesla/ros/navi/scripts/goal_labels.py{_task_robots} ) &\n")
+            if collaboTask in (ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                               ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND):
+                # 병합 지도의 '자기-박제 벽' 제거본(/map_nav/<robot>) — locobot
+                # 전역 costmap 이 자기 위치 lethal 로 계획 불능 되는 문제 (2026-08-09)
+                f.write(f"{_wait_master}python3 /root/tesla/ros/navi/scripts/"
+                        "map_nav_clear.py _robots:=locobot_0,locobot_1,tb3_waffle_0"
+                        " _park_secs:=4.0 ) &\n")
+            if collaboTask == ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND:
+                # 물건찾기: desk 위 물체 스폰 + YOLO v8 감지 노드 (2026-08-10)
+                f.write(f"{_wait_master}python3 /root/tesla/ros/navi/scripts/"
+                        "object_spawner.py ) &\n")
+                # ★PYTHONNOUSERSITE 금지: torch/torchvision/requests 가
+                # user-site 에 있음 (2026-08-10 실측 — 켜면 import 불가)
+                f.write(f"{_wait_master}python3 "
+                        "/root/tesla/ros/navi/scripts/yolo_detector.py"
+                        f" _targets:={SEARCH_TARGETS} ) &\n")
+            if nav_check_value(self.m_settings, 'zones', _navTask):
+                # 존-토큰 교통관제 — 좁은 구역(base/goal) 이동 직렬화 (2026-08-08)
+                f.write(f"{_wait_master}python3 /root/tesla/ros/navi/scripts/traffic_zones.py ) &\n")
+            if useMutual:
+                # 그룹 위치공유 → 상호 costmap 장애물 (locobot 라이다가 burger 못 보는 문제)
+                f.write(f"{_wait_master}python3 /root/tesla/ros/navi/scripts/mutual_obstacles.py{_task_robots} ) &\n")
+            # 컨트롤러 준비되는 즉시 자동 unpause + 팔 내림 (협업 Start 전에 팔부터 정리)
+            f.write("bash /root/tesla/ros/navi/sh/loco_ready_init.sh &\n")
+            f.write(f"roslaunch {PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY} {relayArgs}\n")
+            print("### value = " + f"roslaunch {PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY} {relayArgs}\n")
 
-        f.close
+        f.close()   # ★ 원본 버그: 괄호 없으면 호출 안 됨 → 쓰기-열림 파일 실행 시 Text file busy
         # Executable 권한 설정
         os.system('chmod 777 ' + tmpFile)  
         
@@ -1289,7 +1517,7 @@ class MainWindow(QtWidgets.QMainWindow):
         f.write(cmdLine + CMD_COMMON_ENTER)
 
         f.write("roslaunch " + launchFile)
-        f.close
+        f.close()   # ★ 원본 버그: 괄호 없으면 호출 안 됨 → 쓰기-열림 파일 실행 시 Text file busy
         # Executable 권한 설정
         os.system('chmod 777 ' + tmpFile)  
 
@@ -1311,17 +1539,18 @@ class MainWindow(QtWidgets.QMainWindow):
     def StartTeleopDialog(self):
         # 로봇 정보가 없으면 종료
         if len(self.m_simulator.robots) <= 0 :
-           req = QtWidgets.QMessageBox.question(self, 'Start simulator', 'Please run the simulator first.',QtWidgets.QMessageBox.Ok)
+           req = QtWidgets.QMessageBox.question(self, 'Start simulator', self._msg('먼저 시뮬레이터를 시작해 주세요.', 'Please run the simulator first.'),QtWidgets.QMessageBox.Ok)
            return
 
         dlg = DialogTeleop(self.m_simulator)
+        self._CenterDlg(dlg)
         dlg.showModal()
 
     # Slam
     def StartSlamDialog(self):
         # 로봇 정보가 없으면 종료
         if len(self.m_simulator.robots) <= 0 :
-           req = QtWidgets.QMessageBox.question(self, 'Start simulator', 'Please run the simulator first.',QtWidgets.QMessageBox.Ok)
+           req = QtWidgets.QMessageBox.question(self, 'Start simulator', self._msg('먼저 시뮬레이터를 시작해 주세요.', 'Please run the simulator first.'),QtWidgets.QMessageBox.Ok)
            return
 
         # 로봇 정보 저장
@@ -1331,6 +1560,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.m_simulator.robots = copy.deepcopy(lstRobots)
 
         dlg = DialogROSI2I(self.m_simulator)
+        self._CenterDlg(dlg)
         dlg.showModal()
 
     # Image-to-Image Enhancement dialog open
@@ -1357,9 +1587,20 @@ class MainWindow(QtWidgets.QMainWindow):
             return
 
         dlg = DialogROSI2I(self.m_simulator)
+        self._CenterDlg(dlg)
         dlg.showModal()
 
     # Collaboration
+    def _CenterDlg(self, w):
+        """팝업/다이얼로그를 시뮬레이터 메인 창 가운데로 (부모 미지정 창 대응)."""
+        try:
+            w.adjustSize()
+            g = self.frameGeometry()
+            w.move(g.center().x() - w.width() // 2,
+                   g.center().y() - w.height() // 2)
+        except Exception:
+            pass
+
     def OpenCollaborationSettingDialog(self):
         # 선택된 아이템 가져오기
         selected_items = self.ui.lstwRobotROSCollaborationTasks.selectedItems()
@@ -1377,6 +1618,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         dlg = DialogNavigation(self.m_simulator)
         dlg.finished.connect(self.onFinishedCollaborationDlg)
+        self._CenterDlg(dlg)
         dlg.showModal()
 
     # Collaboration Task start
@@ -1387,8 +1629,152 @@ class MainWindow(QtWidgets.QMainWindow):
         self.SaveUIRobotInfoToSimRobotsInfo(lstRobots)
         self.m_simulator.robots = copy.deepcopy(lstRobots)
 
-        dlg = DialogStartROSCollaborationTask(self.m_simulator)
-        dlg.showModal()
+        # ★ 위 재구성이 UI 패널의 옛 좌표로 startX/Y 를 덮는다 — RELAY 는 일렬 배치가
+        #   체인 goal 계산의 기준이므로 다시 동기화 (2026-08-08 실측: 이게 없으면
+        #   스폰은 일렬인데 goal 은 옛 좌표 기준으로 계산되는 불일치 발생)
+        if self.m_simulator.ros_collaboration in (ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY,
+                                                  ENUM_ROS_COLLABORATION_TASK_TYPE.MOVE,
+                                                  ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE,
+                                                  ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                                                  ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND):
+            _ct = self.m_simulator.ros_collaboration
+            lp = (MULTIGOAL_BASE_POSITIONS if _ct == ENUM_ROS_COLLABORATION_TASK_TYPE.MOVE
+                  else AVOID_POSITIONS if _ct == ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE
+                  else EXPLORE_POSITIONS if _ct in (ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                                                    ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND)
+                  else RELAY_LINE_POSITIONS)
+            for rb in self.m_simulator.robots:
+                if rb.name in lp:
+                    rb.startX, rb.startY = lp[rb.name]
+
+        # RViz 체크 상태를 지금 반영 — 시뮬 시작 때 안 켰어도 여기서 늦게 띄우고,
+        # 체크를 껐으면 떠 있는 2D 뷰를 닫는다
+        self.EnsureRelayRviz()
+
+        # JnP 0.8.1 에이전트가 떠 있으면 다이얼로그가 task 발행(coalition 트리거) 모드로 동작
+        # ★ 비모달(show) — 모달(exec)이면 메인 창이 잠겨 릴레이 중 Stop 을 못 누른다
+        if getattr(self, 'm_dlgCollab', None) is not None:
+            self.m_dlgCollab.close()
+        # BASE 슬롯 상수 전체 전달 — 원 중심·legacy 홈 좌표 모두 이 상수로 고정
+        # ★ 무조건 전달 (태스크 타입 조건 게이트는 다이얼로그 생성 시점에 타입이
+        #   아직 안 잡혀 폴백(UI 좌표)이 발행되던 원인 — 2026-08-08 실측 -1.74,-0.65).
+        #   사용은 다이얼로그의 다목적(MOVE) 분기에서만 하므로 항상 넘겨도 무해.
+        basePos = dict(MULTIGOAL_BASE_POSITIONS)
+        self.m_dlgCollab = DialogStartROSCollaborationTask(
+            self.m_simulator, jnp081Active=self.m_startedJnp081,
+            jnp021Active=self.m_startedJnp021,
+            monitorOpener=self.ShowJnpMonitor, basePositions=basePos)
+        self.m_dlgCollab.show()
+        self._CenterDlg(self.m_dlgCollab)
+
+    ## 시뮬레이션 정지 — Gazebo/ROS/JnP/RViz/에이전트 터미널 전부 정리, GUI 창은 유지
+    ## (창만 닫으면 roslaunch 가 고아로 살아남아 다음 실행이 꼬인다 — stop_sim.sh 재사용)
+    ## 팝업 메시지 언어 선택 헬퍼 — 하단 콤보(한국어/English) 상태에 따라 반환
+    def _msg(self, ko, en):
+        return ko if self.ui.cmbUiLang.currentIndex() == 0 else en
+
+    def StopSimulator(self):
+        req = QtWidgets.QMessageBox.question(
+            self, self._msg('시뮬레이션 정지', 'Stop simulator'),
+            self._msg('시뮬레이션을 정지할까요?\n(Gazebo/ROS 전부 종료, GUI는 유지)',
+                      'Stop the simulation?\n(All Gazebo/ROS processes will be terminated; GUI stays open)'),
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if req != QtWidgets.QMessageBox.Yes:
+            return
+        # 정리(수 초) 동안 두 버튼 잠금 — 정리 중 Start 를 누르면 새 프로세스가
+        # 정리 패턴에 맞아 같이 죽는 경합이 생긴다
+        self.ui.btnStopSimulator.setEnabled(False)
+        self.ui.btnStartSimulator.setEnabled(False)
+        # Stop 시 JnP Monitor 창도 함께 닫기 (2026-08-10 지시 — 관찰 대상이
+        # 사라지므로; close 가 tap 서브프로세스도 정리한다)
+        if getattr(self, 'm_dlgJnpMonitor', None) is not None:
+            try:
+                self.m_dlgJnpMonitor.close()
+            except Exception:
+                pass
+            self.m_dlgJnpMonitor = None
+        script = os.path.abspath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), '..', '..', 'stop_sim.sh'))
+        if os.path.isfile(script):
+            self.m_procStop = QProcess(self)
+            self.m_procStop.finished.connect(self._OnStopFinished)
+            self.m_procStop.start('bash', [script])
+        else:
+            self._CleanupSimProcesses()
+            self._OnStopFinished()
+
+    ## Stop 정리 완료 — 버튼/로봇 목록 복구 (원본은 시작 성공 시 Start 를 영구
+    ## 비활성화하는 1회용 설계였음 — Stop 이후 재시작 가능하도록 되살린다)
+    def _OnStopFinished(self, *args):
+        self.m_arrJnpProcess.clear()
+        self.m_startedJnp081 = False
+        self.ui.btnStartSimulator.setEnabled(True)
+        self.ui.btnStopSimulator.setEnabled(True)
+        self.enableRobotList()
+        print('시뮬레이션 정리 완료 — 다시 Start 할 수 있습니다')
+
+    ## 로봇 리스트 재활성화 (disableRobotList 의 역방향)
+    def enableRobotList(self):
+        for idx in range(self.ui.lstwRobots.count()):
+            item = self.ui.lstwRobots.item(idx)
+            widget = self.ui.lstwRobots.itemWidget(item)
+            if widget:
+                widget.setEnabled(True)
+
+    ## 프로그램 종료 — 시뮬레이션 정리 후 GUI 까지 종료 (하단 Exit 버튼 / File>Exit)
+    def ExitApplication(self):
+        req = QtWidgets.QMessageBox.question(
+            self, self._msg('종료', 'Exit'),
+            self._msg('시뮬레이션을 정리하고 프로그램을 종료할까요?',
+                      'Clean up the simulation and exit the program?'),
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if req != QtWidgets.QMessageBox.Yes:
+            return
+        self._CleanupSimProcesses()
+        QtWidgets.QApplication.quit()
+
+    ## 시뮬 스택 정리 공통부 (확인창 없음) — Stop/Exit 이 공유
+    def _CleanupSimProcesses(self):
+        script = os.path.abspath(os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), '..', '..', 'stop_sim.sh'))
+        if os.path.isfile(script):
+            subprocess.Popen(['bash', script])
+        else:
+            # 배포 위치에 스크립트가 없을 때의 최소 정리 (동일 패턴)
+            for pat in ('ros[l]aunch', 'gz[s]erver', 'gz[c]lient', 'ros[m]aster',
+                        'jnp_0.8.1/scripts/jnp_[a]gent', 'jnp_0.8.1/scripts/jnp_grou[p]',
+                        'goal_label[s]', 'loco_ready_ini[t]',
+                        'relay_runne[r]', 'multigoal_runne[r]',
+                        'rviz -f map -d .*relay_2d[.]rviz', '[g]nome-terminal'):
+                subprocess.run(['pkill', '-9', '-f', pat])
+        self.m_arrJnpProcess.clear()
+        self.m_startedJnp081 = False
+
+    ## 협업용 RViz 2D 뷰 늦은 기동/종료 — 체크박스 상태를 협업 창 열 때마다 반영
+    ## (시뮬 시작 시 show_rviz2d 로 띄우는 것과 별개로, 사후 체크/해제도 동작)
+    def EnsureRelayRviz(self):
+        # ★ 패턴은 반드시 rviz 실행 형태('rviz -f map -d ...')로 한정할 것.
+        #   'relay_2d.rviz' 만으로 잡으면 roslaunch 명령줄(rvizconfig:= 인자)까지
+        #   매칭되어 pkill 이 시뮬레이션 전체를 죽인다 (2026-08-08 실사고)
+        RVIZ_PAT = 'rviz -f map -d .*relay_2d[.]rviz'
+        running = subprocess.run(['pgrep', '-f', RVIZ_PAT],
+                                 stdout=subprocess.PIPE).returncode == 0
+        if self.ui.chkRelayRviz.isChecked():
+            if not running:
+                # 마스터가 없으면 띄우지 않는다 — 시뮬 시작 시 show_rviz2d 가 띄워주며,
+                # 마스터 없이 띄우면 'waiting for master' 창만 뜬다 (2026-08-08 실측)
+                try:
+                    import rosgraph
+                    if not rosgraph.is_master_online():
+                        return
+                except ImportError:
+                    pass
+                cmd = ("source /opt/ros/noetic/setup.bash; "
+                       "rosrun rviz rviz -f map -d /root/tesla/ros/navi/rviz/locobot/relay_2d.rviz")
+                subprocess.Popen(['bash', '-c', cmd])
+        else:
+            if running:
+                subprocess.run(['pkill', '-f', RVIZ_PAT])
 
     # 협업태스크 다이얼로그 종료 시 실행
     def onFinishedCollaborationDlg(self):
@@ -1398,10 +1784,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def StartRVizDialog(self):
         # 로봇 정보가 없으면 종료
         if len(self.m_simulator.robots) <= 0 :
-            req = QtWidgets.QMessageBox.question(self, 'Start simulator', 'Please run the simulator first.',QtWidgets.QMessageBox.Ok)
+            req = QtWidgets.QMessageBox.question(self, 'Start simulator', self._msg('먼저 시뮬레이터를 시작해 주세요.', 'Please run the simulator first.'),QtWidgets.QMessageBox.Ok)
             return
 
         dlg = DialogRViz(self.m_simulator)
+        self._CenterDlg(dlg)
         dlg.showModal()
 
     # Jnp 
@@ -1410,14 +1797,25 @@ class MainWindow(QtWidgets.QMainWindow):
         if len(self.m_arrJnpProcess) > 0:
             self.CloseJnp(self.m_arrJnpProcess)
 
+        ## JnP 버전 선택 (콤보박스: 0 = 기존 0.2.1, 1 = 0.8.1)
+        # 0.8.1은 발견/설명까지만 상시 수행하고, 협업 태스크(goal)가 발행되면
+        # coalition 형성 → task tree 할당/스케줄 실행 → goal 도달 시 해체한다
+        useJnp081 = self.ui.cmbJnpVersion.currentIndex() == 1
+        # 실제로 에이전트를 띄웠을 때만 0.8.1 시작 상태로 기록 (로봇 0대면 아무것도 안 뜸)
+        self.m_startedJnp081 = useJnp081 and len(self.m_simulator.robots) > 0
+        self.m_startedJnp021 = (not useJnp081) and len(self.m_simulator.robots) > 0
+        pathSourceJnp = PATH_SOURCE_JNP081_SETUP if useJnp081 else PATH_SOURCE_JNP_SETUP
+
         ## 각 모델 별 Jnp 실행
         # ns는 기본 사용
         for i in range(0, len(self.m_simulator.robots)) :
             # 실행 전 source 지정
-            command = PATH_SOURCE_JNP_SETUP + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
+            command = pathSourceJnp + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
             # 실행
-            name = self.m_simulator.robots[i].name 
+            name = self.m_simulator.robots[i].name
             command = command + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
+            if useJnp081:
+                command = command + CMD_COMMON_SPACE + CMD_ROS_JNP081_AGENT_XML_ARG
             completeCmd = CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE
             process = subprocess.Popen([completeCmd], shell=True)
             self.m_arrJnpProcess.append(process)
@@ -1425,6 +1823,16 @@ class MainWindow(QtWidgets.QMainWindow):
             #cmd = subprocess.Popen(command, shell=True, executable="/bin/bash")
 
         atexit.register(self.CloseJnp, self.m_arrJnpProcess)
+
+    ## JnP Monitor 창 (옵션) — 버튼을 누를 때만 열리는 비모달 그래픽 뷰
+    def ShowJnpMonitor(self):
+        if getattr(self, 'm_dlgJnpMonitor', None) is not None and self.m_dlgJnpMonitor.isVisible():
+            self.m_dlgJnpMonitor.raise_()
+            self.m_dlgJnpMonitor.activateWindow()
+            return
+        self.m_dlgJnpMonitor = DialogJnpMonitor(self)
+        self.m_dlgJnpMonitor.show()
+        self._CenterDlg(self.m_dlgJnpMonitor)
 
     ## Jnp 종료
     def CloseJnp(self, arrProcess):
@@ -1439,7 +1847,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 process.kill()
 
         subprocess.run(['pkill', '-f', 'gnome-terminal'])
+        # 0.8.1 모드로 시작했을 때만, 0.8.1 경로 한정 패턴으로 잔여 정리
+        # (광역 'jnp_agent.py' 패턴은 이 기계의 다른 JnP 프로세스까지 죽인다 — 리뷰 확정)
+        if getattr(self, 'm_startedJnp081', False):
+            subprocess.run(['pkill', '-f', 'jnp_0.8.1/scripts/jnp_group.py'])
+            subprocess.run(['pkill', '-f', 'jnp_0.8.1/scripts/jnp_agent.py'])
         arrProcess.clear()
+        self.m_startedJnp081 = False
+        self.m_startedJnp021 = False
 
     # DQN 실행
     def StartROSDQN(Self):
@@ -1457,7 +1872,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         if file_name:
             self.m_settings.setValue(SETTING_PATH_DQN_WEIGHT, path)
-            msg_box = QtWidgets.QMessageBox()
+            msg_box = QtWidgets.QMessageBox(self)
             msg_box.setWindowTitle("File Save")  # 타이틀 설정
             msg_box.setText(f"File has been saved successfully.\nPath: {path}")  # 내용 설정
             msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
@@ -1476,7 +1891,7 @@ class MainWindow(QtWidgets.QMainWindow):
         file_name, _ = QFileDialog.getOpenFileName(None, "Open File", path, "All Files (*);;Text Files (*.txt)", options=options)
         
         if file_name:
-            msg_box = QtWidgets.QMessageBox()
+            msg_box = QtWidgets.QMessageBox(self)
             msg_box.setWindowTitle("File Open")  # 타이틀 설정
             msg_box.setText(f"File has been opened successfully.\nPath: {path}")  # 내용 설정
             msg_box.setIcon(QtWidgets.QMessageBox.Information)  # 아이콘 설정
@@ -1502,7 +1917,7 @@ class MainWindow(QtWidgets.QMainWindow):
     # World Fire 옵션 선택
     def OpenWorldOptionFireDialog(self):
         if self.m_exeSimulator is None:
-            msg_box = QMessageBox()
+            msg_box = QMessageBox(self)
             msg_box.setIcon(QMessageBox.Warning)
             msg_box.setWindowTitle("Warning")
             msg_box.setText("Gazebo를 먼저 실행 해 주세요")
@@ -1511,6 +1926,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
 
         dlg = DialogWorldOptionFire()
+        self._CenterDlg(dlg)
         dlg.showModal()
 
     # 라디오 버튼 - ROS 선택
@@ -1980,6 +2396,24 @@ class MainWindow(QtWidgets.QMainWindow):
         world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.COLLABORATION
         defThumbPath = os.path.join(os.path.dirname(__file__), 'Resources/thumbnail/worlds/' + ENUM_WORLD_CATEGORY_MAIN.CUSTOM.value + "/")
         world_sub.thumbPath = defThumbPath + ENUM_WORLD_CATEGORY_SUB.COLLABORATION.value + "/" + ENUM_WORLD_CATEGORY_SUB.COLLABORATION.value + ".png"
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+        # Custom : collaboration_empty — Relay/다목적용 외벽-only (RTF↑, 선택 가능)
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.COLLABORATION_EMPTY
+        world_sub.thumbPath = (defThumbPath
+                               + ENUM_WORLD_CATEGORY_SUB.COLLABORATION_EMPTY.value + "/"
+                               + ENUM_WORLD_CATEGORY_SUB.COLLABORATION_EMPTY.value + ".png")
+        world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
+        world_sub.extention = CONST_EXTENTION_WORLD
+        world.arrCategorySubs.append(world_sub)
+        # Custom : collaboration_bnt — 충돌회피(bnt_partition_scaled) 표시용
+        world_sub = World_Sub()
+        world_sub.categorySub = ENUM_WORLD_CATEGORY_SUB.COLLABORATION_BNT
+        world_sub.thumbPath = (defThumbPath
+                               + ENUM_WORLD_CATEGORY_SUB.COLLABORATION_BNT.value + "/"
+                               + ENUM_WORLD_CATEGORY_SUB.COLLABORATION_BNT.value + ".png")
         world_sub.robotStartXYZ = [0, 0, 0.5,   0.5, 0.5, 0.5]
         world_sub.extention = CONST_EXTENTION_WORLD
         world.arrCategorySubs.append(world_sub)
@@ -2567,8 +3001,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.btnAddModel.setEnabled(True)
             self.ui.lstwWorldMainCategory.setEnabled(True)
             self.ui.lstwWorldSubCategory.setEnabled(True)
+            for _i2 in range(self.ui.lstwWorldSubCategory.count()):
+                _it2 = self.ui.lstwWorldSubCategory.item(_i2)
+                _it2.setFlags(_it2.flags() | Qt.ItemIsEnabled)
+                _it2.setHidden(False)
         else:
-            msg_box = QtWidgets.QMessageBox()
+            msg_box = QtWidgets.QMessageBox(self)
             msg_box.setIcon(QtWidgets.QMessageBox.Warning)
             msg_box.setWindowTitle("Warning")
             msg_box.setText("You have selected a collaborative task.\n\n"
@@ -2587,11 +3025,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 # 때문에 UI상 보이는 맵 상태만 Custom으로 변경 시키도록 한다
                 worldMainCustomIdx = 0
                 worldSubCollaborationIdx = 0
+                # 태스크별 기본 월드 — 충돌회피=bnt 고정, Relay/다목적=외벽-only 기본
+                # (warehouse 는 목록에서 수동 선택 가능 — 2026-08-09 지시)
+                wantSub = (ENUM_WORLD_CATEGORY_SUB.COLLABORATION_BNT
+                           if self.m_arrROSCollaborationTask[row].type
+                           in (ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE,
+                               ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                               ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND)
+                           else ENUM_WORLD_CATEGORY_SUB.COLLABORATION_EMPTY)
                 for i in range(0, len(self.m_worlds)) :
                     if self.m_worlds[i].categoryMain == ENUM_WORLD_CATEGORY_MAIN.CUSTOM:
                         worldMainCustomIdx = i
                         for j in range(0, len(self.m_worlds[i].arrCategorySubs)):
-                            if self.m_worlds[i].arrCategorySubs[j].categorySub == ENUM_WORLD_CATEGORY_SUB.COLLABORATION:
+                            if self.m_worlds[i].arrCategorySubs[j].categorySub == wantSub:
                                 worldSubCollaborationIdx = j
                                 break
                 self.ui.lstwWorldMainCategory.setCurrentRow(worldMainCustomIdx)
@@ -2622,29 +3068,51 @@ class MainWindow(QtWidgets.QMainWindow):
                 # 리스트뷰에 로봇 위젯 셋
                 lstRobot.setItemWidget(wItem, newItem)                
 
-                # tutlebot_1
-                lstRobot = self.ui.lstwRobots
-                wItem2 = QtWidgets.QListWidgetItem(lstRobot)
-                lstRobot.addItem(wItem2)
-                # 로봇 위젯 생성
-                newItem2 = WidgetRobotItem()
-                wItem2.setSizeHint(newItem2.sizeHint())
-                newItem2.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
-                newItem2.SetStartPosition(1.0, 0.0, 0.0)
-                # 리스트뷰에 로봇 위젯 셋
-                lstRobot.setItemWidget(wItem2, newItem2)
+                # 지도제작: waffle 1대 추가 (2026-08-09 — locobot 2 + waffle 1)
+                if (self.m_arrROSCollaborationTask[row].type
+                        in (ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                            ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND)):
+                    lstRobot = self.ui.lstwRobots
+                    wItemW = QtWidgets.QListWidgetItem(lstRobot)
+                    lstRobot.addItem(wItemW)
+                    newItemW = WidgetRobotItem()
+                    wItemW.setSizeHint(newItemW.sizeHint())
+                    try:
+                        newItemW.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_WAFFLE_NAME)
+                    except Exception:
+                        newItemW.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
+                    newItemW.SetStartPosition(0.0, 0.0, 0.0)
+                    lstRobot.setItemWidget(wItemW, newItemW)
+                # tutlebot_1 — 지도제작(locobot 2대+waffle)에서는 burger 생략
+                if (self.m_arrROSCollaborationTask[row].type
+                        not in (ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                                ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND)):
+                    lstRobot = self.ui.lstwRobots
+                    wItem2 = QtWidgets.QListWidgetItem(lstRobot)
+                    lstRobot.addItem(wItem2)
+                    # 로봇 위젯 생성
+                    newItem2 = WidgetRobotItem()
+                    wItem2.setSizeHint(newItem2.sizeHint())
+                    newItem2.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
+                    newItem2.SetStartPosition(1.0, 0.0, 0.0)
+                    # 리스트뷰에 로봇 위젯 셋
+                    lstRobot.setItemWidget(wItem2, newItem2)
 
-                # tutlebot_2
-                lstRobot = self.ui.lstwRobots
-                wItem2 = QtWidgets.QListWidgetItem(lstRobot)
-                lstRobot.addItem(wItem2)
-                # 로봇 위젯 생성
-                newItem2 = WidgetRobotItem()
-                wItem2.setSizeHint(newItem2.sizeHint())
-                newItem2.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
-                newItem2.SetStartPosition(1.0, 0.5, 0.0)
-                # 리스트뷰에 로봇 위젯 셋
-                lstRobot.setItemWidget(wItem2, newItem2)
+                # tutlebot_2 — 충돌회피(3로봇: locobot 2 + tb3 1)에서는 생략 (2026-08-08)
+                if (self.m_arrROSCollaborationTask[row].type
+                        not in (ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE,
+                                ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP,
+                                ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_FIND)):
+                    lstRobot = self.ui.lstwRobots
+                    wItem2 = QtWidgets.QListWidgetItem(lstRobot)
+                    lstRobot.addItem(wItem2)
+                    # 로봇 위젯 생성
+                    newItem2 = WidgetRobotItem()
+                    wItem2.setSizeHint(newItem2.sizeHint())
+                    newItem2.ChageCurrentThumbIdxByName(CONST_TURTLEBOT3_BUTGER_NAME)
+                    newItem2.SetStartPosition(1.0, 0.5, 0.0)
+                    # 리스트뷰에 로봇 위젯 셋
+                    lstRobot.setItemWidget(wItem2, newItem2)
 
                 # 모든 로봇 정보는 수정 불가능 하도록 변경
                 self.disableRobotList()
@@ -2652,7 +3120,23 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.ui.btnDeleteRobot.setEnabled(False)
                 self.ui.btnAddModel.setEnabled(False)
                 self.ui.lstwWorldMainCategory.setEnabled(False)
-                self.ui.lstwWorldSubCategory.setEnabled(False)
+                # Relay/다목적: warehouse ↔ 외벽-only(empty) 선택 허용 (2026-08-09, RTF↑)
+                # 충돌회피는 bnt 고정
+                _rm = (self.m_arrROSCollaborationTask[row].type
+                       in (ENUM_ROS_COLLABORATION_TASK_TYPE.RELAY,
+                           ENUM_ROS_COLLABORATION_TASK_TYPE.MOVE))
+                self.ui.lstwWorldSubCategory.setEnabled(_rm)
+                # 태스크별 월드 목록 정리 (2026-08-09 지시):
+                #  - Relay/다목적: warehouse ↔ empty 만 (bnt 숨김)
+                #  - 충돌회피: bnt 만 표시
+                _isAvoid = (self.m_arrROSCollaborationTask[row].type
+                            in (ENUM_ROS_COLLABORATION_TASK_TYPE.AVOIDANCE,
+                                ENUM_ROS_COLLABORATION_TASK_TYPE.SEARCH_MAKE_MAP))
+                for _i2 in range(self.ui.lstwWorldSubCategory.count()):
+                    _it2 = self.ui.lstwWorldSubCategory.item(_i2)
+                    _isBnt = 'bnt' in _it2.text()
+                    _it2.setHidden(_isBnt != _isAvoid)
+                    _it2.setFlags(_it2.flags() | Qt.ItemIsEnabled)
 
                 # 로봇 정보 저장
                 self.m_simulator.robots.clear()

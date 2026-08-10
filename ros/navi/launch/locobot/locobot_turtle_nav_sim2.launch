@@ -1,3 +1,8 @@
+<!-- 이 파일은 Trossen Robotics interbotix_ros_rovers (BSD 3-Clause) 의 launch
+     파일에서 파생되었으며 이 저장소에서 수정되었습니다.
+     원본: https://github.com/Interbotix/interbotix_ros_rovers
+     Copyright (c) 2023, Trossen Robotics. All rights reserved.
+     전문: licenses/interbotix-BSD-3-Clause.txt · 요약: 루트의 NOTICE 참조. -->
 <launch>
 
   <arg name="robot_model"                       default=""/>
@@ -16,9 +21,76 @@
   <arg name="database_path2"                     default="~/.ros/rtabmap2.db"/> <!-- kdo -->
   <arg name="camera_tilt_angle"                 default="0.2618"/>
   <arg name="use_rviz"                          default="true"/>  <!-- kdo -->
+  <arg name="show_rviz2d"                       default="true"/>  <!-- 통합 2D RViz 창 토글 -->
+  <!-- 로봇 스폰 위치 (기본값 = 기존 배치. relay 일렬 배치는 GUI 가 인자로 덮어씀) -->
+  <arg name="loco0_x"                           default="1.5"/>
+  <arg name="loco0_y"                           default="0.0"/>
+  <arg name="loco1_x"                           default="0.0"/>
+  <arg name="loco1_y"                           default="0.0"/>
+  <arg name="tb3_0_x"                           default="0.0"/>
+  <arg name="tb3_0_y"                           default="-1.0"/>
+  <arg name="tb3_1_x"                           default="0.0"/>
+  <arg name="tb3_1_y"                           default="1.0"/>
   <arg name="base_type"                         default="$(optenv INTERBOTIX_XSLOCOBOT_BASE_TYPE create3)"/> <!-- 'kobuki', 'create3' -->
   <arg name="rviz_frame"                        default="map"/>
-  <arg name="world_name"                        default="$(find interbotix_xslocobot_gazebo)/worlds/xslocobot_gazebo.world"/>
+  <arg name="map_file"                          default="/root/map_no_roof_warehouse/map.yaml"/>
+  <arg name="spawn_second_tb3"                  default="true"/> <!-- 충돌회피(3로봇)는 false -->
+  <arg name="spawn_tb3s"                        default="true"/> <!-- 지도제작은 false (burger 대신 waffle) -->
+  <arg name="spawn_waffle"                      default="false"/> <!-- 지도제작: waffle 1대 (SLAM) -->
+  <!-- 지도제작 탐사 nav: locobot 전역 플래너를 GlobalPlanner(allow_unknown)로 —
+       기본 NavfnROS+allow_unknown:false 는 미지 영역 프런티어 goal 에 경로 생성
+       자체가 실패한다 (MultiRRT 검증 조합, 2026-08-09 실측) -->
+  <arg name="explore_nav"                       default="false"/>
+  <!-- 물건찾기 nav: 전역 플래너를 지도제작과 동일한 GlobalPlanner 로
+       (사용자 지시 2026-08-10). use_known_map 을 쓰는 다른 태스크(충돌회피 등)
+       는 기존 NavfnROS 유지 — 별도 게이트로 분리 -->
+  <arg name="search_nav"                        default="false"/>
+  <!-- 물건찾기: desk 상판(0.8m)을 '센서로' 인지 — 깊이층 관측 높이 상향
+       (지도에 그려 넣는 편법 금지 지시, 2026-08-10). 카메라 위 틸트와 조합 -->
+  <arg name="perceive_high"                     default="false"/>
+  <group if="$(arg perceive_high)">
+    <param name="/locobot_0/move_base/global_costmap/depth_layer/max_obstacle_height" value="1.0"/>
+    <param name="/locobot_0/move_base/local_costmap/depth_layer/max_obstacle_height" value="1.0"/>
+    <param name="/locobot_1/move_base/global_costmap/depth_layer/max_obstacle_height" value="1.0"/>
+    <param name="/locobot_1/move_base/local_costmap/depth_layer/max_obstacle_height" value="1.0"/>
+    <param name="/locobot_0/move_base/global_costmap/depth_layer/depth/max_obstacle_height" value="1.0"/>
+    <param name="/locobot_0/move_base/local_costmap/depth_layer/depth/max_obstacle_height" value="1.0"/>
+    <param name="/locobot_1/move_base/global_costmap/depth_layer/depth/max_obstacle_height" value="1.0"/>
+    <param name="/locobot_1/move_base/local_costmap/depth_layer/depth/max_obstacle_height" value="1.0"/>
+  </group>
+  <!-- 스폰 좌표 기록 — 스폰 실패 시 loco_ready_init 이 재시도 (2026-08-09) -->
+  <param name="/locobot_0/spawn_x" value="$(arg loco0_x)"/>
+  <param name="/locobot_0/spawn_y" value="$(arg loco0_y)"/>
+  <param name="/locobot_1/spawn_x" value="$(arg loco1_x)"/>
+  <param name="/locobot_1/spawn_y" value="$(arg loco1_y)"/>
+  <!-- waffle 스폰 좌표 (아래로 이동 지시 2026-08-09; static anchor 가 세계 정렬) -->
+  <arg name="waffle_x" default="0.0"/>
+  <arg name="waffle_y" default="-1.30"/>
+  <arg name="waffle_slam" default="slam_toolbox"/> <!-- slam_toolbox|gmapping|rtabmap -->
+
+  <param name="/tb3_waffle_0/spawn_x" value="$(arg waffle_x)"/>
+  <param name="/tb3_waffle_0/spawn_y" value="$(arg waffle_y)"/>
+  <!-- map_merge init pose: waffle odom(=gmapping 지도 원점)은 odometrySource=world
+       라 '가제보 월드 원점' — 스폰 좌표와 무관하게 항상 0 (2026-08-09 실측) -->
+  <param name="/tb3_waffle_0/map_merge/init_pose_x" value="0.0"/>
+  <param name="/tb3_waffle_0/map_merge/init_pose_y" value="0.0"/>
+  <param name="/tb3_waffle_0/map_merge/init_pose_z" value="0.0"/>
+  <param name="/tb3_waffle_0/map_merge/init_pose_yaw" value="0.0"/>
+  <include if="$(arg spawn_waffle)"
+           file="/root/tesla/ros/navi/launch/locobot/mas_waffle_slam.launch">
+    <arg name="robot_name" value="tb3_waffle_0"/>
+    <arg name="x_pos" value="$(arg waffle_x)"/>
+    <arg name="y_pos" value="$(arg waffle_y)"/>
+    <arg name="slam_method" value="$(arg waffle_slam)"/>
+    <arg name="search_nav" value="$(arg search_nav)"/>
+  </include>
+  <!-- 알려진 지도 사용: locobot 전역 코스트맵을 rtabmap SLAM 그리드 대신 map_file 정적
+       지도(/map, 전역 map_server)로 — 미탐사 구역 goal 이 'off the global costmap' 으로
+       즉사하던 문제 해결 (충돌회피 태스크, 2026-08-08 실측) -->
+  <arg name="use_known_map"                     default="false"/>
+  <node if="$(arg use_known_map)" name="known_map_server" pkg="map_server"
+        type="map_server" args="$(arg map_file)"/> <!-- tb3 amcl/map_server 지도 (태스크별 교체 가능) -->
+  <arg name="world_name"                        default="$(find aws_robomaker_small_warehouse_world)/worlds/no_roof_small_warehouse.world"/> <!-- 기본 warehouse (기존 동작); 충돌회피는 bnt 로 교체 -->
   <arg name="gui"                               default="true"/>
   <arg name="debug"                             default="false"/>
   <arg name="paused"                            default="true"/>
@@ -67,7 +139,9 @@
                                                                       --Reg/Force3DoF true
                                                                       --Reg/Strategy 0
                                                                       --Mem/STMSize 30"/>
-  <include file="$(find interbotix_xslocobot_gazebo)/launch/xslocobot_gazebo2-1.launch">
+  <!-- interbotix_ws 원본 대신 저장소 로컬 사본 사용 — 스폰 위치 파라미터화 반영,
+       외부 워크스페이스 무수정 (2026-08-08) -->
+  <include file="/root/tesla/ros/navi/launch/locobot/xslocobot_gazebo2-1.launch">
     <arg name="robot_model"                       default="$(arg robot_model)"/>
     <arg name="robot_name"                        default="$(arg robot_name)"/>
     <arg name="arm_model"                         default="$(arg arm_model)"/>
@@ -86,12 +160,28 @@
     <arg name="use_position_controllers"          default="$(arg use_position_controllers)"/>
     <arg name="use_trajectory_controllers"        default="$(arg use_trajectory_controllers)"/>
     <arg name="dof"                               default="$(arg dof)"/>
+    <arg name="robot1_x"                          default="$(arg loco0_x)"/>
+    <arg name="robot1_y"                          default="$(arg loco0_y)"/>
+    <arg name="robot2_x"                          default="$(arg loco1_x)"/>
+    <arg name="robot2_y"                          default="$(arg loco1_y)"/>
   </include>
 <!--
    <include file="$(find interbotix_xslocobot_gazebo)/launch/xslocobot_gazebo_demo1.launch">
   </include>
 -->
-  <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation_with_gazebo_ns4_no_world.launch">
+  <include if="$(arg spawn_tb3s)" file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation_with_gazebo_ns4_no_world.launch">
+    <!-- use_rviz:=false 면 tb3 rviz(rviz_turtle)도 함께 끈다 (기본 true = 기존 동작) -->
+    <arg name="open_rviz" value="$(arg use_rviz)"/>
+    <!-- ★ tb3 amcl 지도: 기본값(turtlebot3 집 지도)은 warehouse 와 불일치해 위치추정이
+         죽고 goal 이 영원히 안 끝난다(2026-08-08 실측). 원저자 주석에 남아있던
+         warehouse 지도(/mnt 백업에서 복원)로 교체 -->
+    <arg name="map_file" value="$(arg map_file)"/>
+    <arg name="spawn_second_tb3" value="$(arg spawn_second_tb3)"/>
+    <!-- tb3 스폰+amcl 초기위치 (one_robot.launch 가 x_pos/y_pos 를 둘 다에 사용) -->
+    <arg name="first_tb3_x_pos"  value="$(arg tb3_0_x)"/>
+    <arg name="first_tb3_y_pos"  value="$(arg tb3_0_y)"/>
+    <arg name="second_tb3_x_pos" value="$(arg tb3_1_x)"/>
+    <arg name="second_tb3_y_pos" value="$(arg tb3_1_y)"/>
   </include>
 
   <group ns="$(arg robot_name1)/rtabmap">
@@ -205,9 +295,16 @@
     <param name="global_costmap/robot_base_frame" value="$(arg robot_name1)/base_footprint"/>
     <param name="local_costmap/global_frame"      value="$(arg robot_name1)/odom"/>
     <param name="local_costmap/robot_base_frame"  value="$(arg robot_name1)/base_footprint"/>
+    <param if="$(eval explore_nav or search_nav)" name="base_global_planner" value="global_planner/GlobalPlanner"/>
+    <param if="$(eval explore_nav or search_nav)" name="GlobalPlanner/allow_unknown" value="true"/>
+    <param if="$(eval explore_nav or search_nav)" name="GlobalPlanner/default_tolerance" value="0.3"/>
 
     <remap from="cmd_vel"                         to="$(arg move_base_cmd_vel_topic)"/>
-    <remap from="map"                             to="rtabmap/grid_map"/>
+    <!-- explore_nav: 전역 costmap 을 병합 지도(/map)로 — 자기 rtabmap 그리드
+         범위 밖 프런티어 goal 이 off-map 되는 것 방지 (2026-08-09) -->
+    <remap if="$(arg use_known_map)" from="map" to="/map"/>
+    <remap if="$(eval explore_nav and not use_known_map)" from="map" to="/map_nav/$(arg robot_name1)"/>
+    <remap unless="$(eval use_known_map or explore_nav)" from="map" to="rtabmap/grid_map"/>
     <remap from="odom"                            to="$(arg odom_topic)"/>
   </node>
 
@@ -322,9 +419,16 @@
     <param name="global_costmap/robot_base_frame" value="$(arg robot_name2)/base_footprint"/>
     <param name="local_costmap/global_frame"      value="$(arg robot_name2)/odom"/>
     <param name="local_costmap/robot_base_frame"  value="$(arg robot_name2)/base_footprint"/>
+    <param if="$(eval explore_nav or search_nav)" name="base_global_planner" value="global_planner/GlobalPlanner"/>
+    <param if="$(eval explore_nav or search_nav)" name="GlobalPlanner/allow_unknown" value="true"/>
+    <param if="$(eval explore_nav or search_nav)" name="GlobalPlanner/default_tolerance" value="0.3"/>
 
     <remap from="cmd_vel"                         to="$(arg move_base_cmd_vel_topic)"/>
-    <remap from="map"                             to="rtabmap/grid_map"/>
+    <!-- explore_nav: 전역 costmap 을 병합 지도(/map)로 — 자기 rtabmap 그리드
+         범위 밖 프런티어 goal 이 off-map 되는 것 방지 (2026-08-09) -->
+    <remap if="$(arg use_known_map)" from="map" to="/map"/>
+    <remap if="$(eval explore_nav and not use_known_map)" from="map" to="/map_nav/$(arg robot_name2)"/>
+    <remap unless="$(eval use_known_map or explore_nav)" from="map" to="rtabmap/grid_map"/>
     <remap from="odom"                            to="$(arg odom_topic)"/>
   </node>
 
@@ -333,7 +437,8 @@
 <!--
   <node unless="$(arg use_rviz)"
   -->
-  <node 
+  <!-- 통합 2D RViz — show_rviz2d:=false 로 끌 수 있음 (기본 true = 기존 동작) -->
+  <node if="$(arg show_rviz2d)"
     name="rviz"
     pkg="rviz"
     type="rviz"
@@ -343,5 +448,220 @@
     -->
   </node>
 
+
+  <!-- ═══ 위치공유 충돌회피 (mutual_obstacles) — 협업 태스크 전용 게이트 ═══
+       locobot 라이다 평면(0.657m)이 tb3 burger(전고 0.192m)를 못 봐 밀어붙이는
+       문제(2026-08-08 실측). mutual_obstacles.py 가 로봇별 /X/mutual_obstacles
+       점군을 발행하고, 여기서 각 move_base local costmap 라이다 레이어에
+       peers 소스로 주입한다. 문서 뒤쪽 정의가 yaml 값을 이긴다(roslaunch 규칙).
+       ★ marking true / clearing false, obstacle_range 100 (map 프레임 점군은
+       센서 원점이 map 원점으로 잡히는 함정), expected_update_rate 0 (노드 늦게
+       떠도 플래닝 거부 안 함). baseline: 게이트 off — 완전 불변. -->
+  <arg name="mutual_obstacles" default="false"/>
+  <group if="$(arg mutual_obstacles)">
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/observation_sources" value="rplidar peers"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/data_type" value="PointCloud2"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/topic" value="/locobot_0/mutual_obstacles"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/marking" value="true"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/clearing" value="false"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/obstacle_range" value="100.0"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/raytrace_range" value="100.0"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/min_obstacle_height" value="0.0"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/max_obstacle_height" value="0.5"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/expected_update_rate" value="0.0"/>
+    <param name="/locobot_0/move_base/local_costmap/laser_layer/peers/observation_persistence" value="0.0"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/observation_sources" value="rplidar peers"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/data_type" value="PointCloud2"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/topic" value="/locobot_1/mutual_obstacles"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/marking" value="true"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/clearing" value="false"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/obstacle_range" value="100.0"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/raytrace_range" value="100.0"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/min_obstacle_height" value="0.0"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/max_obstacle_height" value="0.5"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/expected_update_rate" value="0.0"/>
+    <param name="/locobot_1/move_base/local_costmap/laser_layer/peers/observation_persistence" value="0.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/observation_sources" value="scan peers"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/data_type" value="PointCloud2"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/topic" value="/tb3_burger_0/mutual_obstacles"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/marking" value="true"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/clearing" value="false"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/obstacle_range" value="100.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/raytrace_range" value="100.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/min_obstacle_height" value="0.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/max_obstacle_height" value="0.5"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/expected_update_rate" value="0.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/peers/observation_persistence" value="0.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/observation_sources" value="scan peers"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/data_type" value="PointCloud2"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/topic" value="/tb3_burger_0/mutual_obstacles"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/marking" value="true"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/clearing" value="false"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/obstacle_range" value="100.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/raytrace_range" value="100.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/min_obstacle_height" value="0.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/max_obstacle_height" value="0.5"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/expected_update_rate" value="0.0"/>
+    <param name="/tb3_burger_0/move_base/local_costmap/obstacle_layer/peers/observation_persistence" value="0.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/observation_sources" value="scan peers"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/data_type" value="PointCloud2"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/topic" value="/tb3_burger_1/mutual_obstacles"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/marking" value="true"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/clearing" value="false"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/obstacle_range" value="100.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/raytrace_range" value="100.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/min_obstacle_height" value="0.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/max_obstacle_height" value="0.5"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/expected_update_rate" value="0.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/peers/observation_persistence" value="0.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/observation_sources" value="scan peers"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/data_type" value="PointCloud2"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/topic" value="/tb3_burger_1/mutual_obstacles"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/marking" value="true"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/clearing" value="false"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/obstacle_range" value="100.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/raytrace_range" value="100.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/min_obstacle_height" value="0.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/max_obstacle_height" value="0.5"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/expected_update_rate" value="0.0"/>
+    <param name="/tb3_burger_1/move_base/local_costmap/obstacle_layer/peers/observation_persistence" value="0.0"/>
+    <!-- tb3_waffle_0 (지도제작/물건찾기 편성): burger 와 동일 배선 —
+         평면형/레이어형 두 경우 모두 대비 (2026-08-11 추가: 그동안 waffle 만
+         위치공유가 코스트맵에 안 붙어 있었다) -->
+    <param name="/tb3_waffle_0/move_base/local_costmap/observation_sources" value="scan peers"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/data_type" value="PointCloud2"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/topic" value="/tb3_waffle_0/mutual_obstacles"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/marking" value="true"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/clearing" value="false"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/obstacle_range" value="100.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/raytrace_range" value="100.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/min_obstacle_height" value="0.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/max_obstacle_height" value="0.5"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/expected_update_rate" value="0.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/peers/observation_persistence" value="0.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/observation_sources" value="scan peers"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/data_type" value="PointCloud2"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/topic" value="/tb3_waffle_0/mutual_obstacles"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/marking" value="true"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/clearing" value="false"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/obstacle_range" value="100.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/raytrace_range" value="100.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/min_obstacle_height" value="0.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/max_obstacle_height" value="0.5"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/expected_update_rate" value="0.0"/>
+    <param name="/tb3_waffle_0/move_base/local_costmap/obstacle_layer/peers/observation_persistence" value="0.0"/>
+    <!-- locobot_0: 리커버리 = 코스트맵 청소만 (360° 회전 제거 — 뱅뱅이 장면 해소) -->
+    <rosparam param="/locobot_0/move_base/recovery_behaviors">
+      [{name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+       {name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery}]
+    </rosparam>
+    <param name="/locobot_0/move_base/conservative_reset/reset_distance" value="2.0"/>
+    <rosparam param="/locobot_0/move_base/conservative_reset/layer_names">[laser_layer, depth_layer]</rosparam>
+    <param name="/locobot_0/move_base/aggressive_reset/reset_distance" value="0.5"/>
+    <rosparam param="/locobot_0/move_base/aggressive_reset/layer_names">[laser_layer, depth_layer]</rosparam>
+    <!-- locobot_1: 리커버리 = 코스트맵 청소만 (360° 회전 제거 — 뱅뱅이 장면 해소) -->
+    <rosparam param="/locobot_1/move_base/recovery_behaviors">
+      [{name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+       {name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery}]
+    </rosparam>
+    <param name="/locobot_1/move_base/conservative_reset/reset_distance" value="2.0"/>
+    <rosparam param="/locobot_1/move_base/conservative_reset/layer_names">[laser_layer, depth_layer]</rosparam>
+    <param name="/locobot_1/move_base/aggressive_reset/reset_distance" value="0.5"/>
+    <rosparam param="/locobot_1/move_base/aggressive_reset/layer_names">[laser_layer, depth_layer]</rosparam>
+    <!-- tb3_burger_0: 리커버리 = 코스트맵 청소만 (360° 회전 제거 — 뱅뱅이 장면 해소) -->
+    <rosparam param="/tb3_burger_0/move_base/recovery_behaviors">
+      [{name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+       {name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery}]
+    </rosparam>
+    <param name="/tb3_burger_0/move_base/conservative_reset/reset_distance" value="2.0"/>
+    <rosparam param="/tb3_burger_0/move_base/conservative_reset/layer_names">[obstacle_layer]</rosparam>
+    <param name="/tb3_burger_0/move_base/aggressive_reset/reset_distance" value="0.5"/>
+    <rosparam param="/tb3_burger_0/move_base/aggressive_reset/layer_names">[obstacle_layer]</rosparam>
+    <!-- tb3_burger_1: 리커버리 = 코스트맵 청소만 (360° 회전 제거 — 뱅뱅이 장면 해소) -->
+    <rosparam param="/tb3_burger_1/move_base/recovery_behaviors">
+      [{name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+       {name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery}]
+    </rosparam>
+    <param name="/tb3_burger_1/move_base/conservative_reset/reset_distance" value="2.0"/>
+    <rosparam param="/tb3_burger_1/move_base/conservative_reset/layer_names">[obstacle_layer]</rosparam>
+    <param name="/tb3_burger_1/move_base/aggressive_reset/reset_distance" value="0.5"/>
+    <rosparam param="/tb3_burger_1/move_base/aggressive_reset/layer_names">[obstacle_layer]</rosparam>
+  </group>
+
+  <!-- 충돌회피(use_known_map) 경유점 관용: 진입/이탈점은 정밀 도착 불필요 —
+       선두가 도착 판정(허용오차 경계+yaw 정렬)에 갇혀 전체가 대기하던 결함 수정
+       (2026-08-09 실측: locobot_0 0.09m/76° 에서 무한 미세조정). init-시점 파라미터라
+       launch 로만 적용 가능 (dynparam 미지원 실측). -->
+  <!-- 탐사(explore_nav)에도 동일 적용 (2026-08-09: TrajectoryPlanner 정렬회전 뱅뱅이) -->
+  <group if="$(eval use_known_map or explore_nav)">
+    <param name="/locobot_0/move_base/TrajectoryPlannerROS/xy_goal_tolerance" value="0.35"/>
+    <param name="/locobot_0/move_base/TrajectoryPlannerROS/yaw_goal_tolerance" value="6.28"/>
+    <param name="/locobot_0/move_base/TrajectoryPlannerROS/latch_xy_goal_tolerance" value="true"/>
+    <param name="/locobot_1/move_base/TrajectoryPlannerROS/xy_goal_tolerance" value="0.35"/>
+    <param name="/locobot_1/move_base/TrajectoryPlannerROS/yaw_goal_tolerance" value="6.28"/>
+    <param name="/locobot_1/move_base/TrajectoryPlannerROS/latch_xy_goal_tolerance" value="true"/>
+    <param name="/tb3_burger_0/move_base/DWAPlannerROS/xy_goal_tolerance" value="0.20"/>
+    <!-- locobot 지역 플래너 교체: TrajectoryPlannerROS → DWA (2026-08-09 실측:
+         전역 경로 이탈·목표 근방 맴돌이 — 구식 플래너의 경로 추종 한계.
+         tb3(DWA)만 안정 완주해 온 것이 방증. 충돌회피 게이트 한정. -->
+    <param name="/locobot_0/move_base/base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/max_vel_x" value="0.5"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/min_vel_x" value="0.0"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/max_vel_trans" value="0.5"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/min_vel_trans" value="0.08"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/max_vel_theta" value="1.5"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/min_vel_theta" value="0.4"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/acc_lim_x" value="1.0"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/acc_lim_theta" value="2.5"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/xy_goal_tolerance" value="0.35"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/yaw_goal_tolerance" value="6.28"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/latch_xy_goal_tolerance" value="true"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/sim_time" value="1.7"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/vx_samples" value="10"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/vth_samples" value="20"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/path_distance_bias" value="40.0"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/goal_distance_bias" value="20.0"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/occdist_scale" value="0.02"/>
+    <param name="/locobot_0/move_base/DWAPlannerROS/forward_point_distance" value="0.325"/>
+    <param name="/locobot_1/move_base/base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/max_vel_x" value="0.5"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/min_vel_x" value="0.0"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/max_vel_trans" value="0.5"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/min_vel_trans" value="0.08"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/max_vel_theta" value="1.5"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/min_vel_theta" value="0.4"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/acc_lim_x" value="1.0"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/acc_lim_theta" value="2.5"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/xy_goal_tolerance" value="0.35"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/yaw_goal_tolerance" value="6.28"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/latch_xy_goal_tolerance" value="true"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/sim_time" value="1.7"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/vx_samples" value="10"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/vth_samples" value="20"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/path_distance_bias" value="40.0"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/goal_distance_bias" value="20.0"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/occdist_scale" value="0.02"/>
+    <param name="/locobot_1/move_base/DWAPlannerROS/forward_point_distance" value="0.325"/>
+    <!-- 전역 경로 벽 이격(2026-08-09 지시: '벽에서 멀리 돌도록'): 전역 costmap
+         인플레이션을 넓고 완만하게(0.55m, 기울기 1.0) — navfn 이 통로 중앙을
+         선호하게 됨. 지역(0.3)은 유지해 좁은 곳 기동성 보존. -->
+    <param name="/locobot_0/move_base/global_costmap/inflation_layer/inflation_radius" value="0.55"/>
+    <param name="/locobot_0/move_base/global_costmap/inflation_layer/cost_scaling_factor" value="1.0"/>
+    <param name="/locobot_1/move_base/global_costmap/inflation_layer/inflation_radius" value="0.55"/>
+    <param name="/locobot_1/move_base/global_costmap/inflation_layer/cost_scaling_factor" value="1.0"/>
+    <param name="/tb3_burger_0/move_base/DWAPlannerROS/yaw_goal_tolerance" value="6.28"/>
+    <param name="/tb3_burger_0/move_base/DWAPlannerROS/latch_xy_goal_tolerance" value="true"/>
+  </group>
+
+  <!-- Nav 설정 다이얼로그 오버라이드 — Start 시마다 main.py 가 재생성. 맨 끝 = 최우선 -->
+  <!-- 물건찾기: 광폭 inflation(0.55/1.0, 회피 미학)이 bnt 좁은 통로를 costmap
+       폐쇄 → 통과 불능. 날카로운 값으로 재정의 (게이트 블록보다 뒤 = 우선) -->
+  <group if="$(arg perceive_high)">
+    <param name="/locobot_0/move_base/global_costmap/inflation_layer/inflation_radius" value="0.35"/>
+    <param name="/locobot_0/move_base/global_costmap/inflation_layer/cost_scaling_factor" value="3.0"/>
+    <param name="/locobot_1/move_base/global_costmap/inflation_layer/inflation_radius" value="0.35"/>
+    <param name="/locobot_1/move_base/global_costmap/inflation_layer/cost_scaling_factor" value="3.0"/>
+  </group>
+  <include file="/root/tesla/ros/navi/launch/locobot/nav_overrides.launch"/>
 
 </launch>

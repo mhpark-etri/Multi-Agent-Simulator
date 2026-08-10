@@ -146,6 +146,36 @@
             </spacer>
            </item>
            <item>
+            <widget class="QLabel" name="lbExecMode">
+             <property name="text">
+              <string>실행 방식 (Execution) :</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="cmbExecMode">
+             <property name="minimumSize">
+              <size>
+               <width>150</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>JnP 0.8.1: 에이전트 coalition이 task tree로 실행 (미기동 시 자동 시작) / 기존 launch: 직접 move_base 순차 실행</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>JnP 0.8.1</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>기존 launch (Legacy)</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
             <widget class="QPushButton" name="btnROSCollaborationTaskStart">
              <property name="text">
               <string>Start</string>

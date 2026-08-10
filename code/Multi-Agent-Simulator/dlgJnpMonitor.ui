@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DlgJnpMonitor</class>
+ <widget class="QDialog" name="DlgJnpMonitor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>660</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>JnP Monitor</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="hlCoalitionBar">
+     <item>
+      <widget class="QLabel" name="lbJnpCoalition">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QLabel { background-color: #2b2b2b; color: #e8e8e8; border-radius: 4px; padding: 8px; font-size: 13px; }</string>
+       </property>
+       <property name="text">
+        <string>Coalition: (없음) — JnP 에이전트를 시작하고 협업 태스크를 발행하면 여기에 표시됩니다</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lbSimStats">
+       <property name="styleSheet">
+        <string notr="true">QLabel { color: #000000; font-size: 13px; font-weight: bold; padding: 4px; }</string>
+       </property>
+       <property name="text">
+        <string>RTF -- | Sim -- | Real --</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnDissolveGroup">
+       <property name="minimumSize">
+        <size>
+         <width>110</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>완료 후 유지 중인 그룹을 해제합니다 (멤버들의 소속을 풀고 그룹 노드 종료)</string>
+       </property>
+       <property name="text">
+        <string>Group 해제</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayoutAgents">
+       <item>
+        <widget class="QLabel" name="lbAgentsTitle">
+         <property name="text">
+          <string>Agents (Discovery)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListWidget" name="lstJnpAgents">
+         <property name="maximumSize">
+          <size>
+           <width>240</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayoutTree">
+       <item>
+        <widget class="QLabel" name="lbTreeTitle">
+         <property name="text">
+          <string>Task Tree (Scheduling)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGraphicsView" name="gvJnpTree">
+         <property name="renderHints">
+          <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QPlainTextEdit" name="pteJnpLog">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>150</height>
+      </size>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>JnP 이벤트 로그 (discovery / task / coalition / 해체)</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

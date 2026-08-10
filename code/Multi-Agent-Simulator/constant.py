@@ -320,6 +320,9 @@ CMD_ROS_JNP_JNP_AGENT = "jnp_agent.py"
 CMD_ROS_JNP_JNP_AGENT_NS = "__ns:="
 CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT = "etri"
 CMD_ROS_JNP_JNP_AGENT_NAME = "__name:="
+PATH_SOURCE_JNP081_SETUP = "source /root/catkin_ws_jnp081/devel/setup.sh"                                   # JnP 0.8.1 워크스페이스 (협업태스크 다이얼로그도 사용)
+CMD_ROS_JNP081_AGENT_XML_ARG = "none.xml"                                                                   # JnP 0.8.1: 필수 4번째 인수(설명 XML 파일). 없는 파일명이면 ~jnp_goal/~jnp_capability 파라미터 폴백
+CMD_ROS_JNP081_TASK_TOPIC = "/jnp_agent_join_event"                                                         # JnP 0.8.1: task(goal) 공지 발행 토픽 — 'task:<goal>:<payload>' 가 coalition 형성 트리거
 
 ## Locobot
 CMD_ROS_LOCOBOT_SAMPLE_LOAD_PYROBOT_ENV = "load_pyrobot_env"

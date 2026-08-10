@@ -91,7 +91,7 @@ class DialogWorldOptionFire(
 
     # 경고창 출력
     def ShowWarningMsg(self, msg):
-        msg_box = QMessageBox()
+        msg_box = QMessageBox(self)
         msg_box.setIcon(QMessageBox.Warning)
         msg_box.setWindowTitle("Warning")
         msg_box.setText(msg)

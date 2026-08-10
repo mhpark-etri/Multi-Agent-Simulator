@@ -1,3 +1,7 @@
+<!-- 이 파일은 ROBOTIS TurtleBot3 (Apache License 2.0) 의 launch 파일에서
+     파생되었으며 이 저장소에서 수정되었습니다.
+     원본: https://github.com/ROBOTIS-GIT/turtlebot3
+     Copyright (c) ROBOTIS CO., LTD.  자세한 내용은 저장소 루트의 NOTICE 참조. -->
 <launch>
   <!-- Arguments -->
   <arg name="robot_name"     default=""/>
@@ -48,7 +52,6 @@
     <param name="base_frame_id"             value="/$(arg robot_name)/base_footprint"/>
 <!--
 https://github.com/ROBOTIS-GIT/turtlebot3/blob/master/turtlebot3_navigation/launch/amcl.launch
-https://github.com/bbingham-nps/turtlebot3_nps/blob/master/launch/navigation_two.launch
     <param name="odom_frame_id"             value="odom"/>
     <param name="base_frame_id"             value="base_footprint"/>
 -->

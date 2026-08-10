@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="yolo_bottle">
+    <static>true</static>
+    <link name="link">
+      <visual name="body">
+        <pose>0 0 0.11 0 0 0</pose>
+        <geometry><cylinder><radius>0.045</radius><length>0.22</length></cylinder></geometry>
+        <material>
+          <ambient>0.05 0.25 0.75 1</ambient>
+          <diffuse>0.08 0.35 0.85 1</diffuse>
+          <specular>0.5 0.5 0.6 1</specular>
+        </material>
+      </visual>
+      <visual name="shoulder">
+        <pose>0 0 0.245 0 0 0</pose>
+        <geometry><cylinder><radius>0.028</radius><length>0.05</length></cylinder></geometry>
+        <material>
+          <ambient>0.05 0.25 0.75 1</ambient>
+          <diffuse>0.08 0.35 0.85 1</diffuse>
+        </material>
+      </visual>
+      <visual name="cap">
+        <pose>0 0 0.285 0 0 0</pose>
+        <geometry><cylinder><radius>0.024</radius><length>0.035</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.9 0.95 1</ambient>
+          <diffuse>0.95 0.95 1.0 1</diffuse>
+        </material>
+      </visual>
+      <visual name="label">
+        <pose>0 0 0.12 0 0 0</pose>
+        <geometry><cylinder><radius>0.046</radius><length>0.09</length></cylinder></geometry>
+        <material>
+          <ambient>0.9 0.9 0.9 1</ambient>
+          <diffuse>0.95 0.95 0.95 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

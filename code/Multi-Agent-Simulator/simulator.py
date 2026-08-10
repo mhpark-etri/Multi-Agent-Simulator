@@ -93,6 +93,8 @@ class ENUM_WORLD_CATEGORY_SUB(Enum):
     # RANDOM_WORLD = "random_world"
     DISTRIBUTION_CENTER = "distribution_center"
     COLLABORATION = "collaboration"
+    COLLABORATION_BNT = "collaboration_bnt"     # 충돌회피(bnt_partition) 전용 표시
+    COLLABORATION_EMPTY = "collaboration_empty" # Relay/다목적용 외벽-only 월드 (RTF↑)
     NONE = "None"
 
 ## ENUM : World Type ##
@@ -125,12 +127,13 @@ class ENUM_ROS_NAVIGATION_SLAM_METHOD(Enum):
 
 ## ENUM : ROS Collaboration Task ##
 class ENUM_ROS_COLLABORATION_TASK_TYPE(Enum):
+    # 표시 규칙: 영문 기본 + 괄호 한글 (2026-08-08 지시) — 값은 카드 라벨로 그대로 표시됨
     NONE = "None"
-    RELAY = "Relay"
-    MOVE = "다목적 이동"
-    AVOIDANCE = "충돌회피"
-    SEARCH_FIND = "분산 탐색(물건 찾기)"
-    SEARCH_MAKE_MAP = "분산 탐색(지도 제작)"
+    RELAY = "Relay (릴레이)"
+    MOVE = "Mult-Goal Move (다목적 이동)"
+    AVOIDANCE = "Collision Avoidance (충돌회피)"
+    SEARCH_FIND = "Distributed Search: Find Object (분산 탐색-물건 찾기)"
+    SEARCH_MAKE_MAP = "Distributed Search: Mapping (분산 탐색-지도 제작)"
 
 ## Class : Thumbnail list
 class Thumb:

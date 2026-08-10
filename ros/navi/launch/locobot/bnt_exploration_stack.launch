@@ -1,0 +1,106 @@
+<launch>
+  <!-- 분산 탐색(지도 제작): bnt 월드 · locobot 2대 · RRT frontier 탐사 + map_merge
+       (MultiRRT 검증 배선의 2로봇판, 2026-08-09) — JnP coalition(그룹 노드)이 기동 -->
+  <arg name="first_robot"  default="locobot_0"/>
+  <arg name="second_robot" default="locobot_1"/>
+  <arg name="third_robot"  default="tb3_waffle_0"/>
+  <arg name="robot_namelist" value="$(arg first_robot),$(arg second_robot),$(arg third_robot)"/>
+  <arg name="global_map" value="/map"/>
+  <arg name="global_costmap_topic" value="move_base/global_costmap/costmap"/>
+
+  <!-- 병합: locobot rtabmap grid (원점에 월드 배치 내장 → init pose 0) → /map -->
+  <!-- locobot rtabmap grid → <ns>/map 릴레이 (waffle gmapping 과 토픽명 통일) -->
+  <node pkg="topic_tools" type="relay" name="relay_map_l0"
+        args="/locobot_0/rtabmap/grid_map /locobot_0/map"/>
+  <node pkg="topic_tools" type="relay" name="relay_map_l1"
+        args="/locobot_1/rtabmap/grid_map /locobot_1/map"/>
+  <node pkg="multirobot_map_merge" type="map_merge" respawn="true" respawn_delay="3"
+        name="map_merge" output="screen">
+    <param name="robot_map_topic" value="map"/>
+    <param name="robot_namespace" value=""/>
+    <param name="merged_map_topic" value="/map"/>
+    <param name="world_frame" value="map"/>
+    <param name="known_init_poses" value="true"/>
+    <param name="merging_rate" value="4.0"/>
+    <param name="discovery_rate" value="1.0"/>
+  </node>
+  <group ns="/locobot_0/map_merge">
+    <param name="init_pose_x" value="0.0"/><param name="init_pose_y" value="0.0"/>
+    <param name="init_pose_z" value="0.0"/><param name="init_pose_yaw" value="0.0"/>
+  </group>
+  <group ns="/locobot_1/map_merge">
+    <param name="init_pose_x" value="0.0"/><param name="init_pose_y" value="0.0"/>
+    <param name="init_pose_z" value="0.0"/><param name="init_pose_yaw" value="0.0"/>
+  </group>
+  <!-- waffle init pose 는 locobot_turtle_nav_sim2.launch 가 스폰 좌표에서 설정
+       (지도 원점=스폰점 — 단일 출처, 2026-08-09) — 여기서 중복 설정 금지 -->
+
+  <!-- 탐사 경계: bnt 내부 (파라미터 방식 — 클릭 불필요) -->
+  <node pkg="rrt_exploration" type="boundary.py" name="exploration_boundary" output="screen">
+    <param name="map_frame" value="map"/>
+    <param name="use_param_boundary" value="true"/>
+    <param name="xmin" value="-4.5"/>
+    <param name="xmax" value="5.0"/>
+    <param name="ymin" value="-4.5"/>
+    <param name="ymax" value="3.2"/>
+    <param name="topicOutput" value="/exploration_boundary"/>
+    <param name="frequency" value="0.5"/>
+  </node>
+
+  <node pkg="rrt_exploration" type="global_rrt_detector" name="global_rrt_detector" output="screen">
+    <param name="eta" value="1.0"/>
+    <param name="map_topic" value="$(arg global_map)"/>
+  </node>
+  <node pkg="rrt_exploration" type="local_rrt_detector" name="$(arg first_robot)_rrt_detector" output="screen">
+    <param name="eta" value="1.0"/>
+    <!-- 자기 rtabmap 지도 대신 병합 /map: 동료(waffle)가 이미 훑은 곳을
+         모르고 재검출 → 제거된 프런티어가 계속 부활하던 문제 (2026-08-09) -->
+    <param name="map_topic" value="$(arg global_map)"/>
+    <param name="robot_frame" value="/$(arg first_robot)/base_footprint"/>
+  </node>
+  <node pkg="rrt_exploration" type="local_rrt_detector" name="$(arg second_robot)_rrt_detector" output="screen">
+    <param name="eta" value="1.0"/>
+    <param name="map_topic" value="$(arg global_map)"/>
+    <param name="robot_frame" value="/$(arg second_robot)/base_footprint"/>
+  </node>
+  <node pkg="rrt_exploration" type="local_rrt_detector" name="$(arg third_robot)_rrt_detector" output="screen">
+    <param name="eta" value="1.0"/>
+    <!-- waffle 자체 지도(map_slam 좌표, 스폰 오프셋)가 아니라 세계 정렬 병합 지도 사용 -->
+    <param name="map_topic" value="$(arg global_map)"/>
+    <param name="robot_frame" value="/$(arg third_robot)/base_footprint"/>
+  </node>
+
+  <node pkg="rrt_exploration" type="filter.py" name="filter" output="screen"
+        respawn="true" respawn_delay="3">
+    <!-- user-site numpy 1.24 가 sklearn import 를 죽임(typeDict) — 차단 필수
+         (usersite-numpy-breaks-filter, 2026-08-09 재발 실측) -->
+    <env name="PYTHONNOUSERSITE" value="1"/>
+    <param name="map_topic" value="$(arg global_map)"/>
+    <param name="map_frame" value="map"/>
+    <param name="info_radius" value="1.0"/>
+    <param name="costmap_clearing_threshold" value="75"/>
+    <param name="reject_unreachable_frontiers" value="true"/>
+    <param name="max_frontier_distance" value="20.0"/>
+    <!-- ★ 필터 판정 지도 = 병합지도 (2026-08-11 실측 수정): 기본값 False 면
+         map_topic 을 로봇별로 풀어 /locobot_0/map,/locobot_1/map 만 구독한다
+         (같은 콜백 → 마지막 수신이 이김). 그러면 waffle 이 탐사한 영역은
+         locobot 지도에서 여전히 unknown 이라 정보이득이 0.77 로 남아
+         'tb 쪽 프런티어가 영원히 안 지워지는' 현상이 생긴다. -->
+    <param name="use_global_merged_map" value="true"/>
+    <param name="min_info_gain_keep" value="0.02"/>
+    <param name="global_costmap_topic" value="$(arg global_costmap_topic)"/>
+    <param name="goals_topic" value="/detected_points"/>
+    <!-- waffle 제외: 그 전역 costmap 은 map_slam 좌표(스폰 오프셋)라 세계좌표 인덱싱이
+         어긋남. 프런티어 배정은 JnP 몫이라 필터 검증은 locobot 2대로 충분 -->
+    <param name="robot_namelist" value="$(arg first_robot),$(arg second_robot)"/>
+    <param name="rate" value="5.0"/>
+    <param name="local_map" value="$(arg global_map)"/>
+    <param name="bandwith_cluster" value="0.3"/>
+  </node>
+
+  <!-- 배정·주행은 JnP 스케줄러/에이전트가 수행 (완전 JnP — 2026-08-09).
+       RRT 는 프런티어 탐지·필터·병합까지만. 프런티어는 표준 PoseArray 로 릴레이. -->
+  <node pkg="rrt_exploration" type="frontier_relay.py" name="frontier_relay" output="screen">
+    <param name="frontiers_topic" value="/filtered_points"/>
+  </node>
+</launch>

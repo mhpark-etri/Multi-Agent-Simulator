@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version='1.7'>
+  <world name='default'>
+    <light name='sun' type='directional'>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+      <cast_shadows>0</cast_shadows>
+    </light>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+        </collision>
+        <visual name='visual'>
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+          <material><ambient>0.75 0.75 0.75 1</ambient><diffuse>0.8 0.8 0.8 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name='outer_walls'>
+      <static>1</static>
+      <link name='Wall_0'>
+        <collision name='c'>
+          <geometry><box><size>14.3 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+        </collision>
+        <visual name='v'>
+          <geometry><box><size>14.3 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.95 0.95 0.95 1</diffuse></material>
+        </visual>
+        <pose>0.0 10.575 0 0 0 0.0</pose>
+      </link>
+      <link name='Wall_1'>
+        <collision name='c'>
+          <geometry><box><size>14.3 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+        </collision>
+        <visual name='v'>
+          <geometry><box><size>14.3 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.95 0.95 0.95 1</diffuse></material>
+        </visual>
+        <pose>0.0 -10.575 0 0 0 0.0</pose>
+      </link>
+      <link name='Wall_2'>
+        <collision name='c'>
+          <geometry><box><size>21.15 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+        </collision>
+        <visual name='v'>
+          <geometry><box><size>21.15 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.95 0.95 0.95 1</diffuse></material>
+        </visual>
+        <pose>-7.075 0.0 0 0 0 1.5708</pose>
+      </link>
+      <link name='Wall_3'>
+        <collision name='c'>
+          <geometry><box><size>21.15 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+        </collision>
+        <visual name='v'>
+          <geometry><box><size>21.15 0.15 1.5</size></box></geometry>
+          <pose>0 0 0.75 0 0 0</pose>
+          <material><ambient>0.9 0.9 0.9 1</ambient><diffuse>0.95 0.95 0.95 1</diffuse></material>
+        </visual>
+        <pose>7.075 0.0 0 0 0 1.5708</pose>
+      </link>
+    </model>
+    <physics type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+  </world>
+</sdf>

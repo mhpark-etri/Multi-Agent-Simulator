@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'mainOgsgMY.ui'
+## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.3
+## Created by: Qt User Interface Compiler version 6.2.4
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -16,12 +16,12 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QGroupBox,
-    QHBoxLayout, QLabel, QLayout, QListView,
-    QListWidget, QListWidgetItem, QMainWindow, QMenu,
-    QMenuBar, QPushButton, QRadioButton, QScrollArea,
-    QSizePolicy, QSpacerItem, QSpinBox, QStatusBar,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame,
+    QGroupBox, QHBoxLayout, QLabel, QLayout,
+    QListView, QListWidget, QListWidgetItem, QMainWindow,
+    QMenu, QMenuBar, QPushButton, QRadioButton,
+    QScrollArea, QSizePolicy, QSpacerItem, QSpinBox,
+    QStatusBar, QVBoxLayout, QWidget)
 import resources_rc
 
 class Ui_MainWindow(object):
@@ -50,13 +50,36 @@ class Ui_MainWindow(object):
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(-1, 0, -1, 0)
-        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.hlUiLangBar = QHBoxLayout()
+        self.hlUiLangBar.setObjectName(u"hlUiLangBar")
+        self.hsUiLang = QSpacerItem(40, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.hlUiLangBar.addItem(self.hsUiLang)
+
+        self.lbUiLang = QLabel(self.centralwidget)
+        self.lbUiLang.setObjectName(u"lbUiLang")
+        self.lbUiLang.setStyleSheet(u"color: white;")
+
+        self.hlUiLangBar.addWidget(self.lbUiLang)
+
+        self.cmbUiLang = QComboBox(self.centralwidget)
+        self.cmbUiLang.addItem("")
+        self.cmbUiLang.addItem("")
+        self.cmbUiLang.setObjectName(u"cmbUiLang")
+        self.cmbUiLang.setMinimumSize(QSize(110, 0))
+
+        self.hlUiLangBar.addWidget(self.cmbUiLang)
+
+
+        self.verticalLayout.addLayout(self.hlUiLangBar)
+
+        self.verticalSpacer = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
         self.gbWorld = QGroupBox(self.centralwidget)
         self.gbWorld.setObjectName(u"gbWorld")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.gbWorld.sizePolicy().hasHeightForWidth())
@@ -128,7 +151,7 @@ class Ui_MainWindow(object):
 
         self.lbWorldImage = QLabel(self.frame_3)
         self.lbWorldImage.setObjectName(u"lbWorldImage")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.lbWorldImage.sizePolicy().hasHeightForWidth())
@@ -150,7 +173,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.groupBox_5 = QGroupBox(self.frame_3)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
@@ -194,7 +217,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
         self.chkWorldOptionPerson = QCheckBox(self.frame)
         self.chkWorldOptionPerson.setObjectName(u"chkWorldOptionPerson")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.chkWorldOptionPerson.sizePolicy().hasHeightForWidth())
@@ -213,7 +236,7 @@ class Ui_MainWindow(object):
         self.sbWorldOptionPersonCount = QSpinBox(self.frame)
         self.sbWorldOptionPersonCount.setObjectName(u"sbWorldOptionPersonCount")
         self.sbWorldOptionPersonCount.setEnabled(False)
-        sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         sizePolicy4.setHorizontalStretch(0)
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.sbWorldOptionPersonCount.sizePolicy().hasHeightForWidth())
@@ -378,7 +401,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.frame_2)
 
-        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer_4 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_3.addItem(self.verticalSpacer_4)
 
@@ -404,7 +427,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout.addWidget(self.gbWorld)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
+        self.verticalSpacer_2 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
 
         self.verticalLayout.addItem(self.verticalSpacer_2)
 
@@ -507,7 +530,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_12.addWidget(self.btnDeleteRobot)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_12.addItem(self.horizontalSpacer_2)
 
@@ -588,7 +611,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_19.setContentsMargins(-1, 20, 0, 10)
         self.scrollArea_9 = QScrollArea(self.gbRobotROS)
         self.scrollArea_9.setObjectName(u"scrollArea_9")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         sizePolicy5.setHorizontalStretch(0)
         sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.scrollArea_9.sizePolicy().hasHeightForWidth())
@@ -849,15 +872,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_23.addWidget(self.btnRobotROSJNPStart)
 
-        self.label_5 = QLabel(self.gbRobotROSJnp)
-        self.label_5.setObjectName(u"label_5")
+        self.cmbJnpVersion = QComboBox(self.gbRobotROSJnp)
+        self.cmbJnpVersion.addItem("")
+        self.cmbJnpVersion.addItem("")
+        self.cmbJnpVersion.setObjectName(u"cmbJnpVersion")
 
-        self.horizontalLayout_23.addWidget(self.label_5)
+        self.horizontalLayout_23.addWidget(self.cmbJnpVersion)
 
-        self.label_7 = QLabel(self.gbRobotROSJnp)
-        self.label_7.setObjectName(u"label_7")
+        self.btnRobotROSJNPMonitor = QPushButton(self.gbRobotROSJnp)
+        self.btnRobotROSJNPMonitor.setObjectName(u"btnRobotROSJNPMonitor")
 
-        self.horizontalLayout_23.addWidget(self.label_7)
+        self.horizontalLayout_23.addWidget(self.btnRobotROSJNPMonitor)
 
 
         self.verticalLayout_12.addLayout(self.horizontalLayout_23)
@@ -1249,6 +1274,12 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_20.addWidget(self.btnRobotROSCollaborationStartTask)
 
+        self.chkRelayRviz = QCheckBox(self.gbRobotROSCollaborationTasks)
+        self.chkRelayRviz.setObjectName(u"chkRelayRviz")
+        self.chkRelayRviz.setChecked(False)
+
+        self.horizontalLayout_20.addWidget(self.chkRelayRviz)
+
         self.label_10 = QLabel(self.gbRobotROSCollaborationTasks)
         self.label_10.setObjectName(u"label_10")
         sizePolicy.setHeightForWidth(self.label_10.sizePolicy().hasHeightForWidth())
@@ -1262,7 +1293,7 @@ class Ui_MainWindow(object):
 
         self.lstwRobotROSCollaborationTasks = QListWidget(self.gbRobotROSCollaborationTasks)
         self.lstwRobotROSCollaborationTasks.setObjectName(u"lstwRobotROSCollaborationTasks")
-        sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        sizePolicy6 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         sizePolicy6.setHorizontalStretch(0)
         sizePolicy6.setVerticalStretch(0)
         sizePolicy6.setHeightForWidth(self.lstwRobotROSCollaborationTasks.sizePolicy().hasHeightForWidth())
@@ -1290,7 +1321,7 @@ class Ui_MainWindow(object):
 
         self.frame_4 = QFrame(self.centralwidget)
         self.frame_4.setObjectName(u"frame_4")
-        sizePolicy7 = QSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
+        sizePolicy7 = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
         sizePolicy7.setHorizontalStretch(0)
         sizePolicy7.setVerticalStretch(25)
         sizePolicy7.setHeightForWidth(self.frame_4.sizePolicy().hasHeightForWidth())
@@ -1306,15 +1337,33 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
         self.horizontalLayout_5.addItem(self.horizontalSpacer)
 
-        self.btnStartSimulator = QPushButton(self.frame_4)
-        self.btnStartSimulator.setObjectName(u"btnStartSimulator")
-        sizePolicy8 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.btnExitSimulator = QPushButton(self.frame_4)
+        self.btnExitSimulator.setObjectName(u"btnExitSimulator")
+        sizePolicy8 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         sizePolicy8.setHorizontalStretch(0)
         sizePolicy8.setVerticalStretch(0)
+        sizePolicy8.setHeightForWidth(self.btnExitSimulator.sizePolicy().hasHeightForWidth())
+        self.btnExitSimulator.setSizePolicy(sizePolicy8)
+        self.btnExitSimulator.setMinimumSize(QSize(100, 0))
+        self.btnExitSimulator.setStyleSheet(u"    color: #dddddd;")
+
+        self.horizontalLayout_5.addWidget(self.btnExitSimulator)
+
+        self.btnStopSimulator = QPushButton(self.frame_4)
+        self.btnStopSimulator.setObjectName(u"btnStopSimulator")
+        sizePolicy8.setHeightForWidth(self.btnStopSimulator.sizePolicy().hasHeightForWidth())
+        self.btnStopSimulator.setSizePolicy(sizePolicy8)
+        self.btnStopSimulator.setMinimumSize(QSize(100, 0))
+        self.btnStopSimulator.setStyleSheet(u"    color: #ffb0b0;")
+
+        self.horizontalLayout_5.addWidget(self.btnStopSimulator)
+
+        self.btnStartSimulator = QPushButton(self.frame_4)
+        self.btnStartSimulator.setObjectName(u"btnStartSimulator")
         sizePolicy8.setHeightForWidth(self.btnStartSimulator.sizePolicy().hasHeightForWidth())
         self.btnStartSimulator.setSizePolicy(sizePolicy8)
         self.btnStartSimulator.setMinimumSize(QSize(100, 0))
@@ -1364,6 +1413,13 @@ class Ui_MainWindow(object):
         self.actionExit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.actionOpen.setText(QCoreApplication.translate("MainWindow", u"Open", None))
         self.actionOpenDB.setText(QCoreApplication.translate("MainWindow", u"Open", None))
+        self.lbUiLang.setText(QCoreApplication.translate("MainWindow", u"\uba54\uc2dc\uc9c0 \uc5b8\uc5b4 (Message Language) :", None))
+        self.cmbUiLang.setItemText(0, QCoreApplication.translate("MainWindow", u"\ud55c\uad6d\uc5b4", None))
+        self.cmbUiLang.setItemText(1, QCoreApplication.translate("MainWindow", u"English", None))
+
+#if QT_CONFIG(tooltip)
+        self.cmbUiLang.setToolTip(QCoreApplication.translate("MainWindow", u"\ud31d\uc5c5/\ud655\uc778\ucc3d \uba54\uc2dc\uc9c0\ub97c \ud55c\uad6d\uc5b4 \ub610\ub294 \uc601\uc5b4\ub85c \ud45c\uc2dc\ud569\ub2c8\ub2e4 / Show popup messages in Korean or English", None))
+#endif // QT_CONFIG(tooltip)
         self.gbWorld.setTitle(QCoreApplication.translate("MainWindow", u"World", None))
         self.lbWorldImage.setText("")
         self.groupBox_5.setTitle(QCoreApplication.translate("MainWindow", u"Option", None))
@@ -1380,7 +1436,7 @@ class Ui_MainWindow(object):
         self.btnAddRobot.setText(QCoreApplication.translate("MainWindow", u"Add", None))
         self.btnDeleteRobot.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
         self.btnAddModel.setText(QCoreApplication.translate("MainWindow", u"Add model", None))
-        self.gbRobotROS.setTitle(QCoreApplication.translate("MainWindow", u"ROS", None))
+        self.gbRobotROS.setTitle(QCoreApplication.translate("MainWindow", u"Behavior (Action)", None))
         self.gbRobotROSControl.setTitle(QCoreApplication.translate("MainWindow", u"Control", None))
         self.btnROSTeleop.setText(QCoreApplication.translate("MainWindow", u"Teleop", None))
         self.gbRobotROSNavigation.setTitle(QCoreApplication.translate("MainWindow", u"Navigation", None))
@@ -1391,8 +1447,16 @@ class Ui_MainWindow(object):
         self.btnROSNavigationEdit.setText(QCoreApplication.translate("MainWindow", u"Edit", None))
         self.gbRobotROSJnp.setTitle(QCoreApplication.translate("MainWindow", u"Jnp", None))
         self.btnRobotROSJNPStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
-        self.label_5.setText("")
-        self.label_7.setText("")
+        self.cmbJnpVersion.setItemText(0, QCoreApplication.translate("MainWindow", u"JnP 0.2.1 (\uae30\uc874)", None))
+        self.cmbJnpVersion.setItemText(1, QCoreApplication.translate("MainWindow", u"JnP 0.8.1", None))
+
+#if QT_CONFIG(tooltip)
+        self.cmbJnpVersion.setToolTip(QCoreApplication.translate("MainWindow", u"JnP \uc5d0\uc774\uc804\ud2b8 \ubc84\uc804 \uc120\ud0dd", None))
+#endif // QT_CONFIG(tooltip)
+#if QT_CONFIG(tooltip)
+        self.btnRobotROSJNPMonitor.setToolTip(QCoreApplication.translate("MainWindow", u"JnP \ub3d9\uc791(discovery/coalition/scheduling)\uc744 \uadf8\ub798\ud53d \ucc3d\uc73c\ub85c \ud45c\uc2dc", None))
+#endif // QT_CONFIG(tooltip)
+        self.btnRobotROSJNPMonitor.setText(QCoreApplication.translate("MainWindow", u"Monitor", None))
         self.gbRobotROSJnl.setTitle(QCoreApplication.translate("MainWindow", u"Jnl", None))
         self.btnRobotROSJNLStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.label_6.setText("")
@@ -1412,7 +1476,19 @@ class Ui_MainWindow(object):
         self.gbRobotROSCollaborationTasks.setTitle(QCoreApplication.translate("MainWindow", u"Collaboration Tasks", None))
         self.btnRobotROSCollaborationSetting.setText(QCoreApplication.translate("MainWindow", u"Setting", None))
         self.btnRobotROSCollaborationStartTask.setText(QCoreApplication.translate("MainWindow", u"Start", None))
+#if QT_CONFIG(tooltip)
+        self.chkRelayRviz.setToolTip(QCoreApplication.translate("MainWindow", u"\ud611\uc5c5 \ud0dc\uc2a4\ud06c \uc2e4\ud589 \uc2dc RViz 2D \ubdf0 \ucc3d \ud45c\uc2dc (\ub044\uba74 \ucc3d \uc5c6\uc774 \uc2e4\ud589)", None))
+#endif // QT_CONFIG(tooltip)
+        self.chkRelayRviz.setText(QCoreApplication.translate("MainWindow", u"RViz", None))
         self.label_10.setText("")
+#if QT_CONFIG(tooltip)
+        self.btnExitSimulator.setToolTip(QCoreApplication.translate("MainWindow", u"\uc2dc\ubbac\ub808\uc774\uc158 \uc815\ub9ac \ud6c4 \ud504\ub85c\uadf8\ub7a8 \uc885\ub8cc", None))
+#endif // QT_CONFIG(tooltip)
+        self.btnExitSimulator.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
+#if QT_CONFIG(tooltip)
+        self.btnStopSimulator.setToolTip(QCoreApplication.translate("MainWindow", u"\uc2dc\ubbac\ub808\uc774\uc158 \uc815\uc9c0 \u2014 Gazebo/ROS/JnP/RViz \uc804\ubd80 \uc815\ub9ac (GUI \ucc3d\uc740 \uc720\uc9c0)", None))
+#endif // QT_CONFIG(tooltip)
+        self.btnStopSimulator.setText(QCoreApplication.translate("MainWindow", u"Stop", None))
         self.btnStartSimulator.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.menuFIle.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuDB.setTitle(QCoreApplication.translate("MainWindow", u"DB", None))
