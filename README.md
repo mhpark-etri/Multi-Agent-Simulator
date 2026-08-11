@@ -107,11 +107,20 @@ cd /root/catkin_ws_jnp081 && catkin_make
     **apt 패키지로 대체할 수 없습니다.**
   - `map_merge` (BSD-3-Clause, 상류 **2.1.5** 원본) — 다중 로봇 지도 병합.
     apt 판(2.1.4)은 병합 지도가 어긋나므로 소스 빌드가 필요합니다.
-- Docker 이미지에는 이미 빌드되어 있습니다. 수동 빌드는 아래와 같습니다.
+- Docker 이미지에는 두 패키지의 소스가 `/root/catkin_ws_explo/src/` 에 복사되어
+  **이미 빌드까지 되어 있습니다.** 소스를 고친 뒤 다시 빌드하려면 아래만 실행합니다.
+```
+cd /root/catkin_ws_explo
+catkin_make -DCMAKE_BUILD_TYPE=Release
+source /root/catkin_ws_explo/devel/setup.bash
+```
+- 이미지를 쓰지 않고 직접 구성하는 경우(호스트에 clone 한 저장소에서):
 ```
 mkdir -p /root/catkin_ws_explo/src
-cp -a /root/tesla/third_party/rrt_exploration /root/catkin_ws_explo/src/
-cp -a /root/tesla/third_party/map_merge       /root/catkin_ws_explo/src/
+cp -a <저장소>/third_party/rrt_exploration /root/catkin_ws_explo/src/
+cp -a <저장소>/third_party/map_merge       /root/catkin_ws_explo/src/
+sudo apt-get install -y python3-sklearn ros-noetic-slam-toolbox \
+     ros-noetic-dwa-local-planner ros-noetic-global-planner ros-noetic-topic-tools
 cd /root/catkin_ws_explo && catkin_make -DCMAKE_BUILD_TYPE=Release
 echo "source /root/catkin_ws_explo/devel/setup.bash" >> /root/.bashrc
 ```

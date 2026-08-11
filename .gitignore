@@ -21,3 +21,4 @@ ros/navi/found_objects/
 .vscode/
 .idea/
 .DS_Store
+push_v19.sh
