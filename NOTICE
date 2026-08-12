@@ -52,6 +52,18 @@ Third-party components
    originates from OSRF's gazebo_models it is distributed under CC-BY-4.0 and
    attribution to the Open Source Robotics Foundation is required.
 
+6) Packages installed from Ubuntu/ROS repositories into the Docker image
+   The image installs third-party packages via apt, including (non-exhaustive):
+     wmctrl                       GPL-2+
+     ros-noetic-slam-toolbox      LGPL
+     ros-noetic-dwa-local-planner / global-planner / topic-tools   BSD
+     python3-sklearn / python3-opencv                              BSD / Expat
+   These run as separate processes (command-line tools or standalone ROS nodes)
+   and are aggregated with, not linked into, the software in this repository;
+   the Apache-2.0 license of this repository is unaffected. Each package is
+   governed by its own license, available inside the image at
+   /usr/share/doc/<package>/copyright.
+
 ================================================================================
 Optional component NOT included in this repository or image
 ================================================================================
