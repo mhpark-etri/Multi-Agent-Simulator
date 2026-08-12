@@ -12,8 +12,8 @@ from geometry_msgs.msg import Pose
 # desk_bottom_right: pose (3.590834, -3.41), 상판 1.2x0.6 z=0.775+0.025
 # 간단·확실 노선 (2026-08-10 지시): YOLO 가 가장 안정적으로 잡는 큰 공 2개
 OBJECTS = [
-    ('search_ball_orange', '/root/tesla/models/yolo_ball_orange/model.sdf', 3.40, -3.32, 0.80),
-    ('search_ball_blue',   '/root/tesla/models/yolo_ball_blue/model.sdf',   3.85, -3.48, 0.80),
+    ('search_ball_orange', '/root/tesla/ros/navi/models/yolo_ball_orange/model.sdf', 3.40, -3.32, 0.80),
+    ('search_ball_blue',   '/root/tesla/ros/navi/models/yolo_ball_blue/model.sdf',   3.85, -3.48, 0.80),
 ]
 
 
