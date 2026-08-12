@@ -14,6 +14,7 @@ BLU='\033[0;34m'
 BOLD=$(tput bold)
 NORM=$(tput sgr0)
 
+INF="${GRN}${BOLD}"
 ERR="${RED}${BOLD}"
 RRE="${NORM}${OFF}"
 
@@ -183,7 +184,6 @@ function check_ubuntu_version() {
       if contains_element "$ROS_DISTRO_TO_INSTALL" "${FOCAL_VALID_DISTROS[@]}"; then
         PY_VERSION=3
 	echo "20.04"
-#	read -r kang1
       else
         failed "Chosen ROS distribution '$ROS_DISTRO_TO_INSTALL' is not supported on Ubuntu ${UBUNTU_VERSION}."
       fi
@@ -317,20 +317,17 @@ function install_locobot_ros1() {
   if source /opt/ros/"$ROS_DISTRO_TO_INSTALL"/setup.bash 2>/dev/null && \
      source "$INSTALL_PATH"/devel/setup.bash 2>/dev/null && \
      echo "---------------------- locobot install 1 --------------------"
-    # read -r kang_1
      rospack list | grep -q interbotix_;
   then
     echo "Interbotix LoCoBot ROS 1 packages already installed!"
   else
     echo -e "${GRN}Installing ROS 1 packages for the Interbotix LoCoBot...${OFF}"
     echo "---------------------- locobot install 2 --------------------"
-    #read -r kang_2
     cd "$INSTALL_PATH"/src
     git clone -b "$ROS_DISTRO_TO_INSTALL" https://github.com/Interbotix/interbotix_ros_core.git
     git clone -b "$ROS_DISTRO_TO_INSTALL" https://github.com/Interbotix/interbotix_ros_rovers.git
     git clone -b "$ROS_DISTRO_TO_INSTALL" https://github.com/Interbotix/interbotix_ros_toolboxes.git
     echo "---------------------- locobot install 3 --------------------"
-    #read -r kang_3
     rm                                                                                              \
       interbotix_ros_core/interbotix_ros_xseries/CATKIN_IGNORE                                      \
       interbotix_ros_toolboxes/interbotix_xs_toolbox/CATKIN_IGNORE                                  \
@@ -340,16 +337,13 @@ function install_locobot_ros1() {
     sudo cp 99-interbotix-udev.rules /etc/udev/rules.d/
     sudo udevadm control --reload-rules && sudo udevadm trigger
     echo "---------------------- locobot install 4 --------------------"
-    #read -r kang_4
     cd "$INSTALL_PATH"
     rosdep install --from-paths src --ignore-src -r -y --rosdistro="$ROS_DISTRO_TO_INSTALL"
     echo "---------------------- locobot install 5 --------------------"
-    #read -r kang_5
     if [ "$BASE_TYPE" == "create3" ]; then
       source $BRIDGE_MSGS_ROS1_WS/install_isolated/setup.bash
     fi
     echo "---------------------- locobot install 6 --------------------"
-    #read -r kang_6
     if catkin_make; then
       echo -e "${GRN}${BOLD}Interbotix LoCoBot ROS 1 packages built successfully!${NORM}${OFF}"
       echo "source $INSTALL_PATH/devel/setup.bash" >> ~/.bashrc
@@ -358,7 +352,6 @@ function install_locobot_ros1() {
       failed "Failed to build ROS 1 packages for the Interbotix LoCoBot."
     fi
     echo "---------------------- locobot install 7 --------------------"
-    #read -r kang_7
   fi
 }
 
@@ -477,8 +470,7 @@ function install_create3_ros1() {
     failed "Failed to build irobot_create_msgs for ROS 1."
   fi
 
-  echo "------------------------- KDO ROS1 4 Create3 Mid ---------------------"
-  #read -r kang3
+  echo -e "${INF}[INSTALL] Built irobot_create_msgs (ROS 1) | irobot_create_msgs(ROS 1) 빌드 완료${RRE}"
 
   # ROS 2
   mkdir -p $BRIDGE_MSGS_ROS2_WS/src
@@ -506,8 +498,7 @@ function install_create3_ros1() {
     failed "Failed to build ros1_bridge."
   fi
 
-  echo "------------------------- KDO ROS1 4 Create3 Mid2 ---------------------"
-  #read -r kang4
+  echo -e "${INF}[INSTALL] Built ros1_bridge | ros1_bridge 빌드 완료${RRE}"
 
   # Check that irobot_create_msgs exists in the built messages
   TEMP4=$(mktemp)
@@ -522,8 +513,7 @@ function install_create3_ros1() {
   echo -e "export BRIDGE_MSGS_ROS1_WS=${BRIDGE_MSGS_ROS1_WS}" >> ~/.bashrc
   echo -e "export BRIDGE_MSGS_ROS2_WS=${BRIDGE_MSGS_ROS2_WS}" >> ~/.bashrc
   echo -e "source $BRIDGE_MSGS_ROS1_WS/install_isolated/setup.bash" >> ~/.bashrc
-  echo "------------------------- KDO ROS1 4 Create3 Mid3 ---------------------"
-  #read -r kang5
+  echo -e "${INF}[INSTALL] Registered bridge environment variables | 브리지 환경변수 등록 완료${RRE}"
 }
 
 function install_create3_ros2() {
@@ -660,17 +650,14 @@ shopt -s extglob
 if [[ $ROS_VERSION_TO_INSTALL == 1 ]]; then
   install_ros1
   echo "-----------------------------------  kdo completion of install_ros1 -------------------"
-  #read -r kang2
   if [[ $BASE_TYPE == 'kobuki' ]]; then
     install_kobuki_ros1
   elif [[ $BASE_TYPE == 'create3' ]]; then
     install_create3_ros1
   fi
   echo "-----------------------------------  kdo completion of install_create3_ros1 -------------------"
-  #read -r kang6
   install_locobot_ros1
   echo "-----------------------------------  kdo completion of install_locobot_ros1 -------------------"
-  #read -r kang7
   setup_env_vars_ros1
 elif [[ $ROS_VERSION_TO_INSTALL == 2 ]]; then
   install_ros2
@@ -687,29 +674,28 @@ else
   failed "Something went wrong."
 fi
 
-echo "=========================KDO KDO ======================="
+echo -e "${INF}[INSTALL] (1/6) ROS middleware configured | ROS 미들웨어 설정 완료${RRE}"
 
 # configure LoCoBot computer ethernet to use proper network config for Create 3
 if [[ $BASE_TYPE == 'create3' ]]; then
-  echo "=========================KDO KDO2 ======================="
+  echo -e "${INF}[INSTALL] (2/6) Configuring Create 3 network | Create 3 네트워크 설정 시작${RRE}"
   sudo apt-get install -yq netplan.io
-  echo "=========================KDO KDO3 ======================="
+  echo -e "${INF}[INSTALL] (3/6) Installed netplan.io | netplan.io 설치 완료${RRE}"
   if [ ! -f "/etc/netplan/99_interbotix_config.yaml" ]; then
     if [ ! -d "/etc/netplan/" ]; then
       sudo mkdir -p /etc/netplan/
     fi
-    echo "=========================KDO KDO3 ======================="
+    echo -e "${INF}[INSTALL] (4/6) Checking netplan config | netplan 설정 확인${RRE}"
     #sudo cp "$INSTALL_PATH"/src/interbotix_ros_rovers/interbotix_ros_xslocobots/install/resources/conf/99_interbotix_config_locobot.yaml /etc/netplan/
     #sudo netplan apply
     sleep 10
   fi
-  echo "=========================KDO KDO4 ======================="
+  echo -e "${INF}[INSTALL] (5/6) Create 3 network ready | Create 3 네트워크 설정 완료${RRE}"
 fi
-echo "=========================KDO KDO5 ======================="
+echo -e "${INF}[INSTALL] (6/6) Finalizing installation | 설치 마무리 중${RRE}"
 
 shopt -u extglob
 
-echo "=========================KDO KDO6 ======================="
 end_time="$(date -u +%s)"
 elapsed="$((end_time-start_time))"
 
