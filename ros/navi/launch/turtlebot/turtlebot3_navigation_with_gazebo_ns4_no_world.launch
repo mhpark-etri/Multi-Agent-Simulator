@@ -7,6 +7,7 @@
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
   <arg name="first_tb3"  default="tb3_burger_0"/>
   <arg name="second_tb3" default="tb3_burger_1"/>
+  <arg name="spawn_second_tb3" default="true"/> <!-- 충돌회피(3로봇)용 게이트 (2026-08-08) -->
   <arg name="third_tb3"  default="tb3_burger_2"/>
 
   <arg name="first_tb3_x_pos" default="0.0"/>
@@ -77,7 +78,7 @@
   </include>
 </group>
 
-<group ns = "$(arg second_tb3)">
+<group ns = "$(arg second_tb3)" if="$(arg spawn_second_tb3)">
   <param name="tf_prefix" value="$(arg second_tb3)"/>
   <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation_with_gazebo_ns4_one_robot.launch">
         <arg name="robot_name" value="$(arg second_tb3)"/>

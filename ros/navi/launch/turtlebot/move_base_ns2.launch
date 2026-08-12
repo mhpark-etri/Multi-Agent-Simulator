@@ -9,6 +9,9 @@
   <arg name="cmd_vel_topic" default="/$(arg robot_name)/cmd_vel" />
   <arg name="odom_topic" default="/$(arg robot_name)/odom" />
   <arg name="move_forward_only" default="false"/>
+  <!-- SLAM 로봇(waffle 지도제작)용 — 기본 map 이라 기존 burger 호출 불변 (2026-08-09) -->
+  <arg name="global_frame" default="map"/>
+  <arg name="map_topic" default="map"/> <!-- SLAM/탐사용 교체 지점 (기본: 기존 동작) -->
 
   <!-- move_base -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
@@ -24,6 +27,7 @@
     <rosparam file="$(find turtlebot3_navigation)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
     <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
     <remap from="odom" to="$(arg odom_topic)"/>
+    <remap from="map" to="$(arg map_topic)"/>
     <param name="DWAPlannerROS/min_vel_x" value="0.0" if="$(arg move_forward_only)" />
 
     <param name="controller_frequency" value="10.0" />
@@ -37,7 +41,7 @@
 -->
 <param name="global_costmap/scan/sensor_frame" value="$(arg robot_name)/base_scan"/>
 <param name="global_costmap/obstacle_layer/scan/sensor_frame" value="$(arg robot_name)/base_scan"/>
-<param name="global_costmap/global_frame" value="map"/>
+<param name="global_costmap/global_frame" value="$(arg global_frame)"/>
 
 <param name="global_costmap/robot_base_frame" value="$(arg robot_name)/base_footprint"/>
 <param name="local_costmap/scan/sensor_frame" value="$(arg robot_name)/base_scan"/>

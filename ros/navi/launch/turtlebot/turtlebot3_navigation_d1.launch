@@ -1,3 +1,7 @@
+<!-- 이 파일은 ROBOTIS TurtleBot3 (Apache License 2.0) 의 launch 파일에서
+     파생되었으며 이 저장소에서 수정되었습니다.
+     원본: https://github.com/ROBOTIS-GIT/turtlebot3
+     Copyright (c) ROBOTIS CO., LTD.  자세한 내용은 저장소 루트의 NOTICE 참조. -->
 <launch>
   <!-- Arguments -->
   <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
