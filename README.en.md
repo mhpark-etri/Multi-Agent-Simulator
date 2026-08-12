@@ -62,6 +62,17 @@ cd tesla
 source init.sh
 ```
 
+> **Which steps do I actually need?** (when using the Docker image)
+>
+> | Section | Content | Action |
+> |---|---|---|
+> | 4.1 | Interbotix installation | **Required** (answer `y` at the prompts) |
+> | 4.2 | Build JnP 0.2.1 | **Required** |
+> | 4.2.1 | JnP 0.8.1 | Not needed — already built by the image and `init.sh` |
+> | 4.2.2 | Exploration stack | Not needed — already built by the image and `init.sh` |
+> | 4.2.3 | YOLO | Optional — only for the Find Object task |
+> | 4.3 / 4.4 | Ai-Bot / Stretch2 | Only if you use those robots |
+
 ### 4.1 Interbotix installation
 - While the required packages are installed, the Interbotix installer appears. Answer `y` to each prompt.
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/871c7299-c07c-4e2d-8f92-1d1770b40e7d" width="50%" />
@@ -72,7 +83,7 @@ source init.sh
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="50%" />
 <br><br>
 
-### 4.2 JnP installation
+### 4.2 JnP installation (required)
 - Re-enter the container from an Ubuntu terminal (`ct_mas` is the container name used above).
 ```
 sudo docker start -i ct_mas
@@ -90,10 +101,12 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" />
 <br><br>
 
-### 4.2.1 JnP 0.8.1 (v1.9 collaboration tasks)
+### 4.2.1 JnP 0.8.1 (v1.9 collaboration tasks) — reference only, no action needed
+> The Docker image and `init.sh` already build this. **You can skip this section.**
+> Use it only to rebuild after editing the source, or to set things up without the image.
 - The v1.9 collaboration tasks (Relay / Multi-Goal Move / Collision Avoidance /
   Distributed Search-Mapping / Distributed Search-Find Object) run on JnP **0.8.1**.
-  The Docker image already builds it; to rebuild from source:
+  To rebuild from source:
 ```
 mkdir -p /root/catkin_ws_jnp081/src
 ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
@@ -101,7 +114,9 @@ ln -s /root/tesla/jnp/jnp_0.8.1 /root/catkin_ws_jnp081/src/jnp
 cd /root/catkin_ws_jnp081 && catkin_make
 ```
 
-### 4.2.2 Exploration stack (third_party)
+### 4.2.2 Exploration stack (third_party) — reference only, no action needed
+> The Docker image and `init.sh` already build this. **You can skip this section.**
+> Use it only to rebuild after editing the source, or to set things up without the image.
 - Distributed Search (Mapping / Find Object) uses frontier-detection and
   map-merging packages. This repository ships both under `third_party/`
   (each keeps its own upstream license — see `NOTICE` and `third_party/README.md`).
@@ -128,7 +143,7 @@ cd /root/catkin_ws_explo && catkin_make -DCMAKE_BUILD_TYPE=Release
 echo "source /root/catkin_ws_explo/devel/setup.bash" >> /root/.bashrc
 ```
 
-### 4.2.3 Object detection (YOLO) — optional
+### 4.2.3 Object detection (YOLO) — optional (only for that task)
 - Only the **Distributed Search-Find Object** task uses Ultralytics YOLOv8 for perception.
 - Ultralytics and its pre-trained weights are **AGPL-3.0**, so they are **not included**
   in this Apache-2.0 repository or in the Docker image. Install them yourself inside the

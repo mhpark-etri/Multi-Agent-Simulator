@@ -61,6 +61,17 @@ cd tesla
 source init.sh
 ```
 
+> **어디까지 해야 하나요?** (Docker 이미지를 쓰는 경우)
+>
+> | 절 | 내용 | 실행 |
+> |---|---|---|
+> | 4.1 | Interbotix 설치 | **필수** (설치 화면에서 y 입력) |
+> | 4.2 | JnP 0.2.1 빌드 | **필수** |
+> | 4.2.1 | JnP 0.8.1 | 불필요 — 이미지·init.sh 가 이미 빌드 |
+> | 4.2.2 | 탐사 스택 | 불필요 — 이미지·init.sh 가 이미 빌드 |
+> | 4.2.3 | YOLO | 선택 — 물건 찾기 태스크를 쓸 때만 |
+> | 4.3 / 4.4 | Ai-Bot / Stretch2 | 해당 로봇을 쓸 때 |
+
 ### 4.1 Interbotix 설치
 - 필수패키지 설치 도중 Interbotix 설치 화면이 나오면 차례대로 y를 입력.
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/871c7299-c07c-4e2d-8f92-1d1770b40e7d" width="50%" />
@@ -71,7 +82,7 @@ source init.sh
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/f10a5d3e-70e4-4585-b752-0a818a33cc12" width="50%" />
 <br><br>
 
-### 4.2 Jnp 설치
+### 4.2 Jnp 설치 (필수)
 - 우분투 터미널에서 아래의 명령어를 입력하여 docker에 다시 접속.(ct_mas는 위에서 설치했던 docker 컨테이너 이름)
 ```
 sudo docker start -i ct_mas
@@ -89,10 +100,12 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" />
 <br><br>
 
-### 4.2.1 JnP 0.8.1 설치 (v1.9 협업 태스크)
+### 4.2.1 JnP 0.8.1 (v1.9 협업 태스크) — 참고용, 실행 불필요
+> Docker 이미지와 `init.sh` 가 이미 빌드합니다. **이 절은 건너뛰어도 됩니다.**
+> 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 사용하십시오.
 - v1.9 의 협업 태스크(릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 /
-  분산 탐색-물건 찾기)는 JnP **0.8.1** 을 사용합니다. Docker 이미지에는 이미
-  빌드되어 있으며, 소스에서 다시 빌드하려면 아래와 같이 합니다.
+  분산 탐색-물건 찾기)는 JnP **0.8.1** 을 사용합니다. 소스에서 다시 빌드하려면
+  아래와 같이 합니다.
 ```
 mkdir -p /root/catkin_ws_jnp081/src
 ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
@@ -100,7 +113,9 @@ ln -s /root/tesla/jnp/jnp_0.8.1 /root/catkin_ws_jnp081/src/jnp
 cd /root/catkin_ws_jnp081 && catkin_make
 ```
 
-### 4.2.2 탐사 스택 설치 (third_party)
+### 4.2.2 탐사 스택 (third_party) — 참고용, 실행 불필요
+> Docker 이미지와 `init.sh` 가 이미 빌드합니다. **이 절은 건너뛰어도 됩니다.**
+> 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 사용하십시오.
 - 분산 탐색(지도 제작·물건 찾기)은 프런티어 검출·지도 병합 패키지를 사용합니다.
   이 저장소는 두 패키지를 `third_party/` 에 담아 함께 배포합니다
   (라이선스는 각 패키지 원본을 따릅니다 — `NOTICE`, `third_party/README.md` 참조).
@@ -127,7 +142,7 @@ cd /root/catkin_ws_explo && catkin_make -DCMAKE_BUILD_TYPE=Release
 echo "source /root/catkin_ws_explo/devel/setup.bash" >> /root/.bashrc
 ```
 
-### 4.2.3 물건 찾기(YOLO) — 선택 설치
+### 4.2.3 물건 찾기(YOLO) — 선택 (해당 태스크를 쓸 때만)
 - **분산 탐색-물건 찾기** 태스크만 물체 인식에 Ultralytics YOLOv8 을 사용합니다.
 - Ultralytics 와 그 사전학습 가중치는 **AGPL-3.0** 이라, Apache-2.0 인 본
   저장소/이미지에는 **포함하지 않습니다.** 이 태스크를 쓰려면 컨테이너에서
