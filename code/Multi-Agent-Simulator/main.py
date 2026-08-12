@@ -1077,7 +1077,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     subItem = self.ui.lstwWorldSubCategory.currentItem()
                     if subItem is not None and 'empty' in subItem.text():
                         relayArgs += (
-                            " world_name:=/root/tesla/worlds/empty_warehouse_walls.world"
+                            " world_name:=/root/tesla/ros/navi/worlds/empty_warehouse_walls.world"
                             " map_file:=/root/tesla/ros/navi/maps/empty_warehouse/map.yaml")
                         print("### 외벽-only 월드 선택 (RTF 향상 모드)")
                 except Exception as e:
