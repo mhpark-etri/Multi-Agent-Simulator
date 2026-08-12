@@ -52,6 +52,7 @@
     <param name="base_frame_id"             value="/$(arg robot_name)/base_footprint"/>
 <!--
 https://github.com/ROBOTIS-GIT/turtlebot3/blob/master/turtlebot3_navigation/launch/amcl.launch
+https://github.com/bbingham-nps/turtlebot3_nps/blob/master/launch/navigation_two.launch
     <param name="odom_frame_id"             value="odom"/>
     <param name="base_frame_id"             value="base_footprint"/>
 -->

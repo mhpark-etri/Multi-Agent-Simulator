@@ -48,6 +48,10 @@ class YoloDetector:
         self.bridge = CvBridge()
         self.buf = tf2_ros.Buffer(rospy.Duration(10.0))
         self.lis = tf2_ros.TransformListener(self.buf)
+        # ★ 콜백 상태는 '구독 시작 전에' 만들어 둔다 — 구독을 먼저 걸면 첫 이미지가
+        #   도착했을 때 아직 없는 속성을 건드려 죽는다 (신규 컨테이너 실측:
+        #   AttributeError: no attribute '_rgb', 2026-08-12)
+        self._rgb, self._dep = {}, {}
         self.last = {}          # robot -> (rgb_msg, depth_msg)
         self.info = {}          # robot -> CameraInfo
         self.found = []         # [{cls, x, y, z, robot, conf, stamp}]
@@ -66,7 +70,6 @@ class YoloDetector:
             rospy.Subscriber(cinfo, CameraInfo,
                              (lambda rr: lambda m: self.info.__setitem__(rr, m))(r),
                              queue_size=1)
-        self._rgb, self._dep = {}, {}
         rospy.loginfo('yolo_detector: robots=%s targets=%s (CPU)',
                       self.robots, sorted(self.targets))
 
