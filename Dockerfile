@@ -144,6 +144,8 @@ RUN apt-get install -y python3-sklearn python3-numpy python3-opencv \
     ros-noetic-slam-toolbox ros-noetic-dwa-local-planner \
     ros-noetic-global-planner ros-noetic-topic-tools
 RUN mkdir -p /root/catkin_ws_explo/src
+# 원본 소스+LICENSE+수정내역(README) 을 배포 경로에도 둔다 — 수동 재빌드·표기 확인용
+COPY third_party /root/tesla/third_party/
 COPY third_party/rrt_exploration /root/catkin_ws_explo/src/rrt_exploration
 COPY third_party/map_merge       /root/catkin_ws_explo/src/map_merge
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && cd /root/catkin_ws_explo && catkin_make -DCMAKE_BUILD_TYPE=Release"
