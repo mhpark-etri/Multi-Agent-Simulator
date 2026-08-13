@@ -9,14 +9,73 @@
 - This software is a 3D simulator for learning multi-agents in virtual environments.
 - You can download worlds or models at the following sites. After that, you should move them to the "worlds" or "models" directory.
   - https://github.com/gazebosim/gazebo-classic/tree/gazebo11/worlds
-  - https://github.com/chaolmu/gazebo_models_worlds_collection
+  - https://github.com/leonhartyao/gazebo_models_worlds_collection
   - https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps
   - https://github.com/osrf/gazebo_models
-  - https://dev.px4.io/v1.11_noredirect/en/simulation/gazebo_worlds.html
+  - https://docs.px4.io/main/en/sim_gazebo_gz/worlds
+    (PX4 world docs → https://github.com/PX4/PX4-gazebo-models , BSD-3-Clause.
+    Note these are `.sdf` worlds for the new Gazebo (gz) and will not load in Gazebo Classic as-is)
+  - https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds
+    (19 `.world` files for Gazebo Classic. The repository ships no `LICENSE` file; its `package.xml`
+    declares BSD and the source headers carry Apache-2.0 — confirm before redistributing)
   - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
   - https://data.nvision2.eecs.yorku.ca/3DGEMS/
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
+
+### AWS RoboMaker worlds (optional — not included in this repository)
+
+The `Hospital › hospital` and `HouseCafe › small_house` entries in the World panel need a world file to
+work. You can supply them from AWS RoboMaker. All three are **MIT-0 (MIT No Attribution)**, so they are
+free to use and redistribute. They are not bundled here because of their size (about 230 MB in total) —
+download them only if you need them.
+
+| World | Repository | models size |
+| --- | --- | --- |
+| hospital | https://github.com/aws-robotics/aws-robomaker-hospital-world | 76 MB |
+| small house | https://github.com/aws-robotics/aws-robomaker-small-house-world | 105 MB |
+| bookstore | https://github.com/aws-robotics/aws-robomaker-bookstore-world | 48 MB |
+
+There is no need to build them as ROS packages — just put the files where Gazebo already looks.
+All three repositories have `archive` as their default branch and keep the files on `ros1`, so
+**`-b ros1` is required** — cloning the default branch gets you only a README.
+
+```bash
+# example: hospital — change the repository name for the other two
+git clone --depth 1 -b ros1 \
+  https://github.com/aws-robotics/aws-robomaker-hospital-world.git /tmp/aws_hospital
+
+cp -r /tmp/aws_hospital/models/*        ~/.gazebo/models/             # 3D models
+cp    /tmp/aws_hospital/worlds/*.world  /usr/share/gazebo-11/worlds/  # world files
+```
+
+- To survive a container rebuild, copy into this repository's `models/` and `worlds/` instead — `init.sh`
+  installs them to the same places.
+- `bookstore` has no entry in the World panel, and adding one takes a code change: the panel is built from the
+  world catalog assembled in `InitWorld()` in `code/Multi-Agent-Simulator/main.py`, not from the enum. You must
+  uncomment `BOOKSTORE` in `ENUM_WORLD_CATEGORY_SUB` (`simulator.py`) **and** append a matching `World_Sub`
+  (with a thumbnail) to the catalog in `main.py`. Uncommenting the enum alone changes nothing.
+- For `Hospital › hospital_2_floors` / `hospital_3_floors` you must rename the files: AWS ships them as
+  `hospital_two_floors.world` / `hospital_three_floors.world`.
+- The collaboration tasks (Relay, Multi-Goal Move, Collision Avoidance, Distributed Search) do not use these
+  worlds, so everything works without them.
+- The public collection [mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps),
+  which also appears in the download list above, re-hosts the same worlds. However **it ships no license file
+  at all** (checked all 8 archives / 2,696 entries: zero `LICENSE`, `COPYING` or `NOTICE`). The content originates
+  from AWS and MIT-0 requires no attribution, so this is not a violation in itself — but **if you need the
+  license on record, download from the AWS repositories**, which do contain the MIT-0 text.
+- In that same collection, `office` is labelled `AWS Office` but no public AWS repository could be found for it
+  (zero hits across the 43 aws-robotics repositories and a GitHub search), and `factory` is merely labelled
+  `Custom Factory`, which is not evidence that the collection maintainer holds its copyright.
+  **The original author and the license of these two cannot be stated.**
+- [leonhartyao/gazebo_models_worlds_collection](https://github.com/leonhartyao/gazebo_models_worlds_collection)
+  in the list above is a **collection assembled from several projects**. Its repository-root LICENSE is GPL-3.0,
+  but the files inside come from the upstreams its own readme names in the `Source` section — 3DGEMS, RotorS,
+  TU Delft, ARTI-Robots, Clearpath Robotics and Fetch Robotics — and **each original work follows its own
+  upstream license** (Fetch and Clearpath declare BSD, RotorS declares ASL 2.0, TU Delft is GPL-3.0).
+  That the collection root is GPL-3.0 is a different claim from the individual files having been relicensed
+  under GPL, so check the upstream terms before redistributing. The origin of each World-panel entry is shown
+  by the **World Info** button.
 
 ---
 # Runtime environment

@@ -49,8 +49,22 @@ Third-party components
 5) Gazebo models under models/
    Some models were obtained from public collections listed in models/README
    (gazebo-classic worlds, osrf/gazebo_models, and others). Where a model
-   originates from OSRF's gazebo_models it is distributed under CC-BY-4.0 and
-   attribution to the Open Source Robotics Foundation is required.
+   originates from OSRF's gazebo_models it is distributed under CC-BY-3.0
+   (the repository LICENSE reads "Creative Commons Attribution 3.0 Unported",
+   Copyright 2012 Nathan Koenig) and attribution is required. Models fetched
+   from the Gazebo Fuel model database may carry different terms; check each.
+   Note that the CC-BY-3.0 above is the repository-level license of
+   osrf/gazebo_models; upstream acknowledges that the provenance of some
+   individual models is not fully documented, so verify per model before
+   redistributing any of them.
+   The 20 model directories committed here that are NOT prefixed
+   aws_robomaker_ (box, brick, chair, monitor, table, test, test_layout,
+   test_wall, test_world, stairs, testbed_floor1, testbed_floor2,
+   door_steel_round, gray_brick_pile and guardrail_*) appear to have been
+   authored for this project rather than taken from those collections: their
+   Collada files were exported from Blender 4.5.3 in October 2025 and their
+   textures are original photographs. They are not referenced by any world in
+   this repository. Their copyright holder is not recorded in the files.
 
 6) Packages installed from Ubuntu/ROS repositories into the Docker image
    The image installs third-party packages via apt, including (non-exhaustive):
@@ -63,6 +77,27 @@ Third-party components
    the Apache-2.0 license of this repository is unaffected. Each package is
    governed by its own license, available inside the image at
    /usr/share/doc/<package>/copyright.
+
+7) AWS RoboMaker Small Warehouse World  —  MIT-0 (MIT No Attribution)
+   https://github.com/aws-robotics/aws-robomaker-small-warehouse-world
+   Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+   Full text: licenses/aws-robomaker-small-warehouse-world-MIT-0.txt
+   The bodies of the upstream LICENSE and of the copy vendored here match the
+   SPDX canonical MIT-0 text exactly (whitespace-normalised, copyright notice
+   excluded).  Note that the upstream package.xml inconsistently declares
+   "Apache 2.0"; either way the terms are permissive.
+   The following files are UNMODIFIED copies of upstream assets, vendored here
+   so that the simulator runs without requiring a separate download or build:
+     ros/navi/worlds/no_roof_small_warehouse.world
+     models/aws_robomaker_warehouse_*                (14 model directories)
+   Only the file layout differs: the models are placed flat under models/ so
+   that init.sh copies them into ~/.gazebo/models and Gazebo resolves the
+   world's model:// URIs without the upstream ROS package being built.
+   The following file is a MODIFIED derivative of the same upstream world
+   (five recording cameras appended); it predates this release:
+     ros/utils/video_record_multi_camera/no_roof_small_warehouse_multi_camera.world
+   MIT-0 requires no attribution or change notice, so this listing is
+   informational only.
 
 ================================================================================
 Optional component NOT included in this repository or image

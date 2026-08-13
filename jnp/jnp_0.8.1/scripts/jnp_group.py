@@ -1719,6 +1719,9 @@ if __name__ == '__main__':
 
             def _post_explore_save():
                 try:
+                    # map_saver 는 상위 폴더를 만들지 않는다. 런타임 산출물 폴더라
+                    # 저장소에 없으므로 새로 설치한 환경에서는 여기서 만들어 준다.
+                    os.makedirs('/root/tesla/ros/navi/maps/bnt_explored', exist_ok=True)
                     subprocess.run(
                         ['bash', '-c',
                          'source /opt/ros/noetic/setup.bash; timeout 30 rosrun '

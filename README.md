@@ -9,14 +9,52 @@
 - This software is a 3D simulator software for learning multi-agents in virtual environments (가상환경에서의 멀티에이전트 학습을 위한 3D 기반 에이전트 시뮬레이터).
 - You can download worlds or models at the following sites. After that, you should move them to "worlds" or "models" directory.
   - https://github.com/gazebosim/gazebo-classic/tree/gazebo11/worlds
-  - https://github.com/chaolmu/gazebo_models_worlds_collection
+  - https://github.com/leonhartyao/gazebo_models_worlds_collection
   - https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps
   - https://github.com/osrf/gazebo_models
-  - https://dev.px4.io/v1.11_noredirect/en/simulation/gazebo_worlds.html
+  - https://docs.px4.io/main/en/sim_gazebo_gz/worlds
+    (PX4 월드 문서 → https://github.com/PX4/PX4-gazebo-models , BSD-3-Clause.
+    다만 신형 Gazebo(gz)용 `.sdf` 라 Gazebo Classic 에서는 그대로 쓸 수 없습니다)
+  - https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds
+    (Gazebo Classic 용 `.world` 19개. 저장소에 `LICENSE` 파일은 없고 `package.xml` 이 BSD 로,
+    소스 파일 헤더는 Apache-2.0 으로 표기돼 있습니다 — 재배포 전 직접 확인이 필요합니다)
   - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
   - https://data.nvision2.eecs.yorku.ca/3DGEMS/
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
+
+### AWS RoboMaker 월드 (선택 — 저장소에 포함되어 있지 않음)
+
+World 패널의 `Hospital › hospital`, `HouseCafe › small_house` 항목은 월드 파일이 있어야 동작합니다.
+AWS RoboMaker 월드로 채울 수 있으며, 모두 **MIT-0(MIT No Attribution)** 이라 자유롭게 사용·재배포할 수 있습니다.
+용량이 커서(합계 약 230 MB) 저장소에는 담지 않았습니다. 필요할 때만 받으십시오.
+
+| 월드 | 저장소 | models 용량 |
+| --- | --- | --- |
+| hospital | https://github.com/aws-robotics/aws-robomaker-hospital-world | 76 MB |
+| small house | https://github.com/aws-robotics/aws-robomaker-small-house-world | 105 MB |
+| bookstore | https://github.com/aws-robotics/aws-robomaker-bookstore-world | 48 MB |
+
+받는 방법입니다. ROS 패키지로 빌드할 필요 없이 파일만 제자리에 놓으면 Gazebo 가 찾습니다.
+세 저장소 모두 **기본 브랜치가 `archive` 이고 파일은 `ros1` 브랜치에 있으므로 `-b ros1` 이 반드시 필요합니다.**
+(기본 브랜치를 그냥 받으면 README 만 딸려옵니다.)
+
+```bash
+# 예: hospital — 저장소 이름만 바꾸면 나머지 둘도 동일합니다
+git clone --depth 1 -b ros1 \
+  https://github.com/aws-robotics/aws-robomaker-hospital-world.git /tmp/aws_hospital
+
+cp -r /tmp/aws_hospital/models/*        ~/.gazebo/models/             # 3D 모델
+cp    /tmp/aws_hospital/worlds/*.world  /usr/share/gazebo-11/worlds/  # 월드 파일
+```
+
+- 컨테이너를 다시 만들어도 유지하려면 위 두 폴더 대신 이 저장소의 `models/` 와 `worlds/` 에 넣으십시오. `init.sh` 가 같은 위치로 복사해 줍니다.
+- `bookstore` 는 World 패널에 항목이 없고, 추가하려면 코드 수정이 필요합니다. 패널 목록은 enum 이 아니라 `code/Multi-Agent-Simulator/main.py` 의 `InitWorld()` 가 만드는 월드 목록에서 생성됩니다. 따라서 `simulator.py` 의 `ENUM_WORLD_CATEGORY_SUB` 에서 `BOOKSTORE` 주석을 해제하고, **동시에 `main.py` 의 목록에 `World_Sub` 항목(썸네일 포함)을 추가**해야 합니다. 주석만 해제하면 아무 변화가 없습니다.
+- `Hospital › hospital_2_floors` / `hospital_3_floors` 를 쓰려면 파일 이름을 바꿔야 합니다. AWS 는 `hospital_two_floors.world` / `hospital_three_floors.world` 로 배포합니다.
+- 협업 태스크(릴레이·다목적 이동·충돌회피·분산 탐색)는 이 월드들을 쓰지 않으므로, 받지 않아도 정상 동작합니다.
+- 공개 수집처 [mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps) 가 같은 월드를 재호스팅하고 있고 위 목록의 다운로드 링크에도 들어 있습니다. 다만 **그 저장소에는 라이선스 파일이 하나도 없습니다**(압축 파일 8개 전부 2,696개 항목을 확인했으나 `LICENSE`/`COPYING`/`NOTICE` 0건). 내용물의 원출처는 AWS 이고 MIT-0 는 귀속 표시를 요구하지 않으므로 그 자체가 위반은 아니지만, **라이선스 근거가 필요하면 AWS 저장소에서 직접 받으십시오.** AWS 저장소에는 MIT-0 LICENSE 원문이 들어 있습니다.
+- 같은 수집처의 `office` 는 README 에 `AWS Office` 로 적혀 있으나 AWS 의 공개 저장소를 확인하지 못했고(aws-robotics 조직 저장소 43개·GitHub 검색 모두 0건), `factory` 는 `Custom Factory` 로 표기돼 있을 뿐 저작권이 그 수집처에 있다는 근거는 아닙니다. **두 월드는 원저작자와 라이선스를 단정할 수 없습니다.**
+- 위 목록의 [leonhartyao/gazebo_models_worlds_collection](https://github.com/leonhartyao/gazebo_models_worlds_collection) 은 **여러 프로젝트에서 모아 놓은 수집처**입니다. 저장소 루트 LICENSE 는 GPL-3.0 이지만, 그 안의 파일들은 자기 readme 의 `Source` 절이 밝히듯 3DGEMS / RotorS / TU Delft / ARTI-Robots / Clearpath Robotics / Fetch Robotics 에서 온 것이고 **원저작물의 라이선스는 각 원출처를 따릅니다**(예: Fetch·Clearpath 는 BSD, RotorS 는 ASL 2.0, TU Delft 는 GPL-3.0). 수집처 루트가 GPL-3.0 이라는 사실과 개별 파일이 GPL 로 재라이선스되었다는 것은 다른 이야기이므로, 재배포하려면 원출처 조건을 직접 확인하십시오. World 패널 각 항목의 원출처는 **World Info** 버튼으로 확인할 수 있습니다.
 
 ---
 # 프로젝트 실행 환경

@@ -33,7 +33,7 @@
   <arg name="tb3_1_y"                           default="1.0"/>
   <arg name="base_type"                         default="$(optenv INTERBOTIX_XSLOCOBOT_BASE_TYPE create3)"/> <!-- 'kobuki', 'create3' -->
   <arg name="rviz_frame"                        default="map"/>
-  <arg name="map_file"                          default="/root/map_no_roof_warehouse/map.yaml"/>
+  <arg name="map_file"                          default="/root/tesla/ros/navi/maps/map.yaml"/> <!-- 저장소에 포함된 지도 (예전 기본값 /root/map_no_roof_warehouse/ 는 배포본에 없어 map_server 가 조용히 죽었음) -->
   <arg name="spawn_second_tb3"                  default="true"/> <!-- 충돌회피(3로봇)는 false -->
   <arg name="spawn_tb3s"                        default="true"/> <!-- 지도제작은 false (burger 대신 waffle) -->
   <arg name="spawn_waffle"                      default="false"/> <!-- 지도제작: waffle 1대 (SLAM) -->
@@ -90,7 +90,7 @@
   <arg name="use_known_map"                     default="false"/>
   <node if="$(arg use_known_map)" name="known_map_server" pkg="map_server"
         type="map_server" args="$(arg map_file)"/> <!-- tb3 amcl/map_server 지도 (태스크별 교체 가능) -->
-  <arg name="world_name"                        default="$(find aws_robomaker_small_warehouse_world)/worlds/no_roof_small_warehouse.world"/> <!-- 기본 warehouse (기존 동작); 충돌회피는 bnt 로 교체 -->
+  <arg name="world_name"                        default="/root/tesla/ros/navi/worlds/no_roof_small_warehouse.world"/> <!-- 기본 warehouse (기존 동작). AWS RoboMaker 월드를 저장소에 동봉하고 절대경로로 지정한다: roslaunch 는 default 도 즉시 평가하므로 $(find aws_robomaker_small_warehouse_world) 를 두면 그 패키지가 없는 환경에서 파싱 단계에 즉사한다. 충돌회피/지도제작은 bnt, 물건찾기는 desk 월드를 인자로 교체 -->
   <arg name="gui"                               default="true"/>
   <arg name="debug"                             default="false"/>
   <arg name="paused"                            default="true"/>
