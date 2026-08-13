@@ -6,6 +6,7 @@
 ##  - /jnp_agent_join_event : new/kill/task 이벤트    ##
 ######################################################
 import sys
+import re
 import json
 import time
 import subprocess
@@ -205,9 +206,15 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self.ui.lbSimStats.setText(f"RTF {rtf_s} | Sim {sim_s} | Real {real_s}")
 
     # 메시지 data 를 한 줄씩 그대로 찍는 rospy tap (flush 필수 — 파이프 블록버퍼 함정)
-    TAP_CODE = ("import rospy; from std_msgs.msg import String; "
+    # rospy 구독 콜백은 여러 스레드에서 동시에 돈다. print() 는 본문과 개행을 따로
+    # 내보내므로 두 메시지가 겹치면 'new:AAAnew:BBB' 처럼 한 줄로 붙어 버린다(실측).
+    # → 락으로 직렬화하고 본문+개행을 한 번의 write 로 내보낸다.
+    TAP_CODE = ("import rospy, sys, threading; from std_msgs.msg import String; "
                 "rospy.init_node('jnp_mon_tap', anonymous=True); "
-                "rospy.Subscriber('{t}', String, lambda m: print(m.data, flush=True)); "
+                "_lk = threading.Lock(); "
+                "_w = lambda s: (_lk.acquire(), sys.stdout.write(s + chr(10)), "
+                "sys.stdout.flush(), _lk.release()); "
+                "rospy.Subscriber('{t}', String, lambda m: _w(m.data)); "
                 "rospy.spin()")
 
     def _spawn_watch(self, topic, handler):
@@ -259,6 +266,22 @@ class DialogJnpMonitor(QtWidgets.QDialog):
 
     # /jnp_agent_join_event : new / kill / task
     def _on_event_line(self, line):
+        # 두 메시지가 한 줄로 붙어 들어오더라도(tap 쪽을 고쳤지만 과거 로그·경합 대비)
+        # 접두어마다 잘라 각각 처리한다. 자르지 않으면 뒤 메시지가 앞 이름에 흡수되어
+        # '/etri/tb3_waffle_0new:/etri/locobot_0' 같은 유령 에이전트가 생긴다.
+        parts = [p for p in re.split(r'(?=(?:new|kill|task):)', line) if p]
+        if len(parts) > 1:
+            # 합쳐진 경로가 아직 규명되지 않았다. 다음 재현 때 정체를 알 수 있도록
+            # 원문을 그대로 남긴다(따옴표 포함 — 눈에 안 보이는 문자까지 드러나게).
+            self._log(f"[진단] 합쳐진 이벤트 원문: {line!r}")
+            for p in parts:
+                self._on_one_event(p)
+            self._refresh_agents()
+            return
+        self._on_one_event(line)
+        self._refresh_agents()
+
+    def _on_one_event(self, line):
         if line.startswith('new:'):
             name = line[4:]
             if self.m_agents.get(name) != 'alive':
@@ -273,7 +296,6 @@ class DialogJnpMonitor(QtWidgets.QDialog):
                 self._log(f"이탈: {name}" if self.m_ko else f"left: {name}")
         elif line.startswith('task:'):
             self._log(f"task 발행: {line[5:]}" if self.m_ko else f"task published: {line[5:]}")
-        self._refresh_agents()
 
     # 'Group 해제' — 현재 그룹에 dissolve 명령 발행 (그룹이 kill 발행 후 종료)
     def _dissolve_group(self):
