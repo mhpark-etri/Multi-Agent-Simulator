@@ -17,8 +17,10 @@
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
 
-> **⚠️ License notice** — These worlds and models carry different licenses depending on the source.
-> Before downloading or redistributing them, **[be sure to read Worlds, models and their licenses](#worlds-models-and-their-licenses)**.
+> [!NOTE]
+> These worlds and models carry different licenses depending on the source. Before downloading
+> or redistributing them, $\textsf{\color{red}{be sure to read Worlds, models and their licenses}}$.
+> → [Go to that section](#worlds-models-and-their-licenses)
 
 ---
 # Runtime environment
