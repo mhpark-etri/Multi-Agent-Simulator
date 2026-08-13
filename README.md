@@ -17,8 +17,10 @@
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
 
-> **⚠️ 라이선스 주의** — 위 월드·모델은 출처마다 라이선스가 다릅니다.
-> 내려받거나 재배포하기 전에 **[반드시 월드·모델 출처와 라이선스](#월드모델-출처와-라이선스)** 를 확인해 주십시오.
+> [!NOTE]
+> 위 월드·모델은 출처마다 라이선스가 다릅니다. 내려받거나 재배포하기 전에
+> $\textsf{\color{red}{반드시 월드·모델 출처와 라이선스}}$ 를 확인해 주십시오.
+> → [해당 절로 이동](#월드모델-출처와-라이선스)
 
 ---
 # 프로젝트 실행 환경
