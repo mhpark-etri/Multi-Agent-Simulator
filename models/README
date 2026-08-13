@@ -1,10 +1,34 @@
 Download model files from the following sites.
 
 - https://github.com/gazebosim/gazebo-classic/tree/gazebo11/worlds
-- https://github.com/chaolmu/gazebo_models_worlds_collection
+- https://github.com/leonhartyao/gazebo_models_worlds_collection
 - https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps
 - https://github.com/osrf/gazebo_models
-- https://dev.px4.io/v1.11_noredirect/en/simulation/gazebo_worlds.html
+- https://docs.px4.io/main/en/sim_gazebo_gz/worlds
+    (PX4 world docs -> https://github.com/PX4/PX4-gazebo-models , BSD-3-Clause.
+     These are .sdf worlds for the new Gazebo (gz); they do not load in Gazebo Classic as-is.
+     PX4 월드 문서. 신형 Gazebo(gz)용 .sdf 라 Gazebo Classic 에서는 그대로 쓸 수 없습니다.)
+- https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds
+    (19 .world files for Gazebo Classic. No LICENSE file; package.xml declares BSD and the source
+     headers carry Apache-2.0 - confirm before redistributing.
+     Gazebo Classic 용 .world 19개. LICENSE 파일은 없고 package.xml 은 BSD, 소스 헤더는
+     Apache-2.0 으로 표기돼 있습니다. 재배포 전 직접 확인이 필요합니다.)
 - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
 - https://data.nvision2.eecs.yorku.ca/3DGEMS/
 - https://github.com/eliabntt/gazebo_resources
+
+
+Bundled models / 동봉된 모델
+----------------------------
+aws_robomaker_warehouse_*  (14 directories)
+  AWS RoboMaker Small Warehouse World, unmodified upstream assets.
+  https://github.com/aws-robotics/aws-robomaker-small-warehouse-world
+  License: MIT-0 (MIT No Attribution) — licenses/aws-robomaker-small-warehouse-world-MIT-0.txt
+  Used by ros/navi/worlds/no_roof_small_warehouse.world, which is the default
+  world of the Relay / Multi-Goal Move collaboration tasks ("collaboration"
+  entry in the World panel). They are placed flat here so that init.sh copies
+  them into ~/.gazebo/models; no separate ROS package build is needed.
+
+  AWS RoboMaker Small Warehouse World 의 원본 에셋(수정 없음)입니다.
+  World 패널의 Custom > collaboration 항목이 이 월드를 사용합니다.
+  init.sh 가 ~/.gazebo/models 로 복사하므로 별도 패키지 빌드가 필요 없습니다.

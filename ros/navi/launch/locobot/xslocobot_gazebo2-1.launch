@@ -18,7 +18,7 @@
   <arg name="robot2_y"                          default="0.0"/>
   <arg name="use_rviz"                          default="false"/>
   <arg name="rviz_frame"                        default="$(arg robot_name)/base_footprint"/>
-  <arg name="world_name"                        default="$(find aws_robomaker_small_warehouse_world)/worlds/no_roof_small_warehouse.world"/>
+  <arg name="world_name"                        default="/root/tesla/ros/navi/worlds/no_roof_small_warehouse.world"/> <!-- 저장소에 동봉한 AWS RoboMaker warehouse. roslaunch 는 default 도 즉시 평가하므로 $(find aws_robomaker_small_warehouse_world) 를 두면 해당 패키지가 없는 환경에서 파싱 단계에서 죽는다 -->
   <arg name="gui"                               default="true"/>
   <arg name="debug"                             default="false"/>
   <arg name="paused"                            default="true"/>

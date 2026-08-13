@@ -23,6 +23,7 @@ from dlgStartROSCollaborationTask import DialogStartROSCollaborationTask
 from dlgJnpMonitor import DialogJnpMonitor
 from dlgNavSettings import (DialogNavSettings, generate_nav_overrides,
                             nav_check_value, task_nav_key)
+from dlgWorldInfo import DialogWorldInfo
 # from dlgDBOpen import DialogDBOpen
 from widgetRobotItem import WidgetRobotItem
 from widgetROSCollaborationTaskItem import widgetROSCollaborationTaskItem
@@ -44,12 +45,25 @@ PATH_LAUNCH_FOLDER_NAME = "launch"
 # PATH_SOURCE_HOSPITAL = "source /home/tesla/Desktop/tesla_work/01_Models/aws-robomaker-hospital-world-ros1/install/setup.sh"
 # PATH_SOURCE_SMALL_HOUSE = "source /home/tesla/Desktop/tesla_work/01_Models/aws-robomaker-small-house-world-ros1/install/setup.sh"
 # PATH_SOURCE_BOOK_STORE = "source /home/tesla/Desktop/tesla_work/01_Models/aws-robomaker-bookstore-world-ros1/install/setup.sh"
-PATH_SOURCE_WAREHOUSE = "source /root/tesla/models/aws-robomaker-small-warehouse-world-ros1/install/setup.sh"
-PATH_SOURCE_HOSPITAL = "source /root/tesla/models/aws-robomaker-hospital-world-ros1/install/setup.sh"
-PATH_SOURCE_SMALL_HOUSE = "source /root/tesla/models/aws-robomaker-small-house-world-ros1/install/setup.sh"
-PATH_SOURCE_BOOK_STORE = "source /root/tesla/models/aws-robomaker-bookstore-world-ros1/install/setup.sh"
-PATH_SOURCE_UNI = "source /root/catkin_ws_ai_bot/devel/setup.bash"
-PATH_SOURCE_STRETCH2 ="source /root/catkin_ws_stretch2/devel/setup.bash" 
+def _source_if_exists(path):
+    """파일이 있을 때만 source 하는 셸 구문을 만든다.
+
+    아래 경로들은 새로 설치한 환경에는 없는 것이 정상이다.
+      * Ai-Bot / Stretch2 : 해당 로봇을 쓸 때만 사용자가 따로 빌드한다 (README 4.3 / 4.4)
+      * AWS 월드 패키지    : 이제 ROS 패키지로 빌드하지 않는다. 월드는 절대경로로
+                           지정하고 모델은 ~/.gazebo/models 에서 찾으므로 필요가 없다
+    그냥 source 하면 실행할 때마다 'No such file or directory' 가 찍혀서, 정작
+    진짜 오류가 났을 때 묻혀 버린다. 있으면 읽고 없으면 조용히 넘어가게 한다.
+    """
+    return "[ -f {p} ] && source {p}".format(p=path)
+
+
+PATH_SOURCE_WAREHOUSE = _source_if_exists("/root/tesla/models/aws-robomaker-small-warehouse-world-ros1/install/setup.sh")
+PATH_SOURCE_HOSPITAL = _source_if_exists("/root/tesla/models/aws-robomaker-hospital-world-ros1/install/setup.sh")
+PATH_SOURCE_SMALL_HOUSE = _source_if_exists("/root/tesla/models/aws-robomaker-small-house-world-ros1/install/setup.sh")
+PATH_SOURCE_BOOK_STORE = _source_if_exists("/root/tesla/models/aws-robomaker-bookstore-world-ros1/install/setup.sh")
+PATH_SOURCE_UNI = _source_if_exists("/root/catkin_ws_ai_bot/devel/setup.bash")
+PATH_SOURCE_STRETCH2 = _source_if_exists("/root/catkin_ws_stretch2/devel/setup.bash")
 MAX_MODEL_COUNT_ROBOT = 10  # Max robot model count
 MAX_MODEL_COUNT_PERSON = 3 # Max person model count
 PATH_SOURCE_JNP_SETUP = "source /root/catkin_ws_jnp/devel/setup.sh"
@@ -149,6 +163,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Wolrd option
         self.ui.btnWorldOptionFire.clicked.connect(self.OpenWorldOptionFireDialog)
+
+        # World Info — 선택한 월드의 설명/출처/라이선스를 팝업으로 보여준다.
+        # ui_main.py 는 Qt Designer 가 다시 만들어내는 생성물이라 손대지 않고,
+        # Fire 버튼이 놓인 레이아웃에 코드로 버튼을 덧붙인다.
+        self.btnWorldInfo = QtWidgets.QPushButton(self.ui.btnWorldOptionFire.parent())
+        self.btnWorldInfo.setObjectName('btnWorldInfo')
+        self.btnWorldInfo.setText('World Info')
+        self.btnWorldInfo.setStyleSheet(self.ui.btnWorldOptionFire.styleSheet())
+        self.btnWorldInfo.clicked.connect(self.OpenWorldInfoDialog)
+        self.ui.horizontalLayout_30.addWidget(self.btnWorldInfo)
 
         # Add & Delete Model
         self.ui.btnAddRobot.clicked.connect(self.AddRobot)
@@ -1913,6 +1937,25 @@ class MainWindow(QtWidgets.QMainWindow):
             self.m_simulator.worldType = ENUM_WORLD.SMALLHOUSE
         elif self.ui.rbWorldBookStore.isChecked() == True:
             self.m_simulator.worldType = ENUM_WORLD.BOOK_STORE
+
+    # 선택한 월드의 설명 / 출처 / 라이선스 팝업
+    def OpenWorldInfoDialog(self):
+        mainItem = self.ui.lstwWorldMainCategory.currentItem()
+        subItem = self.ui.lstwWorldSubCategory.currentItem()
+        if subItem is None:
+            QMessageBox.information(
+                self,
+                self._msg('월드 정보', 'World Info'),
+                self._msg('World 목록에서 월드를 먼저 선택하십시오.',
+                          'Select a world in the World panel first.'))
+            return
+        dlg = DialogWorldInfo(
+            self,
+            main_name=(mainItem.text() if mainItem is not None else ''),
+            sub_name=subItem.text(),
+            ko=(self.ui.cmbUiLang.currentIndex() == 0))
+        self._CenterDlg(dlg)
+        dlg.exec()
 
     # World Fire 옵션 선택
     def OpenWorldOptionFireDialog(self):

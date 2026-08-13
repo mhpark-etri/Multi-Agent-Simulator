@@ -96,6 +96,11 @@ COPY code/Multi-Agent-Simulator/ /root/tesla/code/Multi-Agent-Simulator
 COPY models/ /root/tesla/models/
 COPY worlds/ /root/tesla/worlds/
 
+# 1-0. 라이선스 문서 — 이미지 안의 여러 파일(models/README, launch 헤더, World Info 팝업)이
+#      'licenses/...' 를 가리키므로 이미지에도 함께 넣어 그 경로가 실제로 존재하게 한다.
+COPY NOTICE LICENSE /root/tesla/
+COPY licenses/ /root/tesla/licenses/
+
 # 1-1. 검증된 GUI 설정(QSettings) 시드 — Nav 설정 '자동(기본)' 프로파일 포함.
 #      설정을 바꿔 배포하려면: cp ~/.config/ETRI/ROSSimulator.conf docker/seed_config/ 후 커밋
 RUN mkdir -p /root/.config/ETRI

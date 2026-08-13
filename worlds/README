@@ -1,10 +1,18 @@
 Download world files from the following sites.
 
 - https://github.com/gazebosim/gazebo-classic/tree/gazebo11/worlds
-- https://github.com/chaolmu/gazebo_models_worlds_collection
+- https://github.com/leonhartyao/gazebo_models_worlds_collection
 - https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps
 - https://github.com/osrf/gazebo_models
-- https://dev.px4.io/v1.11_noredirect/en/simulation/gazebo_worlds.html
+- https://docs.px4.io/main/en/sim_gazebo_gz/worlds
+    (PX4 world docs -> https://github.com/PX4/PX4-gazebo-models , BSD-3-Clause.
+     These are .sdf worlds for the new Gazebo (gz); they do not load in Gazebo Classic as-is.
+     PX4 월드 문서. 신형 Gazebo(gz)용 .sdf 라 Gazebo Classic 에서는 그대로 쓸 수 없습니다.)
+- https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds
+    (19 .world files for Gazebo Classic. No LICENSE file; package.xml declares BSD and the source
+     headers carry Apache-2.0 - confirm before redistributing.
+     Gazebo Classic 용 .world 19개. LICENSE 파일은 없고 package.xml 은 BSD, 소스 헤더는
+     Apache-2.0 으로 표기돼 있습니다. 재배포 전 직접 확인이 필요합니다.)
 - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
 - https://data.nvision2.eecs.yorku.ca/3DGEMS/
 - https://github.com/eliabntt/gazebo_resources
