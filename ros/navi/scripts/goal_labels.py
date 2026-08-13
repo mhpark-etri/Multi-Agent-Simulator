@@ -263,7 +263,12 @@ class GoalMarkers:
                     ps.pose.position.y = px[1]
                     ps.pose.position.z = 0.03
                     ps.pose.orientation.w = 1.0
-                    sp(name, build_count_sdf(name, k), '', ps.pose, 'world')
+                    res = sp(name, build_count_sdf(name, k), '', ps.pose, 'world')
+                    # 스폰 성공을 확인하고서 기록한다. 확인 없이 기록하면 Gazebo 에
+                    # 없는 모델을 계속 옮기고 지우려 해서 'model does not exist'
+                    # 에러가 반복된다(그 에러는 Gazebo 가 찍으므로 여기서 못 막는다).
+                    if not getattr(res, 'success', False):
+                        continue                      # 다음 주기에 다시 시도
                     self._prio_models[r] = (k, name)
                 else:
                     rospy.wait_for_service('/gazebo/set_model_state', timeout=2.0)
@@ -275,7 +280,11 @@ class GoalMarkers:
                     st.pose.position.z = 0.03
                     st.pose.orientation.w = 1.0
                     st.reference_frame = 'world'
-                    mv(st)
+                    res = mv(st)
+                    # 모델이 (리셋 등으로) 사라졌으면 기록을 버려 다음 주기에 다시
+                    # 스폰되게 한다. 버리지 않으면 어긋난 상태가 영영 회복되지 않는다.
+                    if not getattr(res, 'success', False):
+                        self._prio_models.pop(r, None)
         except Exception as e:
             rospy.logwarn_throttle(30.0, '우선순위 숫자 표시 실패: %s', e)
 

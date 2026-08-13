@@ -13,48 +13,14 @@
   - https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps
   - https://github.com/osrf/gazebo_models
   - https://docs.px4.io/main/en/sim_gazebo_gz/worlds
-    (PX4 월드 문서 → https://github.com/PX4/PX4-gazebo-models , BSD-3-Clause.
-    다만 신형 Gazebo(gz)용 `.sdf` 라 Gazebo Classic 에서는 그대로 쓸 수 없습니다)
   - https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds
-    (Gazebo Classic 용 `.world` 19개. 저장소에 `LICENSE` 파일은 없고 `package.xml` 이 BSD 로,
-    소스 파일 헤더는 Apache-2.0 으로 표기돼 있습니다 — 재배포 전 직접 확인이 필요합니다)
   - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
   - https://data.nvision2.eecs.yorku.ca/3DGEMS/
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
 
-### AWS RoboMaker 월드 (선택 — 저장소에 포함되어 있지 않음)
-
-World 패널의 `Hospital › hospital`, `HouseCafe › small_house` 항목은 월드 파일이 있어야 동작합니다.
-AWS RoboMaker 월드로 채울 수 있으며, 모두 **MIT-0(MIT No Attribution)** 이라 자유롭게 사용·재배포할 수 있습니다.
-용량이 커서(합계 약 230 MB) 저장소에는 담지 않았습니다. 필요할 때만 받으십시오.
-
-| 월드 | 저장소 | models 용량 |
-| --- | --- | --- |
-| hospital | https://github.com/aws-robotics/aws-robomaker-hospital-world | 76 MB |
-| small house | https://github.com/aws-robotics/aws-robomaker-small-house-world | 105 MB |
-| bookstore | https://github.com/aws-robotics/aws-robomaker-bookstore-world | 48 MB |
-
-받는 방법입니다. ROS 패키지로 빌드할 필요 없이 파일만 제자리에 놓으면 Gazebo 가 찾습니다.
-세 저장소 모두 **기본 브랜치가 `archive` 이고 파일은 `ros1` 브랜치에 있으므로 `-b ros1` 이 반드시 필요합니다.**
-(기본 브랜치를 그냥 받으면 README 만 딸려옵니다.)
-
-```bash
-# 예: hospital — 저장소 이름만 바꾸면 나머지 둘도 동일합니다
-git clone --depth 1 -b ros1 \
-  https://github.com/aws-robotics/aws-robomaker-hospital-world.git /tmp/aws_hospital
-
-cp -r /tmp/aws_hospital/models/*        ~/.gazebo/models/             # 3D 모델
-cp    /tmp/aws_hospital/worlds/*.world  /usr/share/gazebo-11/worlds/  # 월드 파일
-```
-
-- 컨테이너를 다시 만들어도 유지하려면 위 두 폴더 대신 이 저장소의 `models/` 와 `worlds/` 에 넣으십시오. `init.sh` 가 같은 위치로 복사해 줍니다.
-- `bookstore` 는 World 패널에 항목이 없고, 추가하려면 코드 수정이 필요합니다. 패널 목록은 enum 이 아니라 `code/Multi-Agent-Simulator/main.py` 의 `InitWorld()` 가 만드는 월드 목록에서 생성됩니다. 따라서 `simulator.py` 의 `ENUM_WORLD_CATEGORY_SUB` 에서 `BOOKSTORE` 주석을 해제하고, **동시에 `main.py` 의 목록에 `World_Sub` 항목(썸네일 포함)을 추가**해야 합니다. 주석만 해제하면 아무 변화가 없습니다.
-- `Hospital › hospital_2_floors` / `hospital_3_floors` 를 쓰려면 파일 이름을 바꿔야 합니다. AWS 는 `hospital_two_floors.world` / `hospital_three_floors.world` 로 배포합니다.
-- 협업 태스크(릴레이·다목적 이동·충돌회피·분산 탐색)는 이 월드들을 쓰지 않으므로, 받지 않아도 정상 동작합니다.
-- 공개 수집처 [mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps) 가 같은 월드를 재호스팅하고 있고 위 목록의 다운로드 링크에도 들어 있습니다. 다만 **그 저장소에는 라이선스 파일이 하나도 없습니다**(압축 파일 8개 전부 2,696개 항목을 확인했으나 `LICENSE`/`COPYING`/`NOTICE` 0건). 내용물의 원출처는 AWS 이고 MIT-0 는 귀속 표시를 요구하지 않으므로 그 자체가 위반은 아니지만, **라이선스 근거가 필요하면 AWS 저장소에서 직접 받으십시오.** AWS 저장소에는 MIT-0 LICENSE 원문이 들어 있습니다.
-- 같은 수집처의 `office` 는 README 에 `AWS Office` 로 적혀 있으나 AWS 의 공개 저장소를 확인하지 못했고(aws-robotics 조직 저장소 43개·GitHub 검색 모두 0건), `factory` 는 `Custom Factory` 로 표기돼 있을 뿐 저작권이 그 수집처에 있다는 근거는 아닙니다. **두 월드는 원저작자와 라이선스를 단정할 수 없습니다.**
-- 위 목록의 [leonhartyao/gazebo_models_worlds_collection](https://github.com/leonhartyao/gazebo_models_worlds_collection) 은 **여러 프로젝트에서 모아 놓은 수집처**입니다. 저장소 루트 LICENSE 는 GPL-3.0 이지만, 그 안의 파일들은 자기 readme 의 `Source` 절이 밝히듯 3DGEMS / RotorS / TU Delft / ARTI-Robots / Clearpath Robotics / Fetch Robotics 에서 온 것이고 **원저작물의 라이선스는 각 원출처를 따릅니다**(예: Fetch·Clearpath 는 BSD, RotorS 는 ASL 2.0, TU Delft 는 GPL-3.0). 수집처 루트가 GPL-3.0 이라는 사실과 개별 파일이 GPL 로 재라이선스되었다는 것은 다른 이야기이므로, 재배포하려면 원출처 조건을 직접 확인하십시오. World 패널 각 항목의 원출처는 **World Info** 버튼으로 확인할 수 있습니다.
+> [!NOTE]
+> 위 월드·모델은 출처마다 라이선스가 다릅니다. 내려받거나 재배포하기 전에 [$\textsf{\color{red}{반드시\ 월드·모델\ 출처와\ 라이선스}}$](#월드모델-출처와-라이선스) 를 확인해 주십시오.
 
 ---
 # 프로젝트 실행 환경
@@ -139,11 +105,14 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <br><br>
 
 ### 4.2.1 JnP 0.8.1 (v1.9 협업 태스크) — 참고용, 실행 불필요
-> Docker 이미지와 `init.sh` 가 이미 빌드합니다. **이 절은 건너뛰어도 됩니다.**
-> 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 사용하십시오.
-- v1.9 의 협업 태스크(릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 /
-  분산 탐색-물건 찾기)는 JnP **0.8.1** 을 사용합니다. 소스에서 다시 빌드하려면
-  아래와 같이 합니다.
+
+> 이미지와 `init.sh` 가 이미 빌드합니다. **건너뛰어도 됩니다.**
+> 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 보십시오.
+
+- v1.9 협업 태스크는 JnP **0.8.1** 을 사용합니다.
+  - 릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 / 분산 탐색-물건 찾기
+- 소스에서 다시 빌드하려면 아래를 실행합니다.
+
 ```
 mkdir -p /root/catkin_ws_jnp081/src
 ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
@@ -152,24 +121,33 @@ cd /root/catkin_ws_jnp081 && catkin_make
 ```
 
 ### 4.2.2 탐사 스택 (third_party) — 참고용, 실행 불필요
-> Docker 이미지와 `init.sh` 가 이미 빌드합니다. **이 절은 건너뛰어도 됩니다.**
-> 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 사용하십시오.
-- 분산 탐색(지도 제작·물건 찾기)은 프런티어 검출·지도 병합 패키지를 사용합니다.
-  이 저장소는 두 패키지를 `third_party/` 에 담아 함께 배포합니다
-  (라이선스는 각 패키지 원본을 따릅니다 — `NOTICE`, `third_party/README.md` 참조).
-  - `rrt_exploration` (MIT, **수정본**) — 프런티어 검출·필터.
-    `~use_global_merged_map` 등 다중 로봇용 파라미터가 추가되어 있어
-    **apt 패키지로 대체할 수 없습니다.**
-  - `map_merge` (BSD-3-Clause, 상류 **2.1.5** 원본) — 다중 로봇 지도 병합.
-    apt 판(2.1.4)은 병합 지도가 어긋나므로 소스 빌드가 필요합니다.
-- Docker 이미지에는 두 패키지의 소스가 `/root/catkin_ws_explo/src/` 에 복사되어
-  **이미 빌드까지 되어 있습니다.** 소스를 고친 뒤 다시 빌드하려면 아래만 실행합니다.
+
+> 이미지와 `init.sh` 가 이미 빌드합니다. **건너뛰어도 됩니다.**
+> 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 보십시오.
+
+**무엇을 쓰나**
+
+- 분산 탐색(지도 제작 · 물건 찾기)에 **프런티어 검출**과 **지도 병합** 패키지를 씁니다.
+- 두 패키지는 `third_party/` 에 담아 함께 배포합니다.
+- 라이선스는 각 원본을 따릅니다 → `NOTICE`, `third_party/README.md`
+
+| 패키지 | 라이선스 | 역할 | apt 패키지로 대체 |
+| --- | --- | --- | --- |
+| `rrt_exploration` | MIT (**수정본**) | 프런티어 검출·필터 | **불가** — `~use_global_merged_map` 등 다중 로봇용 파라미터가 추가됨 |
+| `map_merge` | BSD-3-Clause (상류 **2.1.5** 원본) | 다중 로봇 지도 병합 | **불가** — apt 판(2.1.4)은 병합 지도가 어긋남 |
+
+**이미지에서 다시 빌드할 때**
+
+- 소스는 `/root/catkin_ws_explo/src/` 에 **이미 복사·빌드되어 있습니다.**
+- 소스를 고친 뒤 아래만 실행합니다.
+
 ```
 cd /root/catkin_ws_explo
 catkin_make -DCMAKE_BUILD_TYPE=Release
 source /root/catkin_ws_explo/devel/setup.bash
 ```
-- 이미지를 쓰지 않고 직접 구성하는 경우(호스트에 clone 한 저장소에서):
+
+**이미지 없이 직접 구성할 때** (호스트에 clone 한 저장소에서)
 ```
 mkdir -p /root/catkin_ws_explo/src
 cp -a <저장소>/third_party/rrt_exploration /root/catkin_ws_explo/src/
@@ -307,5 +285,64 @@ python3 main.py
   수정 내역은 `third_party/README.md` 에 있습니다.
 - **YOLO(Ultralytics)** 는 AGPL-3.0 이며 본 저장소·이미지에 포함되지 않습니다.
   물건 찾기 태스크를 사용하는 경우 해당 구성요소에 AGPL-3.0 이 적용됩니다.
+
+
+---
+# 월드·모델 출처와 라이선스
+
+> 이 절은 **월드나 모델을 내려받아 쓰거나 재배포하기 전에 읽어야 할 내용**입니다.
+> 저장소에 동봉된 것과 그렇지 않은 것, 그리고 라이선스를 단정할 수 없는 것을 구분해 두었습니다.
+
+## 이 저장소가 함께 배포하는 것
+
+| 대상 | 출처 | 라이선스 |
+| --- | --- | --- |
+| `ros/navi/worlds/no_roof_small_warehouse.world` + `models/aws_robomaker_warehouse_*` (14종) | [AWS RoboMaker Small Warehouse](https://github.com/aws-robotics/aws-robomaker-small-warehouse-world) | **MIT-0** — 전문은 `licenses/aws-robomaker-small-warehouse-world-MIT-0.txt` |
+| `ros/navi/worlds/` 의 나머지 월드 3종 | 이 저장소 자체 제작 (ETRI) | Apache-2.0 |
+| `third_party/rrt_exploration` | [hasauino/rrt_exploration](https://github.com/hasauino/rrt_exploration) | MIT (수정본) |
+| `third_party/map_merge` | [hrnr/m-explore](https://github.com/hrnr/m-explore) | BSD-3-Clause |
+
+자세한 내용은 `NOTICE` 에 있습니다.
+
+## AWS RoboMaker 월드 (선택 — 동봉하지 않음)
+
+World 패널의 `Hospital › hospital`, `HouseCafe › small_house` 항목은 월드 파일이 있어야 동작합니다.
+AWS RoboMaker 월드로 채울 수 있으며, 모두 **MIT-0(MIT No Attribution)** 이라 자유롭게 사용·재배포할 수 있습니다.
+용량이 커서(합계 약 230 MB) 저장소에는 담지 않았습니다.
+
+| 월드 | 저장소 | models 용량 |
+| --- | --- | --- |
+| hospital | https://github.com/aws-robotics/aws-robomaker-hospital-world | 76 MB |
+| small house | https://github.com/aws-robotics/aws-robomaker-small-house-world | 105 MB |
+| bookstore | https://github.com/aws-robotics/aws-robomaker-bookstore-world | 48 MB |
+
+ROS 패키지로 빌드할 필요 없이 파일만 제자리에 놓으면 Gazebo 가 찾습니다.
+세 저장소 모두 **기본 브랜치가 `archive` 이고 파일은 `ros1` 브랜치에 있으므로 `-b ros1` 이 반드시 필요합니다.**
+(기본 브랜치를 그냥 받으면 README 만 딸려옵니다.)
+
+```bash
+# 예: hospital — 저장소 이름만 바꾸면 나머지 둘도 동일합니다
+git clone --depth 1 -b ros1 \
+  https://github.com/aws-robotics/aws-robomaker-hospital-world.git /tmp/aws_hospital
+
+cp -r /tmp/aws_hospital/models/*        ~/.gazebo/models/             # 3D 모델
+cp    /tmp/aws_hospital/worlds/*.world  /usr/share/gazebo-11/worlds/  # 월드 파일
+```
+
+- 컨테이너를 다시 만들어도 유지하려면 위 두 폴더 대신 이 저장소의 `models/` 와 `worlds/` 에 넣으십시오. `init.sh` 가 같은 위치로 복사해 줍니다.
+- `bookstore` 는 World 패널에 항목이 없고, 추가하려면 코드 수정이 필요합니다. 패널 목록은 enum 이 아니라 `code/Multi-Agent-Simulator/main.py` 의 `InitWorld()` 가 만드는 월드 목록에서 생성됩니다. `simulator.py` 의 `ENUM_WORLD_CATEGORY_SUB` 에서 `BOOKSTORE` 주석을 해제하고 **동시에 `main.py` 목록에 `World_Sub` 항목(썸네일 포함)을 추가**해야 합니다.
+- `Hospital › hospital_2_floors` / `hospital_3_floors` 를 쓰려면 파일 이름을 바꿔야 합니다. AWS 는 `hospital_two_floors.world` / `hospital_three_floors.world` 로 배포합니다.
+- 협업 태스크(릴레이·다목적 이동·충돌회피·분산 탐색)는 이 월드들을 쓰지 않으므로, 받지 않아도 정상 동작합니다.
+
+## 공개 수집처에서 받을 때 주의할 점
+
+머리말의 다운로드 목록에 있는 사이트들입니다. **수집처의 라이선스가 그 안의 개별 파일 라이선스와 같지 않을 수 있습니다.**
+
+- [leonhartyao/gazebo_models_worlds_collection](https://github.com/leonhartyao/gazebo_models_worlds_collection) 은 **여러 프로젝트에서 모아 놓은 수집처**입니다. 저장소 루트 LICENSE 는 GPL-3.0 이지만, 그 안의 파일들은 자기 readme 의 `Source` 절이 밝히듯 3DGEMS / RotorS / TU Delft / ARTI-Robots / Clearpath Robotics / Fetch Robotics 에서 온 것이고 **원저작물의 라이선스는 각 원출처를 따릅니다**(예: Fetch·Clearpath 는 BSD, RotorS 는 ASL 2.0, TU Delft 는 GPL-3.0). 수집처 루트가 GPL-3.0 이라는 사실과 개별 파일이 GPL 로 재라이선스되었다는 것은 다른 이야기이므로, 재배포하려면 원출처 조건을 직접 확인하십시오. **World 패널 각 항목의 원출처는 GUI 의 `World Info` 버튼으로 확인할 수 있습니다.**
+- [mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps) 는 AWS 월드를 재호스팅합니다. 다만 **그 저장소에는 라이선스 파일이 하나도 없습니다**(압축 8개 전부 2,696개 항목 확인, `LICENSE`/`COPYING`/`NOTICE` 0건). MIT-0 는 귀속 표시를 요구하지 않으므로 그 자체가 위반은 아니지만, **라이선스 근거가 필요하면 AWS 저장소에서 직접 받으십시오.**
+- 같은 수집처의 `office` 는 `AWS Office` 로 적혀 있으나 AWS 의 공개 저장소를 확인하지 못했고(aws-robotics 조직 저장소 43개·GitHub 검색 모두 0건), `factory` 는 `Custom Factory` 로 표기돼 있을 뿐 저작권이 그 수집처에 있다는 근거는 아닙니다. **두 월드는 원저작자와 라이선스를 단정할 수 없습니다.**
+- PX4 링크 두 개는 Gazebo 세대가 다릅니다. [PX4-gazebo-models](https://github.com/PX4/PX4-gazebo-models) 는 BSD-3-Clause 이지만 **신형 Gazebo(gz)용 `.sdf`** 라 Gazebo Classic 에서는 그대로 쓸 수 없습니다. Classic 용은 [PX4-SITL_gazebo-classic](https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds) 의 `.world` 19개이며, 그 저장소에는 `LICENSE` 파일이 없고 `package.xml` 이 BSD, 소스 헤더가 Apache-2.0 으로 표기돼 있습니다 — **재배포 전 직접 확인이 필요합니다.**
+- [osrf/gazebo_models](https://github.com/osrf/gazebo_models) 의 저장소 수준 LICENSE 는 **CC BY 3.0** 입니다. 다만 upstream 도 일부 개별 모델의 출처·권리관계가 불명확함을 인정하고 있으므로, 개별 모델을 재배포할 때는 별도 확인이 필요합니다.
+- 나머지 사이트(automaticaddison, 3DGEMS, eliabntt/gazebo_resources)는 **라이선스를 확인하지 않았습니다.** 이 저장소는 이들을 담고 있지 않습니다.
 
 </div>
