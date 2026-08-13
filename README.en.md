@@ -13,69 +13,14 @@
   - https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps
   - https://github.com/osrf/gazebo_models
   - https://docs.px4.io/main/en/sim_gazebo_gz/worlds
-    (PX4 world docs → https://github.com/PX4/PX4-gazebo-models , BSD-3-Clause.
-    Note these are `.sdf` worlds for the new Gazebo (gz) and will not load in Gazebo Classic as-is)
   - https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds
-    (19 `.world` files for Gazebo Classic. The repository ships no `LICENSE` file; its `package.xml`
-    declares BSD and the source headers carry Apache-2.0 — confirm before redistributing)
   - https://automaticaddison.com/useful-world-files-for-gazebo-and-ros-2-simulations/
   - https://data.nvision2.eecs.yorku.ca/3DGEMS/
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
 
-### AWS RoboMaker worlds (optional — not included in this repository)
-
-The `Hospital › hospital` and `HouseCafe › small_house` entries in the World panel need a world file to
-work. You can supply them from AWS RoboMaker. All three are **MIT-0 (MIT No Attribution)**, so they are
-free to use and redistribute. They are not bundled here because of their size (about 230 MB in total) —
-download them only if you need them.
-
-| World | Repository | models size |
-| --- | --- | --- |
-| hospital | https://github.com/aws-robotics/aws-robomaker-hospital-world | 76 MB |
-| small house | https://github.com/aws-robotics/aws-robomaker-small-house-world | 105 MB |
-| bookstore | https://github.com/aws-robotics/aws-robomaker-bookstore-world | 48 MB |
-
-There is no need to build them as ROS packages — just put the files where Gazebo already looks.
-All three repositories have `archive` as their default branch and keep the files on `ros1`, so
-**`-b ros1` is required** — cloning the default branch gets you only a README.
-
-```bash
-# example: hospital — change the repository name for the other two
-git clone --depth 1 -b ros1 \
-  https://github.com/aws-robotics/aws-robomaker-hospital-world.git /tmp/aws_hospital
-
-cp -r /tmp/aws_hospital/models/*        ~/.gazebo/models/             # 3D models
-cp    /tmp/aws_hospital/worlds/*.world  /usr/share/gazebo-11/worlds/  # world files
-```
-
-- To survive a container rebuild, copy into this repository's `models/` and `worlds/` instead — `init.sh`
-  installs them to the same places.
-- `bookstore` has no entry in the World panel, and adding one takes a code change: the panel is built from the
-  world catalog assembled in `InitWorld()` in `code/Multi-Agent-Simulator/main.py`, not from the enum. You must
-  uncomment `BOOKSTORE` in `ENUM_WORLD_CATEGORY_SUB` (`simulator.py`) **and** append a matching `World_Sub`
-  (with a thumbnail) to the catalog in `main.py`. Uncommenting the enum alone changes nothing.
-- For `Hospital › hospital_2_floors` / `hospital_3_floors` you must rename the files: AWS ships them as
-  `hospital_two_floors.world` / `hospital_three_floors.world`.
-- The collaboration tasks (Relay, Multi-Goal Move, Collision Avoidance, Distributed Search) do not use these
-  worlds, so everything works without them.
-- The public collection [mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps),
-  which also appears in the download list above, re-hosts the same worlds. However **it ships no license file
-  at all** (checked all 8 archives / 2,696 entries: zero `LICENSE`, `COPYING` or `NOTICE`). The content originates
-  from AWS and MIT-0 requires no attribution, so this is not a violation in itself — but **if you need the
-  license on record, download from the AWS repositories**, which do contain the MIT-0 text.
-- In that same collection, `office` is labelled `AWS Office` but no public AWS repository could be found for it
-  (zero hits across the 43 aws-robotics repositories and a GitHub search), and `factory` is merely labelled
-  `Custom Factory`, which is not evidence that the collection maintainer holds its copyright.
-  **The original author and the license of these two cannot be stated.**
-- [leonhartyao/gazebo_models_worlds_collection](https://github.com/leonhartyao/gazebo_models_worlds_collection)
-  in the list above is a **collection assembled from several projects**. Its repository-root LICENSE is GPL-3.0,
-  but the files inside come from the upstreams its own readme names in the `Source` section — 3DGEMS, RotorS,
-  TU Delft, ARTI-Robots, Clearpath Robotics and Fetch Robotics — and **each original work follows its own
-  upstream license** (Fetch and Clearpath declare BSD, RotorS declares ASL 2.0, TU Delft is GPL-3.0).
-  That the collection root is GPL-3.0 is a different claim from the individual files having been relicensed
-  under GPL, so check the upstream terms before redistributing. The origin of each World-panel entry is shown
-  by the **World Info** button.
+> [!NOTE]
+> These worlds and models carry different licenses depending on the source. Before downloading or redistributing them, [$\textsf{\color{red}{be\ sure\ to\ read\ Worlds,\ models\ and\ their\ licenses}}$](#worlds-models-and-their-licenses).
 
 ---
 # Runtime environment
@@ -161,11 +106,14 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <br><br>
 
 ### 4.2.1 JnP 0.8.1 (v1.9 collaboration tasks) — reference only, no action needed
-> The Docker image and `init.sh` already build this. **You can skip this section.**
-> Use it only to rebuild after editing the source, or to set things up without the image.
-- The v1.9 collaboration tasks (Relay / Multi-Goal Move / Collision Avoidance /
-  Distributed Search-Mapping / Distributed Search-Find Object) run on JnP **0.8.1**.
-  To rebuild from source:
+
+> The image and `init.sh` already build this. **You can skip it.**
+> Read on only to rebuild after editing the source, or to set things up without the image.
+
+- The v1.9 collaboration tasks run on JnP **0.8.1**.
+  - Relay / Multi-Goal Move / Collision Avoidance / Distributed Search-Mapping / Distributed Search-Find Object
+- To rebuild from source, run:
+
 ```
 mkdir -p /root/catkin_ws_jnp081/src
 ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
@@ -174,24 +122,33 @@ cd /root/catkin_ws_jnp081 && catkin_make
 ```
 
 ### 4.2.2 Exploration stack (third_party) — reference only, no action needed
-> The Docker image and `init.sh` already build this. **You can skip this section.**
-> Use it only to rebuild after editing the source, or to set things up without the image.
-- Distributed Search (Mapping / Find Object) uses frontier-detection and
-  map-merging packages. This repository ships both under `third_party/`
-  (each keeps its own upstream license — see `NOTICE` and `third_party/README.md`).
-  - `rrt_exploration` (MIT, **modified**) — frontier detection and filtering.
-    Multi-robot parameters such as `~use_global_merged_map` were added, so the
-    **apt package cannot be used as a substitute.**
-  - `map_merge` (BSD-3-Clause, upstream **2.1.5**, unmodified) — multi-robot map merging.
-    The apt build (2.1.4) misaligns the merged map, so a source build is required.
-- In the Docker image both packages are already copied to
-  `/root/catkin_ws_explo/src/` and **built**. To rebuild after editing the source:
+
+> The image and `init.sh` already build this. **You can skip it.**
+> Read on only to rebuild after editing the source, or to set things up without the image.
+
+**What it uses**
+
+- Distributed Search (Mapping / Find Object) needs **frontier detection** and **map merging**.
+- Both packages ship with this repository under `third_party/`.
+- Each keeps its own upstream license → `NOTICE`, `third_party/README.md`
+
+| Package | License | Role | apt package instead? |
+| --- | --- | --- | --- |
+| `rrt_exploration` | MIT (**modified**) | frontier detection and filtering | **No** — multi-robot parameters such as `~use_global_merged_map` were added |
+| `map_merge` | BSD-3-Clause (upstream **2.1.5**, unmodified) | multi-robot map merging | **No** — the apt build (2.1.4) misaligns the merged map |
+
+**Rebuilding inside the image**
+
+- The sources are already copied to `/root/catkin_ws_explo/src/` and **built**.
+- After editing them, run only:
+
 ```
 cd /root/catkin_ws_explo
 catkin_make -DCMAKE_BUILD_TYPE=Release
 source /root/catkin_ws_explo/devel/setup.bash
 ```
-- To set it up manually, without the image (from a repository cloned on the host):
+
+**Setting it up without the image** (from a repository cloned on the host)
 ```
 mkdir -p /root/catkin_ws_explo/src
 cp -a <repository>/third_party/rrt_exploration /root/catkin_ws_explo/src/
@@ -329,5 +286,64 @@ python3 main.py
   the modifications made here are described in `third_party/README.md`.
 - **YOLO (Ultralytics)** is AGPL-3.0 and is not included in this repository or image.
   If you enable the Find Object task, AGPL-3.0 applies to that component.
+
+
+---
+# Worlds, models and their licenses
+
+> Read this section **before downloading, using or redistributing** any world or model.
+> It separates what is bundled in this repository from what is not, and flags what cannot be stated with confidence.
+
+## What this repository ships
+
+| Item | Origin | License |
+| --- | --- | --- |
+| `ros/navi/worlds/no_roof_small_warehouse.world` + `models/aws_robomaker_warehouse_*` (14) | [AWS RoboMaker Small Warehouse](https://github.com/aws-robotics/aws-robomaker-small-warehouse-world) | **MIT-0** — full text in `licenses/aws-robomaker-small-warehouse-world-MIT-0.txt` |
+| the other three worlds in `ros/navi/worlds/` | authored in this repository (ETRI) | Apache-2.0 |
+| `third_party/rrt_exploration` | [hasauino/rrt_exploration](https://github.com/hasauino/rrt_exploration) | MIT (modified) |
+| `third_party/map_merge` | [hrnr/m-explore](https://github.com/hrnr/m-explore) | BSD-3-Clause |
+
+See `NOTICE` for the details.
+
+## AWS RoboMaker worlds (optional — not bundled)
+
+The `Hospital › hospital` and `HouseCafe › small_house` entries in the World panel need a world file to
+work. You can supply them from AWS RoboMaker. All three are **MIT-0 (MIT No Attribution)**, so they are
+free to use and redistribute. They are not bundled here because of their size (about 230 MB in total).
+
+| World | Repository | models size |
+| --- | --- | --- |
+| hospital | https://github.com/aws-robotics/aws-robomaker-hospital-world | 76 MB |
+| small house | https://github.com/aws-robotics/aws-robomaker-small-house-world | 105 MB |
+| bookstore | https://github.com/aws-robotics/aws-robomaker-bookstore-world | 48 MB |
+
+There is no need to build them as ROS packages — just put the files where Gazebo already looks.
+All three repositories have `archive` as their default branch and keep the files on `ros1`, so
+**`-b ros1` is required** — cloning the default branch gets you only a README.
+
+```bash
+# example: hospital — change the repository name for the other two
+git clone --depth 1 -b ros1 \
+  https://github.com/aws-robotics/aws-robomaker-hospital-world.git /tmp/aws_hospital
+
+cp -r /tmp/aws_hospital/models/*        ~/.gazebo/models/             # 3D models
+cp    /tmp/aws_hospital/worlds/*.world  /usr/share/gazebo-11/worlds/  # world files
+```
+
+- To survive a container rebuild, copy into this repository's `models/` and `worlds/` instead — `init.sh` installs them to the same places.
+- `bookstore` has no entry in the World panel, and adding one takes a code change: the panel is built from the world catalog assembled in `InitWorld()` in `code/Multi-Agent-Simulator/main.py`, not from the enum. Uncomment `BOOKSTORE` in `ENUM_WORLD_CATEGORY_SUB` (`simulator.py`) **and** append a matching `World_Sub` (with a thumbnail) to the catalog in `main.py`.
+- For `Hospital › hospital_2_floors` / `hospital_3_floors` you must rename the files: AWS ships them as `hospital_two_floors.world` / `hospital_three_floors.world`.
+- The collaboration tasks (Relay, Multi-Goal Move, Collision Avoidance, Distributed Search) do not use these worlds, so everything works without them.
+
+## Caveats when downloading from public collections
+
+These are the sites listed at the top of this README. **A collection's license is not necessarily the license of the individual files inside it.**
+
+- [leonhartyao/gazebo_models_worlds_collection](https://github.com/leonhartyao/gazebo_models_worlds_collection) is a **collection assembled from several projects**. Its repository-root LICENSE is GPL-3.0, but the files inside come from the upstreams its own readme names in the `Source` section — 3DGEMS, RotorS, TU Delft, ARTI-Robots, Clearpath Robotics and Fetch Robotics — and **each original work follows its own upstream license** (Fetch and Clearpath declare BSD, RotorS declares ASL 2.0, TU Delft is GPL-3.0). That the collection root is GPL-3.0 is a different claim from the individual files having been relicensed under GPL, so check the upstream terms before redistributing. **The origin of each World-panel entry is shown by the `World Info` button in the GUI.**
+- [mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps](https://github.com/mlherd/Dataset-of-Gazebo-Worlds-Models-and-Maps) re-hosts the AWS worlds. However **it ships no license file at all** (checked all 8 archives / 2,696 entries: zero `LICENSE`, `COPYING` or `NOTICE`). MIT-0 requires no attribution, so this is not a violation in itself — but **if you need the license on record, download from the AWS repositories.**
+- In that same collection, `office` is labelled `AWS Office` but no public AWS repository could be found for it (zero hits across the 43 aws-robotics repositories and a GitHub search), and `factory` is merely labelled `Custom Factory`, which is not evidence that the collection maintainer holds its copyright. **The original author and the license of these two cannot be stated.**
+- The two PX4 links target different Gazebo generations. [PX4-gazebo-models](https://github.com/PX4/PX4-gazebo-models) is BSD-3-Clause but ships **`.sdf` worlds for the new Gazebo (gz)**, which do not load in Gazebo Classic as-is. For Classic use the 19 `.world` files in [PX4-SITL_gazebo-classic](https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds); that repository ships no `LICENSE` file, its `package.xml` declares BSD and its source headers carry Apache-2.0 — **confirm before redistributing.**
+- The repository-level LICENSE of [osrf/gazebo_models](https://github.com/osrf/gazebo_models) is **CC BY 3.0**. Upstream acknowledges that the provenance of some individual models is not fully documented, so verify per model before redistributing any of them.
+- The remaining sites (automaticaddison, 3DGEMS, eliabntt/gazebo_resources) **have not been license-checked.** This repository does not bundle anything from them.
 
 </div>
