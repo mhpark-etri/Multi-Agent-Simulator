@@ -1,5 +1,3 @@
-<div style="text-align: left;">
-
 [🇰🇷 한국어](README.md) | **🇺🇸 English**
 
 # Multi-Agent-Simulator v1.9
@@ -19,8 +17,8 @@
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
 
-> [!NOTE]
-> These worlds and models carry different licenses depending on the source. Before downloading or redistributing them, [$\textsf{\color{red}{be\ sure\ to\ read\ Worlds,\ models\ and\ their\ licenses}}$](#worlds-models-and-their-licenses).
+> **⚠️ License notice** — These worlds and models carry different licenses depending on the source.
+> Before downloading or redistributing them, **[be sure to read Worlds, models and their licenses](#worlds-models-and-their-licenses)**.
 
 ---
 # Runtime environment
@@ -345,5 +343,3 @@ These are the sites listed at the top of this README. **A collection's license i
 - The two PX4 links target different Gazebo generations. [PX4-gazebo-models](https://github.com/PX4/PX4-gazebo-models) is BSD-3-Clause but ships **`.sdf` worlds for the new Gazebo (gz)**, which do not load in Gazebo Classic as-is. For Classic use the 19 `.world` files in [PX4-SITL_gazebo-classic](https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds); that repository ships no `LICENSE` file, its `package.xml` declares BSD and its source headers carry Apache-2.0 — **confirm before redistributing.**
 - The repository-level LICENSE of [osrf/gazebo_models](https://github.com/osrf/gazebo_models) is **CC BY 3.0**. Upstream acknowledges that the provenance of some individual models is not fully documented, so verify per model before redistributing any of them.
 - The remaining sites (automaticaddison, 3DGEMS, eliabntt/gazebo_resources) **have not been license-checked.** This repository does not bundle anything from them.
-
-</div>

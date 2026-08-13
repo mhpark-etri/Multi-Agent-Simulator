@@ -1,5 +1,3 @@
-<div style="text-align: left;">
-
 **🇰🇷 한국어** | [🇺🇸 English](README.en.md)
 
 # Multi-Agent-Simulator v1.9
@@ -19,8 +17,8 @@
   - https://github.com/eliabntt/gazebo_resources
 - Any questions about our use of licensed work can be sent to dongoh@etri.re.kr
 
-> [!NOTE]
-> 위 월드·모델은 출처마다 라이선스가 다릅니다. 내려받거나 재배포하기 전에 [$\textsf{\color{red}{반드시\ 월드·모델\ 출처와\ 라이선스}}$](#월드모델-출처와-라이선스) 를 확인해 주십시오.
+> **⚠️ 라이선스 주의** — 위 월드·모델은 출처마다 라이선스가 다릅니다.
+> 내려받거나 재배포하기 전에 **[반드시 월드·모델 출처와 라이선스](#월드모델-출처와-라이선스)** 를 확인해 주십시오.
 
 ---
 # 프로젝트 실행 환경
@@ -344,5 +342,3 @@ cp    /tmp/aws_hospital/worlds/*.world  /usr/share/gazebo-11/worlds/  # 월드 �
 - PX4 링크 두 개는 Gazebo 세대가 다릅니다. [PX4-gazebo-models](https://github.com/PX4/PX4-gazebo-models) 는 BSD-3-Clause 이지만 **신형 Gazebo(gz)용 `.sdf`** 라 Gazebo Classic 에서는 그대로 쓸 수 없습니다. Classic 용은 [PX4-SITL_gazebo-classic](https://github.com/PX4/PX4-SITL_gazebo-classic/tree/main/worlds) 의 `.world` 19개이며, 그 저장소에는 `LICENSE` 파일이 없고 `package.xml` 이 BSD, 소스 헤더가 Apache-2.0 으로 표기돼 있습니다 — **재배포 전 직접 확인이 필요합니다.**
 - [osrf/gazebo_models](https://github.com/osrf/gazebo_models) 의 저장소 수준 LICENSE 는 **CC BY 3.0** 입니다. 다만 upstream 도 일부 개별 모델의 출처·권리관계가 불명확함을 인정하고 있으므로, 개별 모델을 재배포할 때는 별도 확인이 필요합니다.
 - 나머지 사이트(automaticaddison, 3DGEMS, eliabntt/gazebo_resources)는 **라이선스를 확인하지 않았습니다.** 이 저장소는 이들을 담고 있지 않습니다.
-
-</div>
