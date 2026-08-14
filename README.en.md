@@ -253,7 +253,7 @@ python3 main.py
 <br>
 
 ### How to use the program
-<img src="https://github.com/user-attachments/assets/00242774-51e8-4c2f-a77e-76ed0ae89952" width="70%" />
+<img src="https://github.com/user-attachments/assets/9cb90bbe-56bc-4ebc-b4a9-e5b7ba465111" width="70%" />
 
 ### 1. Select a world
    - Choose the virtual environment to run from the World panel.
