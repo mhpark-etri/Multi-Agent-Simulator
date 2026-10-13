@@ -468,6 +468,76 @@ def _param_key(node_name):
     return '/jnp/plan/%s' % (node_name or 'group').strip('/').replace('/', '_')
 
 
+PLAN_TOPIC = '/jnp/plan'      # latched std_msgs/String(JSON) — JnP Monitor 의 '미션 → 분할 → 스킬 매칭' 표시용
+_PUB = {}
+
+
+def subtask_rows(root, canonical=None, catalog=None):
+    """실행 트리의 원자 task 하나 = 한 행. canonical 이 있으면 _plan_id 로 이어 스킬·인수·요구 스킬을 붙인다
+    (어댑터가 붙인 _plan_id 가 canonical ↔ 실행 원자의 1:1 대응). 고정 빌더 트리(legacy)는 스킬 없이 실행 속성만."""
+    by_id = {a['id']: a for a in p2t.iter_atomics(canonical)} if canonical else {}
+    acts = (catalog or {}).get('actions') or {}
+    rows = []
+    for t in _exec_atomics(root):
+        pid = getattr(t, '_plan_id', None)
+        c = by_id.get(pid) or {}
+        ag = getattr(t, 'agent', None)
+        info = acts.get(c.get('skill'), {}) if c else {}
+        rows.append({
+            'id': pid, 'skill': c.get('skill'), 'args': c.get('args') or {},
+            'required_skills': list(c.get('required_skills') or []),
+            'signature': info.get('signature', ''),
+            'node': t.name, 'kind': 'seq' if isinstance(t, SequentialAtomicTask) else 'par',
+            'exec_goal': t.goal, 'requirement': list(t.requirement),
+            'optional': bool(getattr(t, 'optional', False)),
+            'preassigned': bool(getattr(t, 'assign_status', False) and ag is not None),
+            'preassigned_agent': getattr(ag, 'name', '') if ag is not None else '',
+            'after': [p.name for p in getattr(t, 'predecessors', []) or []],
+        })
+    return rows
+
+
+def plan_record(res, goal, node_name='group'):
+    """계획 경로의 기록(JSON 직렬화 가능): 미션(자연어 Task Description)·바인딩·canonical·실행 트리·행별 스킬 매칭."""
+    plan = res.get('plan') or {}
+    return {
+        'source': 'plan', 'goal': goal, 'group': node_name, 'plan_file': plan.get('file', ''),
+        'plan_name': os.path.basename(plan.get('file', '') or ''),
+        'task_description': plan.get('text', ''),
+        'bindings': plan.get('bindings') or {},
+        'canonical': plan.get('canonical') or {},
+        'canonical_dump': plan.get('dump', ''),
+        'warnings': list(plan.get('warnings') or []),
+        'tree': tree_text(res['root']),
+        'subtasks': subtask_rows(res['root'], plan.get('canonical'), plan.get('catalog')),
+    }
+
+
+def fallback_record(goal, reason, node_name='group', root=None):
+    return {
+        'source': 'legacy', 'goal': goal, 'group': node_name, 'reason': str(reason), 'plan_file': '', 'plan_name': '',
+        'task_description': '', 'bindings': {}, 'canonical': {}, 'canonical_dump': '', 'warnings': [],
+        'tree': tree_text(root) if root is not None else '',
+        'subtasks': subtask_rows(root) if root is not None else [],
+    }
+
+
+def _topic_publish(record):
+    """latched 토픽 /jnp/plan 에 JSON 한 줄. ROS 밖/마스터 없음이면 False."""
+    try:
+        import rospy
+        from std_msgs.msg import String
+        pub = _PUB.get(PLAN_TOPIC)
+        if pub is None:
+            pub = rospy.Publisher(PLAN_TOPIC, String, queue_size=1, latch=True)
+            _PUB[PLAN_TOPIC] = pub
+        pub.publish(String(data=json.dumps(record, ensure_ascii=False)))
+        return True
+    except Exception as e:
+        print('[PLAN] 토픽 %s 발행 실패: %s' % (PLAN_TOPIC, e), flush=True)
+        return False
+
+
 def _set_param(key, value):
     """rosparam 기록. ROS 밖/마스터 없음이면 False (실행 경로의 성공 여부와 분리해 보고한다)."""
     try:
@@ -488,20 +558,28 @@ def publish(res, goal, node_name='group'):
     for w in plan.get('warnings') or []:
         print('[PLAN] warning: %s' % w, flush=True)
     print('[PLAN] jnp TaskTree:\n' + tree_text(res['root']), flush=True)
-    return _set_param(_param_key(node_name), {
+    rec = plan_record(res, goal, node_name)
+    ok_param = _set_param(_param_key(node_name), {
         'source': 'plan', 'goal': goal, 'plan_file': plan.get('file', ''),
         'bindings': json.dumps(plan.get('bindings') or {}, ensure_ascii=False),
         'task_description': plan.get('text', ''),
         'canonical': json.dumps(plan.get('canonical') or {}, ensure_ascii=False),
-        'warnings': list(plan.get('warnings') or []), 'tree': tree_text(res['root'])})
+        'warnings': list(plan.get('warnings') or []), 'tree': tree_text(res['root']),
+        'subtasks': json.dumps(rec['subtasks'], ensure_ascii=False)})
+    ok_topic = _topic_publish(rec)
+    return bool(ok_param and ok_topic)
 
 
 def publish_fallback(goal, reason, node_name='group', root=None):
     """고정 빌더로 간 사실을 같은 rosparam 에 남긴다(source=legacy) — 이전 계획 기록이 현재 것으로 오인되지 않게."""
     print('[PLAN] source=legacy %s — %s' % (goal, reason), flush=True)
-    return _set_param(_param_key(node_name), {
+    rec = fallback_record(goal, reason, node_name, root)
+    ok_param = _set_param(_param_key(node_name), {
         'source': 'legacy', 'goal': goal, 'reason': str(reason), 'plan_file': '', 'bindings': '{}',
-        'task_description': '', 'canonical': '{}', 'warnings': [], 'tree': tree_text(root) if root is not None else ''})
+        'task_description': '', 'canonical': '{}', 'warnings': [], 'tree': tree_text(root) if root is not None else '',
+        'subtasks': json.dumps(rec['subtasks'], ensure_ascii=False)})
+    ok_topic = _topic_publish(rec)
+    return bool(ok_param and ok_topic)
 
 
 if __name__ == '__main__':

@@ -294,7 +294,13 @@ python3 main.py
      radius, planner, and so on). Only the values you save apply to that task;
      everything else falls back to the global settings and then to the defaults.
    - **JnP Monitor**: shows the coalition and the task tree in real time
-     (maximize from the title bar, or press F11 for full screen).
+     (maximize from the title bar, or press F11 for full screen). The middle panel
+     **"Mission → Decomposition → Skill matching"** reads the group's `/jnp/plan` (latched JSON) and
+     shows the mission in natural language (the plan file's Task Description), the payload bindings,
+     the decomposed subtasks (skill, arguments, required capability), which execution node each subtask
+     became, which agent (with its advertised capabilities) it was assigned to, whether the capability
+     requirement is met, and its progress. The Agents list shows each member's capabilities and the
+     task-tree nodes show the skill and required capability.
 
 ### Notes
   - A model file (.pkl) is required to run the Image-to-Image environment-enhancement feature.

@@ -310,6 +310,32 @@ def run_wrapper():
     return f
 
 
+# ── F. 기록(/jnp/plan · rosparam): 미션·분할·스킬 매칭 행 ──
+def run_record():
+    f = 0
+    r = build_plan('MapExplore', 'robots=locobot_0|tb3_0', {'names': ['locobot_0', 'tb3_0'], 'merge_host': 'locobot_0'})
+    rec = P.plan_record(r, 'MapExplore', '/group_map_explore')
+    js = json.dumps(rec, ensure_ascii=False)
+    rows = rec['subtasks']
+    f += expect_ok('F plan_record JSON 직렬화·기본 키', all(k in rec for k in ('source', 'goal', 'group', 'task_description', 'bindings', 'canonical', 'tree', 'subtasks'))
+                   and rec['source'] == 'plan' and 'Mapping' in rec['task_description'] and len(js) > 100)
+    f += expect_ok('F 행 수 = 실행 원자 수(4) · 모두 스킬·요구 능력 있음', len(rows) == 4 and all(x['skill'] and x['requirement'] for x in rows),
+                   str([(x['node'], x['skill'], x['requirement']) for x in rows]))
+    byn = {x['node']: x for x in rows}
+    f += expect_ok('F explore.locobot_0 = Explore·lidar·optional', byn['explore.locobot_0']['skill'] == 'Explore' and byn['explore.locobot_0']['requirement'] == ['lidar']
+                   and byn['explore.locobot_0']['optional'] is True and byn['explore.locobot_0']['args'] == {'robot': 'locobot_0'})
+    f += expect_ok('F merge_maps.locobot_0 = MergeMaps·virtual·상시 서비스 /etri/locobot_0', byn['merge_maps.locobot_0']['skill'] == 'MergeMaps'
+                   and byn['merge_maps.locobot_0']['preassigned'] is True and byn['merge_maps.locobot_0']['preassigned_agent'] == '/etri/locobot_0')
+    r2 = build_plan('Relay', 'tb3_0=1,2,0;tb3_1=2,3,0', {})
+    rows2 = P.plan_record(r2, 'Relay', '/group_relay')['subtasks']
+    f += expect_ok('F Relay 행의 선행(after)과 canonical id', rows2[1]['after'] == ['relay1.tb3_0'] and rows2[0]['id'].startswith('t01_GoTo') and rows2[0]['signature'] == 'GoTo <robot><target>')
+    leg = G.build_relay_tree('tb3_0=1,2,0;tb3_1=2,3,0')
+    fb = P.fallback_record('Relay', 'PlanBuildError: x', '/group_relay', leg)
+    f += expect_ok('F fallback_record: 스킬 없이 실행 속성만, JSON 직렬화', fb['source'] == 'legacy' and len(fb['subtasks']) == 2
+                   and fb['subtasks'][0]['skill'] is None and fb['subtasks'][0]['requirement'] == ['lidar'] and json.dumps(fb))
+    return f
+
+
 def main():
     print('== A/B/C 동일성·불변식·계약')
     fa, n = run_equivalence()
@@ -317,8 +343,10 @@ def main():
     fd = run_counterexamples()
     print('== E 그룹 연결부')
     fe = run_wrapper()
-    print('TOTAL equivalence %d cases %d FAIL; counterexamples %d FAIL; wrapper %d FAIL' % (n, fa, fd, fe))
-    return 1 if (fa or fd or fe) else 0
+    print('== F 기록(/jnp/plan)')
+    ff = run_record()
+    print('TOTAL equivalence %d cases %d FAIL; counterexamples %d FAIL; wrapper %d FAIL; record %d FAIL' % (n, fa, fd, fe, ff))
+    return 1 if (fa or fd or fe or ff) else 0
 
 
 if __name__ == '__main__':
