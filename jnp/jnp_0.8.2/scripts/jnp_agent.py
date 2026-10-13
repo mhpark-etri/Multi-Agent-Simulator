@@ -556,7 +556,7 @@ class JnPAgent:
         print("node name = {0}".format(self.node_name))
         print(sorted_list)
         if sorted_list[0] == self.node_name:
-            # [JnP-0.8.1 2026-10-06] 그룹 스크립트를 파라미터로 — BnT 는 jnp_bnt/jnp_bnt_group.py 를 쓴다
+            # [JnP-0.8.1 2026-10-06] 그룹 스크립트를 파라미터로 — 파생 패키지가 자기 그룹 스크립트를 지정할 수 있다
             package = str(rospy.get_param('~group_package', 'jnp'))
             node = str(rospy.get_param('~group_script', 'jnp_group.py'))   # (구 testgroup.py — 0.8.1에서 개명)
             # 0.8.1: 그룹 이름 = goal 기반 (예: Relay → group_relay).
@@ -706,7 +706,7 @@ class JnPAgent:
     def _on_group_killed(self, group_node):
         """[JnP-0.8.1 2026-10-06] 내 그룹의 kill(해체) 통지 — 진행 중 task 선점 요청.
         0.8.1 은 그룹이 죽어도 execute() 가 끝까지 달렸다(선점 없음). 이 플래그를
-        _drive_nav 폴링과 서브클래스(jnp_bnt_agent) 실행기가 본다."""
+        _drive_nav 폴링과 서브클래스 실행기가 본다."""
         self._abort_requested = True
         print(f"[JnP] 그룹 {group_node} 해체 — 진행 중 task 선점 요청", flush=True)
 

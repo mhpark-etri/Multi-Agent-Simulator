@@ -1,7 +1,7 @@
 {
  "version": "v0.1-20261013-basic",
  "source": {
-  "base": "jnp_bnt/config/skills_catalog.json (v0.2-20261006-bnt) 의 형식",
+  "base": "LLM-TDM 스킬 카탈로그 형식(v0.2-20261006) — 기본 협업 태스크용 어휘만 담은 판",
   "note": "[JnP-0.8.2 2026-10-13] 기본 협업 태스크(릴레이·다목적 이동·충돌회피·분산 탐색-지도 제작·물건 찾기)용 스킬 어휘. plans/*.py 의 호출이 이 어휘로 TaskTree 가 되고, exec_goal 템플릿이 에이전트 execute() 가 해석하는 goal 문자열(nav:/trip:/explore/search/virtual:/service:/publish:)로 바뀐다. arg_keys 순서 = 위치 인자 순서, target_key = 작업 대상(id/goal 에 쓰임)."
  },
  "actions": {
