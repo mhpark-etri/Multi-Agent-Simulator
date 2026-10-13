@@ -161,11 +161,11 @@
               </size>
              </property>
              <property name="toolTip">
-              <string>JnP 0.8.1: 에이전트 coalition이 task tree로 실행 (미기동 시 자동 시작) / 기존 launch: 직접 move_base 순차 실행</string>
+              <string>JnP 0.8.2: 에이전트 coalition이 task tree로 실행 (미기동 시 자동 시작) / 기존 launch: 직접 move_base 순차 실행</string>
              </property>
              <item>
               <property name="text">
-               <string>JnP 0.8.1</string>
+               <string>JnP 0.8.2</string>
               </property>
              </item>
              <item>

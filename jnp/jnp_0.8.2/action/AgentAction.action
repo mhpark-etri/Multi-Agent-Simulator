@@ -1,0 +1,5 @@
+string command
+---
+string result_message
+---
+string feedback_message
