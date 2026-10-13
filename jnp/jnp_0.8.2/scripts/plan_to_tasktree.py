@@ -99,9 +99,13 @@ class _Unknown(object):
 
 
 class Converter(object):
-    def __init__(self, catalog, max_depth=6, strict_conditionals=True):
+    def __init__(self, catalog, max_depth=6, strict_conditionals=True, strict_source=True):
         self.actions = catalog.get("actions") or {}
         self.max_depth = max_depth
+        # [2026-10-13] True(기본): 의미를 바꾸는데 변환이 표현할 수 없는 구문은 거부한다 — 상수(리스트·사전)의 첨자/속성 대입,
+        # 증감 대입, del, 상수 변경 메서드 호출(update/append/pop …), 카탈로그 밖 위치 인자, 해석할 수 없는 스킬 인자.
+        # False: 종전처럼 경고만 내고 건너뛴다(변환 실험용).
+        self.strict_source = bool(strict_source)
         # [2026-10-07] True(운영 기본): 정적으로 판정할 수 없는 조건부 실행은 보고 병합 외에 거부.
         # False: fixture·변환 실험용 — 종전처럼 경고만 내고 양쪽/한쪽 갈래를 무조건 실행으로 넣는다.
         self.strict_conditionals = bool(strict_conditionals)
@@ -116,6 +120,34 @@ class Converter(object):
     def warn(self, msg):
         if msg not in self.warnings:
             self.warnings.append(msg)
+
+    def _unsupported(self, msg):
+        """[2026-10-13] 의미를 버리게 되는 미지원 구문: strict_source 면 거부, 아니면 경고."""
+        if self.strict_source:
+            raise PlanIssue(msg)
+        self.warn(msg)
+
+    def _check_mutation_stmt(self, st, where):
+        """[2026-10-13] 값을 바꾸는 문(첨자/속성/튜플 대입, 증감 대입, 주석 대입, del)은 지원하지 않는다 — 상수는 바인딩 뒤 읽기 전용."""
+        if isinstance(st, ast.Assign) and not (len(st.targets) == 1 and isinstance(st.targets[0], ast.Name)):
+            self._unsupported("%s: 대입 '%s' — 첨자/속성/다중 대입은 지원하지 않음(상수는 바인딩 뒤 읽기 전용)"
+                              % (where, self._src(st)))
+            return True
+        if isinstance(st, (ast.AugAssign, ast.AnnAssign, ast.Delete)):
+            self._unsupported("%s: '%s' — %s 문은 지원하지 않음(상수는 바인딩 뒤 읽기 전용)"
+                              % (where, self._src(st), type(st).__name__))
+            return True
+        return False
+
+    def _check_const_method(self, call, env, where):
+        """[2026-10-13] 리스트/사전 상수에 대한 메서드 호출(update/append/pop/clear …)은 값을 바꿀 수 있어 지원하지 않는다."""
+        f = call.func
+        if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) \
+                and isinstance(env.get(f.value.id), (dict, list)):
+            self._unsupported("%s: '%s' — 상수 %s 에 대한 메서드 호출은 지원하지 않음(상수는 바인딩 뒤 읽기 전용)"
+                              % (where, self._src(call), f.value.id))
+            return True
+        return False
 
     def _src(self, node):
         try:
@@ -224,8 +256,8 @@ class Converter(object):
         args, use_radar = {}, False
         for i, a in enumerate(call.args):
             if i >= len(keys):
-                self.warn("%s: %s() 위치 인자가 카탈로그(%s)보다 많음 — 초과분 무시"
-                          % (where, name, ",".join(keys)))
+                self._unsupported("%s: %s() 위치 인자가 카탈로그(%s)보다 많음 — 초과분 '%s' 은 지원하지 않음"
+                                  % (where, name, ",".join(keys), self._src(a)))
                 break
             args[keys[i]] = self.resolve(a, env, "%s:%s" % (where, name))
         for kw in call.keywords:
@@ -246,9 +278,9 @@ class Converter(object):
                 if k in defaults:
                     args[k] = str(defaults[k])
                 else:
+                    self._unsupported("%s: %s() 인자 '%s' 가 리터럴이 아니거나 없음 → '?'"
+                                      % (where, name, k))
                     args[k] = "?"
-                    self.warn("%s: %s() 인자 '%s' 가 리터럴이 아니거나 없음 → '?'"
-                              % (where, name, k))
         node = {"type": "atomic", "skill": name, "args": args}
         if use_radar:
             self.radar_marks.append({"skill": name, "target": args.get(info.get("target_key", "object"))})
@@ -287,6 +319,8 @@ class Converter(object):
         return steps
 
     def walk_stmt(self, st, env, depth, where):
+        if self._check_mutation_stmt(st, where):
+            return []
         if isinstance(st, ast.Expr):
             if isinstance(st.value, ast.Call):
                 return self.handle_call(st.value, env, depth, where)
@@ -348,7 +382,8 @@ class Converter(object):
                 return self.inline(fid, bound, depth + 1, where)
             # [2026-10-07] 실행 단계로 쓰인 미등록 호출은 거부(값 조회용 대입은 경고만)
             raise PlanIssue("%s: 어휘 밖 호출 %s() — 실행할 수 없는 단계(카탈로그·정의된 함수에 없음)" % (where, fid))
-        return []                                        # time.sleep() 등 속성 호출
+        self._check_const_method(call, env, where)       # [2026-10-13] 상수 변경 메서드는 거부
+        return []                                        # time.sleep() 등 그 밖의 속성 호출
 
     def _static_truth(self, node, env):
         """[2026-10-07] 조건식을 정적으로 판정: True/False 또는 None(판정 불가).
@@ -517,6 +552,8 @@ class Converter(object):
             if isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Import,
                                ast.ImportFrom, ast.ClassDef)):
                 return
+            if self._check_mutation_stmt(st, where):      # [2026-10-13] 상수 변경문 거부
+                return
             if isinstance(st, ast.Assign) and len(st.targets) == 1 \
                     and isinstance(st.targets[0], ast.Name):
                 name, v = st.targets[0].id, st.value
@@ -559,7 +596,9 @@ class Converter(object):
                             and isinstance(call.args[0], ast.Name) \
                             and call.args[0].id in thread_vars:
                         list_vars[var].append(thread_vars[call.args[0].id])
-                    return                                # 그 밖의 메서드 호출 무시
+                    else:
+                        self._check_const_method(call, env, where)   # [2026-10-13] 상수 변경 메서드는 거부
+                    return                                # 그 밖의 메서드 호출(time.sleep 등) 무시
                 if isinstance(call.func, ast.Name):
                     fid = call.func.id
                     if fid in self.funcs:
@@ -994,9 +1033,9 @@ def validate_semantics(doc):
 # ─────────────────────────────────────────────────────────────────────
 # 3. 진입점·도우미
 # ─────────────────────────────────────────────────────────────────────
-def convert_code(code, catalog=None, source=None, strict_conditionals=True):
+def convert_code(code, catalog=None, source=None, strict_conditionals=True, strict_source=True):
     catalog = catalog or load_catalog()
-    conv = Converter(catalog, strict_conditionals=strict_conditionals)
+    conv = Converter(catalog, strict_conditionals=strict_conditionals, strict_source=strict_source)
     raw = conv.convert(code)
     meta = {"text": task_description(code)}
     if source:
@@ -1014,10 +1053,10 @@ def convert_code(code, catalog=None, source=None, strict_conditionals=True):
     }
 
 
-def convert_file(path, catalog_path=None, strict_conditionals=True):
+def convert_file(path, catalog_path=None, strict_conditionals=True, strict_source=True):
     code = Path(path).read_text(encoding="utf-8")
     return convert_code(code, load_catalog(catalog_path), source=Path(path).name,
-                        strict_conditionals=strict_conditionals)
+                        strict_conditionals=strict_conditionals, strict_source=strict_source)
 
 
 def iter_atomics(doc):
@@ -1061,9 +1100,12 @@ def main(argv=None):
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--loose-conditionals", action="store_true",
                     help="[2026-10-07] 판정 불가 조건부 단계를 거부하지 않고 경고와 함께 넣는다(변환 실험용, 운영 금지)")
+    ap.add_argument("--loose-source", action="store_true",
+                    help="[2026-10-13] 상수 변경문·상수 메서드 호출·카탈로그 밖 위치 인자·해석 불가 인자를 거부하지 않고 경고와 함께 건너뛴다(변환 실험용, 운영 금지)")
     a = ap.parse_args(argv)
     try:
-        r = convert_file(a.plan, a.catalog, strict_conditionals=not a.loose_conditionals)
+        r = convert_file(a.plan, a.catalog, strict_conditionals=not a.loose_conditionals,
+                         strict_source=not a.loose_source)
     except (PlanIssue, SyntaxError) as e:
         print("변환 실패: %s" % e, file=sys.stderr)
         return 1
