@@ -386,23 +386,47 @@ def build_map_explore_tree(names, merge_host):
     return {'root': root, 'meta': None, 'dicts': {'etasks': _etasks, 'mtasks': _mtasks, 'branch': _branch, 'seqbr': _seqbr}}
 
 
+def _param(name, default):
+    """rosparam 읽기 — 마스터 접속 실패 등은 기본값(계획 경로 선택이 ROS 오류로 죽지 않게)."""
+    try:
+        return rospy.get_param(name, default)
+    except Exception:
+        return default
+
+
 def _plan_or_legacy(goal, payload, legacy, **kw):
     """[JnP-0.8.2 2026-10-13] 기본 협업 태스크의 트리 생성 진입점.
-    ~plan_mode(기본 true): plans/<goal>.py 계획을 payload 로 바인딩 → plan_to_tasktree(canonical TaskTree) → Task 트리
-    (jnp_plan.build). 계획·canonical·바인딩은 콘솔과 rosparam /jnp/plan/<group> 에 남긴다. 계획 파일이 없거나 변환에
-    실패하면 0.8.1 고정 빌더(legacy)로 대체하고 경고한다. 반환 {'root','meta','dicts'}."""
-    if rospy.get_param('~plan_mode', True):
+    ~plan_mode(기본 true): plans/<goal>.py 계획을 payload 로 바인딩 → plan_to_tasktree(canonical TaskTree) → jnp_plan 어댑터
+    (반환 전 계약·완전성 검사) → Task 트리. 계획·canonical·바인딩은 콘솔 [PLAN] 과 rosparam /jnp/plan/<group> 에 남긴다.
+    계획 경로가 실패하면(계획 파일 없음·변환 실패·계약/완전성 검사 실패·그 밖의 예외) 사유를 남기고 0.8.1 고정 빌더(legacy)로
+    대체한다 — 호환 모드. ~plan_strict=true(개발·CI)면 대체하지 않고 예외를 그대로 올린다.
+    보호 범위는 jnp_plan.build·publish 까지이며, legacy() 자체와 그 뒤 그룹 코드의 실패는 이 함수가 막지 않는다.
+    반환 {'root','meta','dicts','source'('plan'|'legacy'),'published'(rosparam 기록 성공 여부),'fallback_reason'}."""
+    node = rospy.get_name() if rospy.core.is_initialized() else 'group'
+    strict = bool(_param('~plan_strict', False))
+    reason = None
+    if _param('~plan_mode', True):
         try:
             res = jnp_plan.build(goal, payload, parse_multigoal=parse_multigoal_payload,
                                  parse_avoidance=parse_avoidance_payload, speed_fn=_robot_speed, **kw)
-            jnp_plan.publish(res, goal, rospy.get_name())
+            res['source'] = 'plan'
+            res['fallback_reason'] = None
+            res['published'] = jnp_plan.publish(res, goal, node)
             return res
         except Exception as _e:
-            rospy.logwarn('[PLAN] 작업 분할 실패(%s) — 0.8.1 고정 빌더로 대체: %s', goal, _e)
-            print(f'[PLAN] 작업 분할 실패({goal}) — 0.8.1 고정 빌더로 대체: {_e}', flush=True)
+            if strict:
+                raise
+            reason = '%s: %s' % (type(_e).__name__, _e)
+            rospy.logwarn('[PLAN] 작업 분할 실패(%s) — 0.8.1 고정 빌더로 대체: %s', goal, reason)
+            print(f'[PLAN] 작업 분할 실패({goal}) — 0.8.1 고정 빌더로 대체: {reason}', flush=True)
+    else:
+        reason = 'plan_mode=false'
     res = legacy()
     if not isinstance(res, dict):
         res = {'root': res, 'meta': getattr(res, '_bt_meta', None), 'dicts': {}}
+    res['source'] = 'legacy'
+    res['fallback_reason'] = reason
+    res['published'] = jnp_plan.publish_fallback(goal, reason, node, res['root'])
     return res
 
 
@@ -682,7 +706,7 @@ class JnPGroup:
         # 유령 등록이 남아 다음 그룹 판별을 오염시킨다
         rospy.signal_shutdown('coalition dissolved (goal reached)')
         import time as _time
-        # [ETRI-CL R5 2026-10-07] 고정 1 s 대기 대신 master 에서 이 노드의 등록이 실제로 사라졌는지 확인하고(최대 5 s)
+        # [JnP-0.8.1 2026-10-07] 고정 1 s 대기 대신 master 에서 이 노드의 등록이 실제로 사라졌는지 확인하고(최대 5 s)
         # 종료한다 — 부하가 높으면 1 s 안에 unregister 가 끝나지 않아 유령 등록이 남고, 미션 관리자의
         # 소멸 확인(재공지 조건)이 막힌다(드라이런에서 재현).
         _t0 = _time.time()
