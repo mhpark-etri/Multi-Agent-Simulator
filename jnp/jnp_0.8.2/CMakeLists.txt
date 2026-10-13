@@ -176,6 +176,15 @@ install(FILES
   scripts/jnp_list.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+# [JnP-0.8.2 2026-10-13] 작업 분할 경로: 계획 파일(plans/) → plan_to_tasktree → Task 트리(jnp_plan)
+catkin_install_python(PROGRAMS
+  scripts/jnp_plan.py
+  scripts/plan_to_tasktree.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+install(DIRECTORY plans config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 ## in contrast to setup.py, you can choose the destination
 # catkin_install_python(PROGRAMS
 #   scripts/my_python_script

@@ -113,6 +113,18 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 - The v1.9 collaboration tasks run on JnP **0.8.2** (`jnp/jnp_0.8.2/`; switched 2026-10).
   - Relay / Multi-Goal Move / Collision Avoidance / Distributed Search-Mapping / Distributed Search-Find Object
   - 0.8.2 = 0.8.1 + 8 edits (no more debug `/root/empty_file*.txt` touch, group script as a parameter, roslaunch-style remap args accepted, runs without stdin, in-progress navigation is preempted when the group dissolves, mission_id in group status, master deregistration checked before exit, install rules). The invocation (`rosrun jnp jnp_agent.py __ns:=… __name:=… none.xml`, `task:<goal>:<payload>` on `/jnp_agent_join_event`) is unchanged from 0.8.1.
+  - **Task-decomposition path** — the task tree of each of the five basic tasks is no longer hard-coded per goal:
+    it is built from the **decomposition plan** in `jnp/jnp_0.8.2/plans/<task>.py` (LLM-TDM layout:
+    `# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`). The group (`jnp_group.py`) binds the plan's module
+    constants (LEGS, ITEMS, FIRST/REST, HOST/EXPLORERS, ROBOTS) from the GUI payload → `scripts/plan_to_tasktree.py`
+    (symbolic ast evaluation of the plan code: a function = composite task, `threading.Thread` = parallel branch,
+    top-level `for` = sequential) produces the canonical TaskTree (JSON) → `scripts/jnp_plan.py` turns it into the Task
+    objects the scheduler runs. The skill catalog is `config/skills_catalog_basic.json` (GoTo, Trip, WaitPass, Explore,
+    Patrol, Detect, SendMap, MergeMaps). The plan, the canonical tree and the bindings are printed on the group console
+    (`[PLAN]`) and stored in rosparam `/jnp/plan/<group>`.
+    The 0.8.1 fixed builders remain as the fallback (`_plan_mode:=false`, or when a plan fails to convert);
+    `jnp/jnp_0.8.2/test/test_plan_trees.py` (no ROS master needed, 11 cases) checks that both paths build the same tree.
+    Task **allocation** (coalition, scheduler, allocators) is unchanged from 0.8.1.
   - The 0.8.1 source stays under `jnp/jnp_0.8.1/` for reference (not built by the image).
 - To rebuild from source, run:
 
@@ -269,7 +281,10 @@ python3 main.py
    - Available tasks: Relay / Multi-Goal Move / Collision Avoidance /
      Distributed Search-Mapping / Distributed Search-Find Object.
    - Choose `JnP 0.8.2` in the **Execution** combo box: the agents then form a
-     coalition and carry out the task together.
+     coalition and carry out the task together. The task tree comes from the
+     decomposition plan in `jnp/jnp_0.8.2/plans/` (see 4.2.1); the plan and the
+     tree are shown on the group console (`[PLAN]` lines) and in rosparam
+     `/jnp/plan/<group>`.
    - **Nav Settings** button: set navigation parameters per task (speed, inflation
      radius, planner, and so on). Only the values you save apply to that task;
      everything else falls back to the global settings and then to the defaults.
