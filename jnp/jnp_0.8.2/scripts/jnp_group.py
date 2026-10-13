@@ -32,6 +32,8 @@ from jnp_task import Task, AtomicTask, SequentialCompositeTask, ParallelComposit
     SequentialAtomicTask, ParallelAtomicTask
 # 스케줄러/할당기 모듈 (교체 가능한 인터페이스 + Simple 구현)
 from jnp_scheduler import SimpleScheduler, SimpleAllocator, AffinityAllocator
+# [JnP-0.8.2 2026-10-13] 작업 분할 경로: plans/<goal>.py(LLM-TDM 형식 계획) → plan_to_tasktree → Task 트리
+import jnp_plan
 
 class Agent:
     def __init__(self, name, goal, capability, main_instance):
@@ -323,6 +325,85 @@ def build_relay_tree(payload):
         root.add(t)
         prev = t
     return root
+
+
+def build_object_search_tree(names):
+    """분산탐색-물건찾기 고정 빌더(0.8.1 그룹 본문에서 분리, 2026-10-13): 로봇마다
+    Parallel[ patrol.<n>(search, optional) , detect.<n>(service:yolov8, 가상·상시) ].
+    반환 {'root','meta','dicts':{'etasks','dtasks','spars'}} — jnp_plan.build 와 같은 모양."""
+    import types as _types0
+    root = ParallelCompositeTask(name="object_search")
+    _etasks, _dtasks, _spars = {}, {}, {}
+    for _n in names:
+        _par = ParallelCompositeTask(name=f"search.{_n}", parent=root)
+        _t = ParallelAtomicTask(name=f"patrol.{_n}", parent=_par, goal='search')
+        _t.addRequirement("lidar")
+        _t.optional = True
+        _par.add(_t)
+        _d = ParallelAtomicTask(name=f"detect.{_n}", parent=_par, goal='service:yolov8')
+        _d.addRequirement("virtual")
+        _d.assign_status = True
+        _d.agent = _types0.SimpleNamespace(name='/etri/' + _n)
+        _par.add(_d)
+        root.add(_par)
+        _etasks[_n] = _t
+        _dtasks[_n] = _d
+        _spars[_n] = _par
+    return {'root': root, 'meta': None, 'dicts': {'etasks': _etasks, 'dtasks': _dtasks, 'spars': _spars}}
+
+
+def build_map_explore_tree(names, merge_host):
+    """지도제작 고정 빌더(0.8.1 그룹 본문에서 분리, 2026-10-13). 트리 구조(2026-08-11 지시):
+      map_explore[P] → make_maps.<robot>[P] → { navigate.<robot>[S]→explore.<robot>, merge_maps|send_map.<robot> }
+    병합 호스트(merge_host) 한 대만 merge_maps, 나머지는 send_map. 병목 처리는 '탐사 이전에 끝내야 하는
+    선행 작업'이므로 navigate 순차 가지 안(explore 앞)에 삽입된다 — seqbr 가 그 삽입 지점.
+    반환 {'root','meta','dicts':{'etasks','mtasks','branch','seqbr'}} — jnp_plan.build 와 같은 모양."""
+    import types as _types9
+    root = ParallelCompositeTask(name="map_explore")
+    _etasks, _mtasks, _branch, _seqbr = {}, {}, {}, {}
+    for _n in names:
+        _br = ParallelCompositeTask(name=f"make_maps.{_n}", parent=root)
+        _sq = SequentialCompositeTask(name=f"navigate.{_n}", parent=_br, goal='')
+        _t = ParallelAtomicTask(name=f"explore.{_n}", parent=_sq, goal='explore')
+        _t.addRequirement("lidar")
+        _t.optional = True        # 한 로봇 실패가 미션을 죽이지 않게
+        _sq.add(_t)
+        _br.add(_sq)
+        _seqbr[_n] = _sq
+        _is_host = (_n == merge_host)
+        _m = ParallelAtomicTask(
+            name=(f"merge_maps.{_n}" if _is_host else f"send_map.{_n}"),
+            parent=_br,
+            goal=('service:map_merge' if _is_host else 'publish:map'))
+        _m.addRequirement("virtual")   # 에이전트 배정 대상 아님
+        _m.assign_status = True        # 상시 서비스 표시
+        _m.agent = _types9.SimpleNamespace(name='/etri/' + _n)
+        _br.add(_m)
+        root.add(_br)
+        _etasks[_n] = _t
+        _mtasks[_n] = _m
+        _branch[_n] = _br
+    return {'root': root, 'meta': None, 'dicts': {'etasks': _etasks, 'mtasks': _mtasks, 'branch': _branch, 'seqbr': _seqbr}}
+
+
+def _plan_or_legacy(goal, payload, legacy, **kw):
+    """[JnP-0.8.2 2026-10-13] 기본 협업 태스크의 트리 생성 진입점.
+    ~plan_mode(기본 true): plans/<goal>.py 계획을 payload 로 바인딩 → plan_to_tasktree(canonical TaskTree) → Task 트리
+    (jnp_plan.build). 계획·canonical·바인딩은 콘솔과 rosparam /jnp/plan/<group> 에 남긴다. 계획 파일이 없거나 변환에
+    실패하면 0.8.1 고정 빌더(legacy)로 대체하고 경고한다. 반환 {'root','meta','dicts'}."""
+    if rospy.get_param('~plan_mode', True):
+        try:
+            res = jnp_plan.build(goal, payload, parse_multigoal=parse_multigoal_payload,
+                                 parse_avoidance=parse_avoidance_payload, speed_fn=_robot_speed, **kw)
+            jnp_plan.publish(res, goal, rospy.get_name())
+            return res
+        except Exception as _e:
+            rospy.logwarn('[PLAN] 작업 분할 실패(%s) — 0.8.1 고정 빌더로 대체: %s', goal, _e)
+            print(f'[PLAN] 작업 분할 실패({goal}) — 0.8.1 고정 빌더로 대체: {_e}', flush=True)
+    res = legacy()
+    if not isinstance(res, dict):
+        res = {'root': res, 'meta': getattr(res, '_bt_meta', None), 'dicts': {}}
+    return res
 
 
 class JnPGroup:
@@ -707,14 +788,16 @@ if __name__ == '__main__':
     if task_payload:
         # (a) 방식: goal 별 트리 빌더 디스패치
         if 'Mult-Goal' in group1.goal:
-            root_task = build_multigoal_tree(task_payload)
+            root_task = _plan_or_legacy(group1.goal, task_payload,
+                                        lambda: build_multigoal_tree(task_payload))['root']
             # 베이스(공동 출발지) 표시 — 로봇 시작위치 무게중심을 latch 발행
             # /task_base 발행 금지(2026-08-08): 그룹별 멤버 홈 무게중심을 발행하면
             # 다이얼로그의 슬롯-상수 발행을 그룹마다 덮어써 BASE 원이 실행마다
             # 이동했고(실측 -1.74,-0.65 / -2.75,-1.65), traffic_zones 의 base 존
             # 정의까지 오염시켰다. 발행 주체는 협업 다이얼로그 하나로 일원화.
         elif 'Avoidance' in group1.goal:
-            root_task = build_avoidance_tree(task_payload)
+            root_task = _plan_or_legacy(group1.goal, task_payload,
+                                        lambda: build_avoidance_tree(task_payload))['root']
             _meta = getattr(root_task, '_bt_meta', None)
             if _meta:
                 group1._bt_pub = rospy.Publisher('/bottleneck/status', String,
@@ -808,15 +891,17 @@ if __name__ == '__main__':
             # 보고한다. 모든 대상 클래스 발견 또는 전 구역 순회 완료 시 SUCCESS.
             # 목표 채널은 지도제작 v3 과 동일(/explore_target, /explore_done) —
             # 에이전트 루프(병목 v4·잼 탈출 포함)를 그대로 재사용한다.
-            root_task = ParallelCompositeTask(name="object_search")
-            group1._last_root = root_task
-
             from geometry_msgs.msg import PoseStamped as _PS
             from nav_msgs.msg import OccupancyGrid as _OG
             from std_msgs.msg import Bool as _Bool
             from std_msgs.msg import String as _Str2
             _g0, _r0 = parse_multigoal_payload(task_payload)
             _expl_names = sorted(_r0.keys()) if _r0 else ['locobot_0', 'locobot_1']
+            # [JnP-0.8.2 2026-10-13] 트리 생성은 작업 분할 경로(plans/object_search.py) — 실패 시 고정 빌더
+            _res0 = _plan_or_legacy(group1.goal, task_payload,
+                                    lambda: build_object_search_tree(_expl_names), names=_expl_names)
+            root_task = _res0['root']
+            group1._last_root = root_task
             _targets = set()
             _count = 0
             for _sec in task_payload.split(';'):
@@ -830,28 +915,9 @@ if __name__ == '__main__':
                         _count = int(_sec[len('count='):])
                     except ValueError:
                         pass
-            import types as _types0
-            _etasks = {}
-            _dtasks = {}
-            _spars = {}
-            for _n in _expl_names:
-                _par = ParallelCompositeTask(name=f"search.{_n}",
-                                             parent=root_task)
-                _t = ParallelAtomicTask(name=f"patrol.{_n}", parent=_par,
-                                        goal='search')
-                _t.addRequirement("lidar")
-                _t.optional = True
-                _par.add(_t)
-                _d = ParallelAtomicTask(name=f"detect.{_n}", parent=_par,
-                                        goal='service:yolov8')
-                _d.addRequirement("virtual")
-                _d.assign_status = True
-                _d.agent = _types0.SimpleNamespace(name='/etri/' + _n)
-                _par.add(_d)
-                root_task.add(_par)
-                _etasks[_n] = _t
-                _dtasks[_n] = _d
-                _spars[_n] = _par
+            _etasks = _res0['dicts']['etasks']
+            _dtasks = _res0['dicts']['dtasks']
+            _spars = _res0['dicts']['spars']
             _sf = {'grid': None, 'done': False, 'found': [], 'pos': {},
                    'routes': {}, 'idx': {n: 0 for n in _expl_names},
                    'wp_t': {}, 'rdone': set()}
@@ -1337,8 +1403,6 @@ if __name__ == '__main__':
             # explore 루프가 추종한다. 완료는 /explore_done(latched) 방송 →
             # 에이전트 루프 종료 → 스케줄러 end → SUCCESS. (프런티어 task 왕복의
             # 좀비-실행·used 영구제외 교착 구조 제거; v2 는 git 이력 참조)
-            root_task = ParallelCompositeTask(name="map_explore")
-            group1._last_root = root_task
             # 그룹만 교체 재기동할 때 스택 중복 기동(이름 뺏기→고아 노드) 방지:
             # _spawn_stack:=false 면 기존 스택 재사용 (2026-08-09)
             if not rospy.get_param('~spawn_stack', True):
@@ -1391,40 +1455,20 @@ if __name__ == '__main__':
             if _merge_host:
                 print(f"[지도제작] 지도 병합 호스트: {_merge_host} "
                       f"(컴퓨팅 등급 {_compute_rank(_merge_host)})", flush=True)
-            _etasks = {}
-            _mtasks = {}          # 지도 송신/병합 (가상 task — 표시용)
-            _branch = {}
-            _seqbr = {}           # 로봇별 [S] navigate 가지 (병목 선행 삽입 지점)
-            for _n in _expl_names:
-                _br = ParallelCompositeTask(name=f"make_maps.{_n}",
-                                            parent=root_task)
-                # 병목 처리는 '탐사 이전에 끝내야 하는 선행 작업'이므로 순차 가지
-                # 안에 둔다 (2026-08-11 지시). 평시엔 explore 하나뿐이고, 양보가
-                # 걸리면 그 앞에 yield.<상대> 가 삽입돼 explore 가 대기로 바뀐다.
-                # ★ 스케줄러는 순차 가지에서 '첫 미완료 자식'만 보고 멈추므로,
-                #   앞에 선행이 생겨도 이미 실행 중인 explore 는 회수되지 않는다.
-                _sq = SequentialCompositeTask(name=f"navigate.{_n}", parent=_br,
-                                              goal='')
-                _t = ParallelAtomicTask(name=f"explore.{_n}", parent=_sq,
-                                        goal='explore')
-                _t.addRequirement("lidar")
-                _t.optional = True        # 한 로봇 실패가 미션을 죽이지 않게
-                _sq.add(_t)
-                _br.add(_sq)
-                _seqbr[_n] = _sq
-                _is_host = (_n == _merge_host)
-                _m = ParallelAtomicTask(
-                    name=(f"merge_maps.{_n}" if _is_host else f"send_map.{_n}"),
-                    parent=_br,
-                    goal=('service:map_merge' if _is_host else 'publish:map'))
-                _m.addRequirement("virtual")   # 에이전트 배정 대상 아님
-                _m.assign_status = True        # 상시 서비스 표시
-                _m.agent = _types9.SimpleNamespace(name='/etri/' + _n)
-                _br.add(_m)
-                root_task.add(_br)
-                _etasks[_n] = _t
-                _mtasks[_n] = _m
-                _branch[_n] = _br
+            # [JnP-0.8.2 2026-10-13] 트리 생성은 작업 분할 경로(plans/map_explore.py) — 실패 시 고정 빌더.
+            # 병목 처리는 '탐사 이전에 끝내야 하는 선행 작업'이므로 navigate 순차 가지 안에 둔다
+            # (2026-08-11 지시). 평시엔 explore 하나뿐이고, 양보가 걸리면 그 앞에 yield.<상대> 가
+            # 삽입돼 explore 가 대기로 바뀐다. ★ 스케줄러는 순차 가지에서 '첫 미완료 자식'만 보고
+            # 멈추므로, 앞에 선행이 생겨도 이미 실행 중인 explore 는 회수되지 않는다.
+            _res9 = _plan_or_legacy(group1.goal, task_payload,
+                                    lambda: build_map_explore_tree(_expl_names, _merge_host),
+                                    names=_expl_names, merge_host=_merge_host)
+            root_task = _res9['root']
+            group1._last_root = root_task
+            _etasks = _res9['dicts']['etasks']
+            _mtasks = _res9['dicts']['mtasks']   # 지도 송신/병합 (가상 task — 표시용)
+            _branch = _res9['dicts']['branch']
+            _seqbr = _res9['dicts']['seqbr']     # 로봇별 [S] navigate 가지 (병목 선행 삽입 지점)
 
             # ── 병목(충돌) 처리를 트리에 접붙이기 (2026-08-11 지시) ──
             #   양보 로봇: navigate.<n> 안, explore 바로 앞에 yield.<상대> (순차)
@@ -1758,7 +1802,8 @@ if __name__ == '__main__':
                     rospy.logwarn('지도 저장 실패: %s', _e)
             group1._post_success_hook = _post_explore_save
         else:
-            root_task = build_relay_tree(task_payload)
+            root_task = _plan_or_legacy(group1.goal, task_payload,
+                                        lambda: build_relay_tree(task_payload))['root']
         if not root_task.subtasks:
             print("Group: payload 전체가 형식 오류 — coalition 성립 불가", flush=True)
             group1.publish_status('failed', None, note='payload 형식 오류')

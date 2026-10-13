@@ -1,0 +1,118 @@
+{
+ "version": "v0.1-20261013-basic",
+ "source": {
+  "base": "jnp_bnt/config/skills_catalog.json (v0.2-20261006-bnt) 의 형식",
+  "note": "[JnP-0.8.2 2026-10-13] 기본 협업 태스크(릴레이·다목적 이동·충돌회피·분산 탐색-지도 제작·물건 찾기)용 스킬 어휘. plans/*.py 의 호출이 이 어휘로 TaskTree 가 되고, exec_goal 템플릿이 에이전트 execute() 가 해석하는 goal 문자열(nav:/trip:/explore/search/virtual:/service:/publish:)로 바뀐다. arg_keys 순서 = 위치 인자 순서, target_key = 작업 대상(id/goal 에 쓰임)."
+ },
+ "actions": {
+  "GoTo": {
+   "signature": "GoTo <robot><target>",
+   "arg_keys": [
+    "robot",
+    "target"
+   ],
+   "target_key": "target",
+   "exec_goal": "nav:{target}",
+   "requirement": "lidar",
+   "node": "sequential",
+   "declared_by_any_robot": true,
+   "note": "기본 태스크에서는 robot·target 에 같은 조각 문자열('robot=x,y,th' 또는 'robot:tx,ty[:prev]')을 넘기고 jnp_plan 이 푼다"
+  },
+  "Trip": {
+   "signature": "Trip <robot><target>",
+   "arg_keys": [
+    "robot",
+    "target"
+   ],
+   "target_key": "target",
+   "exec_goal": "trip:{x,y}@{label}",
+   "requirement": "lidar",
+   "node": "parallel",
+   "declared_by_any_robot": true,
+   "note": "target = 'label:x,y:item_index'"
+  },
+  "WaitPass": {
+   "signature": "WaitPass <robot><prev>",
+   "arg_keys": [
+    "robot",
+    "prev"
+   ],
+   "target_key": "prev",
+   "exec_goal": "virtual:wait",
+   "requirement": "virtual",
+   "node": "sequential",
+   "declared_by_any_robot": false,
+   "note": "prev = 앞 로봇(통과를 기다릴 대상). 가상 task — 그룹의 위치 관찰자가 완료 처리"
+  },
+  "Explore": {
+   "signature": "Explore <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "explore",
+   "requirement": "lidar",
+   "node": "parallel",
+   "optional": true,
+   "declared_by_any_robot": true
+  },
+  "Patrol": {
+   "signature": "Patrol <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "search",
+   "requirement": "lidar",
+   "node": "parallel",
+   "optional": true,
+   "declared_by_any_robot": true
+  },
+  "Detect": {
+   "signature": "Detect <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "service:yolov8",
+   "requirement": "virtual",
+   "node": "parallel",
+   "preassigned": true,
+   "declared_by_any_robot": false
+  },
+  "SendMap": {
+   "signature": "SendMap <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "publish:map",
+   "requirement": "virtual",
+   "node": "parallel",
+   "preassigned": true,
+   "declared_by_any_robot": false
+  },
+  "MergeMaps": {
+   "signature": "MergeMaps <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "service:map_merge",
+   "requirement": "virtual",
+   "node": "parallel",
+   "preassigned": true,
+   "declared_by_any_robot": false
+  }
+ },
+ "robot_declared_skills": [
+  "GoTo",
+  "Trip",
+  "Explore",
+  "Patrol"
+ ],
+ "notes": [
+  "virtual 요구 능력(WaitPass·Detect·SendMap·MergeMaps)은 어떤 에이전트도 못 받는다 — 그룹이 완료 처리하거나 상시 서비스로 표시만 한다(0.8.1 고정 빌더와 같음).",
+  "노드 이름(relay1.<robot>, move.<robot>, make_maps.<robot> …)은 jnp_plan 이 0.8.1 고정 빌더와 같은 규칙으로 붙인다 — 그룹의 실행 시 후처리가 이름으로 노드를 찾기 때문."
+ ]
+}
