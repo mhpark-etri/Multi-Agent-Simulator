@@ -59,14 +59,24 @@ def build_plan_html(plans, statuses, ko=True):
                 walk(c)
         walk(st.get('tree'))
         src = rec.get('source', '?')
+        psrc = (rec.get('plan_source') or 'unknown').lower()
+        # 계획 출처 배지 — example: 사람이 LLM-TDM 형식으로 직접 쓴 템플릿(LLM-TDM 모듈 출력이 아님)
+        if psrc == 'example':
+            badge = ("<span style='background:#fff3e0;color:#e65100;border:1px solid #ffb74d;border-radius:3px;padding:0 4px;font-weight:bold'>EXAMPLE</span> "
+                     + ("<span style='color:#8d6e63'>(사람이 쓴 분할 템플릿 — LLM-TDM 모듈 출력 아님)</span>" if ko
+                        else "<span style='color:#8d6e63'>(hand-written template, not LLM-TDM output)</span>"))
+        else:
+            badge = "<span style='background:#e3f2fd;color:#0d47a1;border:1px solid #64b5f6;border-radius:3px;padding:0 4px;font-weight:bold'>%s</span>" % _esc(psrc.upper())
         head = "<b>%s</b> &nbsp; goal=<b>%s</b> &nbsp; %s" % (_esc(grp), _esc(rec.get('goal', '')),
-               ("분할 계획 <code>%s</code>" % _esc(rec.get('plan_name') or '')) if src == 'plan' and ko else
-               ("plan <code>%s</code>" % _esc(rec.get('plan_name') or '')) if src == 'plan' else
+               ("분할 계획 <code>%s</code> %s" % (_esc(rec.get('plan_name') or ''), badge)) if src == 'plan' and ko else
+               ("plan <code>%s</code> %s" % (_esc(rec.get('plan_name') or ''), badge)) if src == 'plan' else
                ("<span class='no'>%s</span> (%s)" % ('고정 빌더로 대체' if ko else 'fixed builder (fallback)', _esc(rec.get('reason', '')))))
         out.append("<p style='margin:4px 0'>%s</p>" % head)
         desc = rec.get('task_description') or ''
         if desc:
-            out.append("<p style='margin:2px 0'><b>%s</b> <i>%s</i></p>" % ('미션(자연어):' if ko else 'Mission:', _esc(desc)))
+            out.append("<p style='margin:2px 0'><b>%s</b> <i>%s</i></p>" % (
+                ('미션(자연어, example):' if psrc == 'example' else '미션(자연어):') if ko
+                else ('Mission (example):' if psrc == 'example' else 'Mission:'), _esc(desc)))
         b = rec.get('bindings') or {}
         if b:
             bs = '; '.join('%s=%s' % (k, json.dumps(v, ensure_ascii=False)) for k, v in b.items())
@@ -353,8 +363,10 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self.m_plans[grp] = rec
         n = len(rec.get('subtasks') or [])
         if rec.get('source') == 'plan':
-            self._log((f"작업 분할: {grp} goal={rec.get('goal')} ← {rec.get('plan_name')} → subtask {n}개"
-                       if self.m_ko else f"decomposition: {grp} goal={rec.get('goal')} ← {rec.get('plan_name')} → {n} subtasks"))
+            tag = (' [example — 사람이 쓴 템플릿]' if self.m_ko else ' [example — hand-written template]') \
+                if (rec.get('plan_source') or '').lower() == 'example' else ''
+            self._log((f"작업 분할: {grp} goal={rec.get('goal')} ← {rec.get('plan_name')}{tag} → subtask {n}개"
+                       if self.m_ko else f"decomposition: {grp} goal={rec.get('goal')} ← {rec.get('plan_name')}{tag} → {n} subtasks"))
             if rec.get('task_description'):
                 self._log(("미션: " if self.m_ko else "mission: ") + rec['task_description'])
         else:
