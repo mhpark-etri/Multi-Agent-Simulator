@@ -7,7 +7,7 @@
 # B. 불변식: 두 트리 모두 부모 참조·선행/후행 상호 참조·predessesors 별칭·complete=False·노드 중복 없음 (손상 트리는 걸러짐)
 # C. 계약: canonical ↔ 실행 트리 원자 1:1, 순서 제약 집합 동일 (jnp_plan.check_contract 를 직접도 호출)
 # D. 반례(검수 보고서 2026-10-13 1·2차): F1 바인딩 왕복/거부, F3 불완전 계획·추가 능력 태그·구조 변경·지원 범위 밖 입력의 거부,
-#    R2-F1 상수 변경문·상수 메서드 호출·초과 위치 인자·해석 불가 인자의 거부
+#    R2-F1 상수 변경문·상수 메서드 호출·초과 위치 인자·해석 불가 인자의 거부, R3-F1 대입 RHS·호출 인자·식 문장 안의 상수 메서드 거부
 import copy
 import json
 import os
@@ -232,6 +232,19 @@ def run_counterexamples():
     ]:
         with plan_variant('Relay', old, new):
             f += expect_error(what, lambda: P.build_relay('tb3_0=1,2,0'), must_contain=key)
+    # R3-F1 (3차 검수 2026-10-14) — 같은 상수 메서드 호출이 대입 RHS·호출 인자·식 문장 안에 있어도 모듈·함수 양쪽에서 거부
+    call = '    GoTo(robot, target)'
+    for what, old, new in [
+        ('R3-F1 모듈 for 안 unused = TARGETS.update(…)', site, "    unused = TARGETS.update({robot:'99,99,0'})\n" + site),
+        ('R3-F1 함수 본문 unused = TARGETS.update(…)', call, "    unused = TARGETS.update({robot:'99,99,0'})\n" + call),
+        ('R3-F1 함수 본문 unused = ROBOTS.pop()', call, "    unused = ROBOTS.pop()\n" + call),
+        ('R3-F1 모듈 대입 RHS 안에 중첩 n = len(TARGETS.pop(robot))', site, "    n = len(TARGETS.pop(robot))\n" + site),
+        ('R3-F1 함수 본문 식 문장 [TARGETS.pop(k) for k in ROBOTS]', call, "    [TARGETS.pop(k) for k in ROBOTS]\n" + call),
+        ('R3-F1 함수 호출 인자 안 relay_leg(robot, TARGETS.pop(robot))', site, "    relay_leg(robot, TARGETS.pop(robot))"),
+        ('R3-F1 모듈 Thread args 안 TARGETS.pop()', site, "    t = threading.Thread(target=relay_leg, args=(robot, TARGETS.pop(robot)))\n" + site),
+    ]:
+        with plan_variant('Relay', old, new):
+            f += expect_error(what, lambda: P.build_relay('tb3_0=1,2,0'), must_contain='지원하지 않음')
     with plan_variant('Relay', 'GoTo(robot, target)', 'GoTo(robot, target)'):     # 변형 없음 — 기본 계획은 여전히 통과
         r = P.build_relay('tb3_0=1,2,0')
         f += expect_ok('R2-F1 기본 계획은 strict_source 에서도 통과', r['root'].subtasks[0].goal == 'nav:1,2,0' and not r['plan']['warnings'])
@@ -288,6 +301,12 @@ def run_wrapper():
     with patch.object(rospy, 'get_param', side_effect=ConnectionRefusedError('no master')):
         r = G._plan_or_legacy('Relay', pl, lambda: G.build_relay_tree(pl))
         f += expect_ok('E get_param 실패는 기본값(plan_mode=true) 으로', r['source'] == 'plan')
+    with plan_variant('Relay', '    relay_leg(robot, TARGETS[robot])', "    unused = TARGETS.update({robot:'99,99,0'})\n    relay_leg(robot, TARGETS[robot])"):
+        r = G._plan_or_legacy('Relay', pl, lambda: G.build_relay_tree(pl))
+        f += expect_ok('E R3-F1 거부(상수 메서드 RHS) → 호환 모드 legacy + 사유', r['source'] == 'legacy' and 'PlanBuildError' in r['fallback_reason']
+                       and '지원하지 않음' in r['fallback_reason'] and len(r['root'].subtasks) == 2)
+        with patch.object(rospy, 'get_param', side_effect=lambda k, d=None: {'~plan_strict': True}.get(k, d)):
+            f += expect_error('E R3-F1 거부는 strict 에서 예외 전파', lambda: G._plan_or_legacy('Relay', pl, lambda: G.build_relay_tree(pl)), must_contain='지원하지 않음')
     return f
 
 
