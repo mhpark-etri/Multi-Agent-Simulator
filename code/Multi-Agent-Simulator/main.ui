@@ -1438,7 +1438,7 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                         </item>
                         <item>
                          <property name="text">
-                          <string>JnP 0.8.1</string>
+                          <string>JnP 0.8.2</string>
                          </property>
                         </item>
                        </widget>

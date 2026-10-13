@@ -71,7 +71,7 @@ source init.sh
 > |---|---|---|
 > | 4.1 | Interbotix 설치 | **필수** (설치 화면에서 y 입력) |
 > | 4.2 | JnP 0.2.1 빌드 | **필수** |
-> | 4.2.1 | JnP 0.8.1 | 불필요 — 이미지·init.sh 가 이미 빌드 |
+> | 4.2.1 | JnP 0.8.2 | 불필요 — 이미지·init.sh 가 이미 빌드 |
 > | 4.2.2 | 탐사 스택 | 불필요 — 이미지·init.sh 가 이미 빌드 |
 > | 4.2.3 | YOLO | 선택 — 물건 찾기 태스크를 쓸 때만 |
 > | 4.3 / 4.4 | Ai-Bot / Stretch2 | 해당 로봇을 쓸 때 |
@@ -104,20 +104,22 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" />
 <br><br>
 
-### 4.2.1 JnP 0.8.1 (v1.9 협업 태스크) — 참고용, 실행 불필요
+### 4.2.1 JnP 0.8.2 (v1.9 협업 태스크) — 참고용, 실행 불필요
 
 > 이미지와 `init.sh` 가 이미 빌드합니다. **건너뛰어도 됩니다.**
 > 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 보십시오.
 
-- v1.9 협업 태스크는 JnP **0.8.1** 을 사용합니다.
+- v1.9 협업 태스크는 JnP **0.8.2** 를 사용합니다(`jnp/jnp_0.8.2/`; 2026-10 전환).
   - 릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 / 분산 탐색-물건 찾기
+  - 0.8.2 = 0.8.1 + 8곳 수정(디버그 잔재 `/root/empty_file*.txt` 생성 제거, 그룹 스크립트 파라미터화, roslaunch 식 remap 인수 허용, stdin 없이 실행 가능, 그룹 해체 시 진행 중 이동 선점, 그룹 상태에 mission_id, 종료 전 master 등록 해제 확인, install 규칙). 호출 방식(`rosrun jnp jnp_agent.py __ns:=… __name:=… none.xml`, `/jnp_agent_join_event` 의 `task:<goal>:<payload>`)은 0.8.1 과 같습니다.
+  - 0.8.1 소스는 `jnp/jnp_0.8.1/` 에 참고용으로 남겨 두었습니다(이미지는 빌드하지 않음).
 - 소스에서 다시 빌드하려면 아래를 실행합니다.
 
 ```
-mkdir -p /root/catkin_ws_jnp081/src
-ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
-ln -s /root/tesla/jnp/jnp_0.8.1 /root/catkin_ws_jnp081/src/jnp
-cd /root/catkin_ws_jnp081 && catkin_make
+mkdir -p /root/catkin_ws_jnp082/src
+ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp082/src/CMakeLists.txt
+ln -s /root/tesla/jnp/jnp_0.8.2 /root/catkin_ws_jnp082/src/jnp
+cd /root/catkin_ws_jnp082 && catkin_make
 ```
 
 ### 4.2.2 탐사 스택 (third_party) — 참고용, 실행 불필요
@@ -265,7 +267,7 @@ python3 main.py
    - Behavior (Action) 패널의 **Collaboration Tasks** 에서 태스크를 고르고 Start.
    - 제공 태스크: 릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 /
      분산 탐색-물건 찾기.
-   - **Execution** 콤보에서 `JnP 0.8.1` 을 선택하면 에이전트들이 coalition 을
+   - **Execution** 콤보에서 `JnP 0.8.2` 를 선택하면 에이전트들이 coalition 을
      형성해 태스크를 수행합니다.
    - **Nav 설정** 버튼: 태스크별 항법 파라미터(속도·팽창 반경·플래너 등)를
      지정합니다. 저장한 항목만 그 태스크에 적용되고, 나머지는 공통 설정 →

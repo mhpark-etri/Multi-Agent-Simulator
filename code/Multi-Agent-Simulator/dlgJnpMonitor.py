@@ -1,5 +1,5 @@
 ######################################################
-## JnP Monitor 다이얼로그 (JnP 0.8.1)                ##
+## JnP Monitor 다이얼로그 (JnP 0.8.2)                ##
 ## 설명 : JnP 동작(discovery/coalition/scheduling)을 ##
 ##        전용 창에서 그래픽으로 표시                 ##
 ##  - /jnp/status        : 그룹이 발행하는 JSON 상태  ##
@@ -91,7 +91,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         # ★ rostopic echo 는 긴 문자열을 이스케이프+줄바꿈 랩핑해 줄 단위 파싱이 깨진다(실측)
         #   → 원문 그대로 '한 줄 = 한 메시지'를 보장하는 tap 을 쓴다.
         self._spawn_watch('/jnp/status', self._on_status_line)
-        self._spawn_watch(CMD_ROS_JNP081_TASK_TOPIC, self._on_event_line)
+        self._spawn_watch(CMD_ROS_JNP082_TASK_TOPIC, self._on_event_line)
 
         # RTF/Sim/Real 표시 — /clock 을 2초 간격으로 샘플하는 tap (성능 부담 없음)
         self.m_clock_prev = None
@@ -159,7 +159,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         env.insert("PYTHONUNBUFFERED", "1")
         proc.setProcessEnvironment(env)
         proc.setProcessChannelMode(QtCore.QProcess.MergedChannels)
-        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
+        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
                + "; python3 -c \"" + self.CLOCK_CODE + "\"")
         proc.start("bash", ["-c", cmd])
         proc.readyReadStandardOutput.connect(
@@ -223,7 +223,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         env.insert("PYTHONUNBUFFERED", "1")
         proc.setProcessEnvironment(env)
         proc.setProcessChannelMode(QtCore.QProcess.MergedChannels)
-        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
+        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
                + "; python3 -c \"" + self.TAP_CODE.format(t=topic) + "\"")
         proc.start("bash", ["-c", cmd])
         proc.readyReadStandardOutput.connect(
@@ -302,8 +302,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         targets = [g for g, st in self.m_statuses.items()
                    if st.get('state') in ('success', 'failed')]
         for group in targets:
-            cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
-                   + "; rostopic pub -1 " + CMD_ROS_JNP081_TASK_TOPIC
+            cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
+                   + "; rostopic pub -1 " + CMD_ROS_JNP082_TASK_TOPIC
                    + " std_msgs/String \"data: 'dissolve:" + group + "'\"")
             QtCore.QProcess.startDetached("bash", ["-c", cmd])
             self._log(f"그룹 해제 명령 발행: {group}" if self.m_ko
@@ -315,8 +315,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             self._log("해제할 그룹이 없습니다 (coalition 미형성)" if self.m_ko
                       else "no group to dissolve (no coalition formed)")
             return
-        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
-               + "; rostopic pub -1 " + CMD_ROS_JNP081_TASK_TOPIC
+        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
+               + "; rostopic pub -1 " + CMD_ROS_JNP082_TASK_TOPIC
                + " std_msgs/String \"data: 'dissolve:" + group + "'\"")
         QtCore.QProcess.startDetached("bash", ["-c", cmd])
         self._log(f"그룹 해제 명령 발행: {group}" if self.m_ko

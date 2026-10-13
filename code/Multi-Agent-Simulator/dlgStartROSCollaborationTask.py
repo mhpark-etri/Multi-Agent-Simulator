@@ -35,7 +35,7 @@ class DialogStartROSCollaborationTask(
     sigTaskDone = Signal()
 
     # Init
-    def __init__(self, rosInfo, jnp081Active=False, jnp021Active=False, monitorOpener=None,
+    def __init__(self, rosInfo, jnp082Active=False, jnp021Active=False, monitorOpener=None,
                  basePositions=None):
         super().__init__()
         self.ui = Ui_DlgROSCollaborationTask()
@@ -43,7 +43,7 @@ class DialogStartROSCollaborationTask(
         self.sigTaskDone.connect(self.enableUI)
 
         self.m_simulator = copy.deepcopy(rosInfo)
-        self.m_jnp081Active = jnp081Active      # JnP 0.8.1 에이전트 상주 여부 (자동 기동 판단)
+        self.m_jnp082Active = jnp082Active      # JnP 0.8.2 에이전트 상주 여부 (자동 기동 판단)
         self.m_jnp021Active = jnp021Active      # 0.2.1 은 협업 태스크 미지원 — 안내만
         # BASE 슬롯 상수(이름→(x,y)) — 원 중심과 legacy 홈 좌표를 여기 고정
         self.m_basePos = basePositions
@@ -54,7 +54,7 @@ class DialogStartROSCollaborationTask(
             self.m_baseXY = (sum(xs) / len(xs), sum(ys) / len(ys))
         self.m_monitorOpener = monitorOpener    # JnP 실행 시 Monitor 창 자동 표시용
 
-        # 실행 방식 콤보 (0=JnP 0.8.1, 1=기존 launch) — 설정에 저장/복원, 한/영 라벨
+        # 실행 방식 콤보 (0=JnP 0.8.2, 1=기존 launch) — 설정에 저장/복원, 한/영 라벨
         settings = QSettings(SETTING_COMPANY, SETTING_APP)
         self.m_ko = (settings.value('ui_lang') is None or int(settings.value('ui_lang') or 0) == 0)
         saved = settings.value('exec_mode')
@@ -253,10 +253,10 @@ class DialogStartROSCollaborationTask(
                 'JnP 0.2.1' ,
                 ('JnP 0.2.1은 협업 태스크 연동을 지원하지 않습니다.\n'
                  '(0.2.1은 discovery/description 데모 전용)\n'
-                 'JnP 콤보를 0.8.1로 바꾸고 JnP Start 후 다시 시도하세요.') if ko else
+                 'JnP 콤보를 0.8.2로 바꾸고 JnP Start 후 다시 시도하세요.') if ko else
                 ('JnP 0.2.1 does not support collaboration task integration.\n'
                  '(0.2.1 is a discovery/description demo only)\n'
-                 'Switch the JnP combo to 0.8.1, press JnP Start, and try again.'))
+                 'Switch the JnP combo to 0.8.2, press JnP Start, and try again.'))
             return
 
         # 선택된 협업 태스크 종류 — legacy launch / JnP 두 방식 모두 지원 (2026-08-08 지시)
@@ -271,7 +271,7 @@ class DialogStartROSCollaborationTask(
 
         self.disableUI()
 
-        # ---- JnP 0.8.1 경로: task(goal) 발행 → 에이전트 coalition 이 트리/할당/스케줄로
+        # ---- JnP 0.8.2 경로: task(goal) 발행 → 에이전트 coalition 이 트리/할당/스케줄로
         #      move_base 실주행까지 수행 (2026-08-08 실주행 연결 완료) ----
         if self.ui.cmbExecMode.currentIndex() == 0:
             # JnP 모드: task tree/coalition 관찰용 Monitor 창을 자동으로 연다
@@ -348,7 +348,7 @@ class DialogStartROSCollaborationTask(
                     else:
                         bx = sum(cx for _n, cx, _cy, _mx, _my in infos) / len(infos)
                         by = sum(cy for _n, _cx, cy, _mx, _my in infos) / len(infos)
-                    baseCmd = (PATH_SOURCE_JNP081_SETUP + "; rostopic pub -1 /task_base "
+                    baseCmd = (PATH_SOURCE_JNP082_SETUP + "; rostopic pub -1 /task_base "
                                "geometry_msgs/PoseStamped "
                                f"'{{header: {{frame_id: map}}, pose: {{position: {{x: {bx:.2f}, y: {by:.2f}}}, orientation: {{w: 1.0}}}}}}'")
                     subprocess.Popen(['bash', '-c', baseCmd])
@@ -366,11 +366,11 @@ class DialogStartROSCollaborationTask(
                         gx, gy, th = mtx, mty, 0.0      # 마지막 로봇 = 최종 목표
                     segments.append(f"{name}={gx:.2f},{gy:.2f},{th:.2f}")
                 data = "task:Relay:" + ";".join(segments)
-            pubCmd = (PATH_SOURCE_JNP081_SETUP + "; rostopic pub -1 "
-                      + CMD_ROS_JNP081_TASK_TOPIC + " std_msgs/String \"data: '" + data + "'\"")
+            pubCmd = (PATH_SOURCE_JNP082_SETUP + "; rostopic pub -1 "
+                      + CMD_ROS_JNP082_TASK_TOPIC + " std_msgs/String \"data: '" + data + "'\"")
 
             def _agents_running():
-                out = subprocess.run(['pgrep', '-f', 'jnp_0.8.1/scripts/jnp_[a]gent'],
+                out = subprocess.run(['pgrep', '-f', 'catkin_ws_jnp082/.*jnp_[a]gent'],
                                      stdout=subprocess.PIPE).stdout.decode().split()
                 return out
 
@@ -380,14 +380,14 @@ class DialogStartROSCollaborationTask(
                 try:
                     # 에이전트가 없으면 자동 기동 (메인 창 JnP Start 를 누른 것과 동일)
                     if not _agents_running():
-                        print("JnP 0.8.1 에이전트 자동 기동...")
+                        print("JnP 0.8.2 에이전트 자동 기동...")
                         for name in robot_names:
-                            cmd = (PATH_SOURCE_JNP081_SETUP + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
+                            cmd = (PATH_SOURCE_JNP082_SETUP + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
                                    + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP
                                    + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE
                                    + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT
                                    + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
-                                   + CMD_COMMON_SPACE + CMD_ROS_JNP081_AGENT_XML_ARG)
+                                   + CMD_COMMON_SPACE + CMD_ROS_JNP082_AGENT_XML_ARG)
                             subprocess.Popen([CMD_EXCUTE_CMD_OPEN + cmd + CMD_EXCUTE_CMD_CLOSE], shell=True)
                             time.sleep(1)
                         for _ in range(30):     # 기동 대기
@@ -395,7 +395,7 @@ class DialogStartROSCollaborationTask(
                                 break
                             time.sleep(1)
                         time.sleep(8)           # 상호 발견(advertise/description) 여유
-                    print(f"JnP 0.8.1 task 발행: {data}")
+                    print(f"JnP 0.8.2 task 발행: {data}")
                     subprocess.Popen(['bash', '-c', pubCmd])
                     print("coalition 진행은 Monitor 창/에이전트 터미널에서 확인하세요.\n")
                 finally:
@@ -414,10 +414,10 @@ class DialogStartROSCollaborationTask(
                 'Legacy launch',
                 ('다목적 이동(Mult-Goal Move)의 Legacy launch 방식은\n'
                  '아직 구현이 완료되지 않았습니다.\n'
-                 'Execution 을 "JnP 0.8.1" 로 선택해 실행해 주세요.') if ko else
+                 'Execution 을 "JnP 0.8.2" 로 선택해 실행해 주세요.') if ko else
                 ('Legacy launch mode for Mult-Goal Move is not\n'
                  'implemented yet.\n'
-                 'Please select "JnP 0.8.1" as the execution mode.'))
+                 'Please select "JnP 0.8.2" as the execution mode.'))
             self.enableUI()
             return
         # ---- 기존 경로: loco_init + 연쇄 릴레이 ----
