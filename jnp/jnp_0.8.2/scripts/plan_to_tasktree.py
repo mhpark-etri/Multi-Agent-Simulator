@@ -149,6 +149,15 @@ class Converter(object):
             return True
         return False
 
+    def _check_const_calls_in(self, node, env, where):
+        """[2026-10-14] 식 안(대입 RHS·호출 인자·컴프리헨션 등)에 숨은 상수 메서드 호출도 독립 호출문과 같은 정책으로 거부한다
+        (unused = TARGETS.update(...), n = len(ROBOTS.pop()), [D.pop(k) for k in L] …). 반환값을 쓰지 않아도 부수 효과는 남기 때문."""
+        if node is None:
+            return
+        for sub in ast.walk(node):
+            if isinstance(sub, ast.Call):
+                self._check_const_method(sub, env, where)
+
     def _src(self, node):
         try:
             s = ast.get_source_segment(self.code, node)
@@ -321,6 +330,8 @@ class Converter(object):
     def walk_stmt(self, st, env, depth, where):
         if self._check_mutation_stmt(st, where):
             return []
+        if isinstance(st, (ast.Expr, ast.Assign)):
+            self._check_const_calls_in(st.value, env, where)    # [2026-10-14] RHS·식 안의 상수 메서드 호출 거부
         if isinstance(st, ast.Expr):
             if isinstance(st.value, ast.Call):
                 return self.handle_call(st.value, env, depth, where)
@@ -557,6 +568,7 @@ class Converter(object):
             if isinstance(st, ast.Assign) and len(st.targets) == 1 \
                     and isinstance(st.targets[0], ast.Name):
                 name, v = st.targets[0].id, st.value
+                self._check_const_calls_in(v, env, where)       # [2026-10-14] 대입 RHS 안의 상수 메서드 호출 거부
                 entry = self.thread_entry(v, env, where)
                 if entry is not None:
                     if entry[0] != "__missing__":
@@ -584,8 +596,11 @@ class Converter(object):
                 return
             if isinstance(st, ast.Expr):
                 if not isinstance(st.value, ast.Call):
+                    self._check_const_calls_in(st.value, env, where)   # [2026-10-14] 컴프리헨션 등 식 문장 안의 상수 메서드
                     return
                 call = st.value
+                for _a in list(call.args) + [k.value for k in call.keywords]:
+                    self._check_const_calls_in(_a, env, where)          # [2026-10-14] 호출 인자 안의 상수 메서드(DSL 호출 자체는 아래서 판정)
                 if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name):
                     var, attr = call.func.value.id, call.func.attr
                     if attr == "start" and var in thread_vars:
