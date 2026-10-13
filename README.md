@@ -112,15 +112,18 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 - v1.9 협업 태스크는 JnP **0.8.2** 를 사용합니다(`jnp/jnp_0.8.2/`; 2026-10 전환).
   - 릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 / 분산 탐색-물건 찾기
   - 0.8.2 = 0.8.1 + 8곳 수정(디버그 잔재 `/root/empty_file*.txt` 생성 제거, 그룹 스크립트 파라미터화, roslaunch 식 remap 인수 허용, stdin 없이 실행 가능, 그룹 해체 시 진행 중 이동 선점, 그룹 상태에 mission_id, 종료 전 master 등록 해제 확인, install 규칙). 호출 방식(`rosrun jnp jnp_agent.py __ns:=… __name:=… none.xml`, `/jnp_agent_join_event` 의 `task:<goal>:<payload>`)은 0.8.1 과 같습니다.
-  - **작업 분할(task decomposition) 경로** — 기본 협업 태스크 5종의 task tree 는 goal 별 고정 코드가 아니라
-    `jnp/jnp_0.8.2/plans/<task>.py` 의 **분할 계획**(LLM-TDM 형식: `# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`)
-    에서 만들어집니다. 그룹(`jnp_group.py`)이 GUI payload 로 계획의 모듈 상수(LEGS·ITEMS·FIRST/REST·HOST/EXPLORERS·ROBOTS)를
-    바인딩 → `scripts/plan_to_tasktree.py`(계획 코드를 ast 로 기호 평가: 함수 = 복합 task, `threading.Thread` = 병렬 가지,
-    최상위 `for` = 순차)가 canonical TaskTree(JSON)를 만들고 → `scripts/jnp_plan.py` 가 그것을 스케줄러가 쓰는 Task 객체
-    트리로 바꿉니다. 스킬 카탈로그는 `config/skills_catalog_basic.json`(GoTo·Trip·WaitPass·Explore·Patrol·Detect·SendMap·MergeMaps).
-    계획·canonical·바인딩은 그룹 콘솔(`[PLAN]`)과 rosparam `/jnp/plan/<group>` 에 남습니다.
-    0.8.1 고정 빌더는 대체 경로로 남아 있으며(`_plan_mode:=false` 또는 계획 변환 실패 시), 두 경로가 같은 트리를 만드는지는
-    `jnp/jnp_0.8.2/test/test_plan_trees.py`(ROS 마스터 불필요, 11 사례)로 확인합니다. 작업 **할당**(coalition·스케줄러·할당기)은 0.8.1 과 같습니다.
+  - **작업 분할(task decomposition) 경로** — 기본 협업 태스크 5종의 task tree 는 `jnp/jnp_0.8.2/plans/<task>.py` 의
+    **분할 계획**(LLM-TDM 형식: `# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`, 미리 작성된 템플릿)에서 만들어집니다.
+    그룹(`jnp_group.py`)이 GUI payload 로 계획의 모듈 상수(ROBOTS·TARGETS·GOALS·ITEMS·FIRST/REST·HOST/EXPLORERS)를 바인딩 →
+    `scripts/plan_to_tasktree.py`(계획 코드를 ast 로 기호 평가: 함수 = 복합 task, `threading.Thread` = 병렬 가지, 최상위 `for` = 순차)가
+    canonical TaskTree(JSON)를 만들고 → `scripts/jnp_plan.py` 의 **태스크별 호환 어댑터**가 스케줄러가 쓰는 Task 객체 트리로 바꿉니다.
+    원자 task 의 실행 속성(goal 문자열·요구 능력·순차/병렬·optional·상시 가상 서비스)은 스킬 카탈로그 `config/skills_catalog_basic.json`
+    에서 읽고, 어댑터는 노드 이름과 복합 node 의 묶음(로봇별 묶음, navigate 래퍼 등)만 정합니다 — 규칙은 `plans/README.md` 의
+    '실행 변환 규칙'. 어댑터는 반환 전에 canonical 과 실행 트리의 순서 제약이 같은지(계약)와 태스크별 완전성(필수 스킬·로봇·호스트)을
+    검사하며, 지원하지 않는 계획 형태는 거부합니다. 계획·canonical·바인딩은 그룹 콘솔(`[PLAN]`)과 rosparam `/jnp/plan/<group>` 에 남습니다.
+    0.8.1 고정 빌더는 호환 대체 경로로 남아 있습니다(`_plan_mode:=false`, 또는 계획 경로가 실패하면 사유를 기록하고 대체;
+    `_plan_strict:=true` 면 대체하지 않고 예외). 두 경로가 같은 트리를 만드는지와 보고서의 반례는
+    `jnp/jnp_0.8.2/test/test_plan_trees.py`(ROS 마스터 불필요)로 확인합니다. 작업 **할당**(coalition·스케줄러·할당기)은 0.8.1 과 같습니다.
   - 0.8.1 소스는 `jnp/jnp_0.8.1/` 에 참고용으로 남겨 두었습니다(이미지는 빌드하지 않음).
 - 소스에서 다시 빌드하려면 아래를 실행합니다.
 

@@ -39,14 +39,14 @@ DEFAULT_CATALOG = HERE.parent / "config" / "skills_catalog_basic.json"     # [Jn
 # install 공간(lib/jnp/plan_to_tasktree.py)에서는 share/jnp/config 에 있다
 CATALOG_CANDIDATES = [DEFAULT_CATALOG,
                       HERE.parent.parent / "share" / "jnp" / "config" / "skills_catalog_basic.json"]
-# [Codex F9 2026-10-07] if/else 두 갈래가 같은 스킬일 때 병합을 허용하는 '보고' 스킬 — 실행기가 결과에
+# [2026-10-07] if/else 두 갈래가 같은 스킬일 때 병합을 허용하는 '보고' 스킬 — 실행기가 결과에
 # 따라 보고 내용을 정한다. 그 밖의 스킬은 대상이 같을 때만 병합하고, 다르면 PlanIssue.
 MERGE_REPORT_SKILLS = {"SendLocation"}
-# [Codex R10 2026-10-07] required_skills 에 스킬 외에 붙을 수 있는 능력 태그(에이전트 ~jnp_capability 의 센서 항목).
+# [2026-10-07] required_skills 에 스킬 외에 붙을 수 있는 능력 태그(에이전트 ~jnp_capability 의 센서 항목).
 # use_radar=True 는 'radar' 태그가 된다. strict 검증에서도 이 태그만 허용한다.
 CAPABILITY_TAGS = {"radar", "lidar", "camera"}
 
-RAW_NODE_KEYS = {"type", "subtasks", "skill", "args", "extra_skills"}   # extra_skills: [Codex R10] 능력 태그
+RAW_NODE_KEYS = {"type", "subtasks", "skill", "args", "extra_skills"}   # extra_skills: [2026-10-07] 능력 태그
 CANON_ATOMIC_KEYS = {"id", "type", "skill", "args", "required_skills", "goal", "metadata"}
 CANON_COMPOSITE_KEYS = {"id", "type", "subtasks", "goal"}
 ROOT_META_KEYS = {"text", "floorplan", "robot_list", "source"}
@@ -64,7 +64,7 @@ def load_catalog(path=None):
     if path:
         return json.loads(Path(path).read_text(encoding="utf-8"))
     cands = list(CATALOG_CANDIDATES)
-    try:                                              # [Codex F6 2026-10-07] rospkg 의 share 경로
+    try:                                              # [2026-10-07] rospkg 의 share 경로
         import rospkg
         cands.append(Path(rospkg.RosPack().get_path("jnp")) / "config" / "skills_catalog_basic.json")
     except Exception:
@@ -102,7 +102,7 @@ class Converter(object):
     def __init__(self, catalog, max_depth=6, strict_conditionals=True):
         self.actions = catalog.get("actions") or {}
         self.max_depth = max_depth
-        # [Codex R10 2026-10-07] True(운영 기본): 정적으로 판정할 수 없는 조건부 실행은 보고 병합 외에 거부.
+        # [2026-10-07] True(운영 기본): 정적으로 판정할 수 없는 조건부 실행은 보고 병합 외에 거부.
         # False: fixture·변환 실험용 — 종전처럼 경고만 내고 양쪽/한쪽 갈래를 무조건 실행으로 넣는다.
         self.strict_conditionals = bool(strict_conditionals)
         self.warnings = []
@@ -110,7 +110,7 @@ class Converter(object):
         self.funcs = {}
         self.env = {}
         self.used_funcs = set()
-        self.radar_marks = []       # [Codex F9 2026-10-07] use_radar=True 로 표시된 {skill, target}
+        self.radar_marks = []       # [2026-10-07] use_radar=True 로 표시된 {skill, target}
 
     # ── 공용 ──
     def warn(self, msg):
@@ -135,7 +135,32 @@ class Converter(object):
             v = list(v)
         if isinstance(v, (str, int, float, list)):
             return v
+        # [2026-10-13] 사전 상수(TARGETS = {"tb3_0": "1.0,2.0"}) — 모듈 상수 바인딩용. 키는 문자열, 값은 문자열/숫자/리스트
+        if isinstance(v, dict) and all(isinstance(k, str) for k in v) \
+                and all(isinstance(x, (str, int, float, list)) for x in v.values()):
+            return v
         return None
+
+    def subscript(self, node, env, where):
+        """[2026-10-13] NAME[key] — env 의 사전/리스트 상수에서 원소를 꺼낸다. (found, value) 반환.
+        key 는 리터럴 또는 env 의 문자열/정수 이름. 없으면 PlanIssue(값을 조용히 바꾸지 않는다)."""
+        if not isinstance(node, ast.Subscript) or not isinstance(node.value, ast.Name):
+            return (False, None)
+        base = env.get(node.value.id)
+        if not isinstance(base, (dict, list)):
+            return (False, None)
+        sl = node.slice
+        if hasattr(ast, "Index") and isinstance(sl, ast.Index):      # Python 3.8
+            sl = sl.value
+        key = self.literal(sl)
+        if key is None and isinstance(sl, ast.Name) and isinstance(env.get(sl.id), (str, int)):
+            key = env[sl.id]
+        if key is None:
+            raise PlanIssue("%s: 첨자 '%s' 를 해석할 수 없음" % (where, self._src(node)))
+        try:
+            return (True, base[key])
+        except (KeyError, IndexError, TypeError):
+            raise PlanIssue("%s: '%s' — 상수 %s 에 키 %r 가 없음" % (where, self._src(node), node.value.id, key))
 
     def resolve(self, node, env, where):
         """인자 노드 → 문자열 값. 해석 불가면 None(+경고)."""
@@ -164,6 +189,12 @@ class Converter(object):
                     inner = self.resolve(v.value, env, where)
                     parts.append(inner if inner is not None else "{?}")
             return "".join(parts)
+        found, val = self.subscript(node, env, where)                 # [2026-10-13] NAME[key]
+        if found:
+            if isinstance(val, (str, int, float)):
+                return str(val)
+            self.warn("%s: '%s' 는 문자열이 아님(%r) — 인자로 못 씀" % (where, self._src(node), type(val).__name__))
+            return None
         self.warn("%s: 인자 '%s' 는 리터럴이 아님" % (where, self._src(node)))
         return None
 
@@ -176,6 +207,9 @@ class Converter(object):
             return env[node.id]
         if isinstance(node, ast.JoinedStr):
             return self.resolve(node, env, where)
+        found, val = self.subscript(node, env, where)                 # [2026-10-13] NAME[key]
+        if found:
+            return val
         return _Unknown(self._src(node))
 
     # ── 스킬 호출 → raw atomic ──
@@ -183,7 +217,7 @@ class Converter(object):
         name = call.func.id
         info = self.actions.get(name)
         if info is None:
-            # [Codex F9 2026-10-07] 어휘 밖 스킬 호출은 실행 의미를 보존할 수 없다 — 조용히 버리지 않고 거부
+            # [2026-10-07] 어휘 밖 스킬 호출은 실행 의미를 보존할 수 없다 — 조용히 버리지 않고 거부
             raise PlanIssue("%s: 어휘 밖 호출 %s() — 실행할 수 없는 단계(카탈로그에 없음)" % (where, name))
         keys = list(info.get("arg_keys") or ["object"])
         defaults = info.get("defaults") or {}
@@ -198,7 +232,7 @@ class Converter(object):
             if kw.arg in keys:
                 args[kw.arg] = self.resolve(kw.value, env, "%s:%s" % (where, name))
             elif kw.arg == "use_radar":
-                # [Codex F9 2026-10-07] LLM-TDM 의 radar 표시 — 버리지 않고 radar 요구 근거로 기록
+                # [2026-10-07] LLM-TDM 의 radar 표시 — 버리지 않고 radar 요구 근거로 기록
                 flag = self.literal(kw.value)
                 if flag is None:
                     raise PlanIssue("%s: %s(use_radar=%s) 값을 해석할 수 없음"
@@ -218,7 +252,7 @@ class Converter(object):
         node = {"type": "atomic", "skill": name, "args": args}
         if use_radar:
             self.radar_marks.append({"skill": name, "target": args.get(info.get("target_key", "object"))})
-            node["extra_skills"] = ["radar"]       # [Codex R10] canonical required_skills 에 반영된다
+            node["extra_skills"] = ["radar"]       # [2026-10-07] canonical required_skills 에 반영된다
         return node
 
     # ── 함수 본문 인라인 ──
@@ -295,7 +329,7 @@ class Converter(object):
                            ast.Global, ast.Nonlocal, ast.Break, ast.Continue)):
             return []
         if isinstance(st, ast.While):
-            # [Codex F9 2026-10-07] 반복 횟수를 알 수 없는 루프는 한 번 실행으로 바꿀 수 없다
+            # [2026-10-07] 반복 횟수를 알 수 없는 루프는 한 번 실행으로 바꿀 수 없다
             raise PlanIssue("%s: while 문은 실행 의미를 보존할 수 없음(반복 횟수 미상)" % where)
         if isinstance(st, (ast.With, ast.Try)):
             self.warn("%s: %s 문은 본문만 순차로 처리" % (where, type(st).__name__))
@@ -312,12 +346,12 @@ class Converter(object):
             if fid in self.funcs:
                 bound = self.bind_args(self.funcs[fid], call, env, where)
                 return self.inline(fid, bound, depth + 1, where)
-            # [Codex F9 2026-10-07] 실행 단계로 쓰인 미등록 호출은 거부(값 조회용 대입은 경고만)
+            # [2026-10-07] 실행 단계로 쓰인 미등록 호출은 거부(값 조회용 대입은 경고만)
             raise PlanIssue("%s: 어휘 밖 호출 %s() — 실행할 수 없는 단계(카탈로그·정의된 함수에 없음)" % (where, fid))
         return []                                        # time.sleep() 등 속성 호출
 
     def _static_truth(self, node, env):
-        """[Codex R10 2026-10-07] 조건식을 정적으로 판정: True/False 또는 None(판정 불가).
+        """[2026-10-07] 조건식을 정적으로 판정: True/False 또는 None(판정 불가).
         상수, 리터럴에 바인딩된 이름, not <정적> 만 판정한다. 스킬 결과(_Ref)·미상 값은 None."""
         if isinstance(node, ast.Constant):
             return bool(node.value)
@@ -335,7 +369,7 @@ class Converter(object):
     def handle_if(self, st, env, depth, where):
         cond = self._src(st.test)
         truth = self._static_truth(st.test, env)
-        if truth is True:                              # [Codex R10] 정적 참: then 만, 조건 없음
+        if truth is True:                              # [2026-10-07] 정적 참: then 만, 조건 없음
             return self.walk_body(st.body, dict(env), depth, where)
         if truth is False:                             # 정적 거짓: else 만(없으면 아무것도)
             return self.walk_body(st.orelse, dict(env), depth, where)
@@ -351,7 +385,7 @@ class Converter(object):
                 a, b = then_steps[0], else_steps[0]
                 tkey = (self.actions.get(a["skill"]) or {}).get("target_key", "object")
                 if a["skill"] not in MERGE_REPORT_SKILLS and a["args"].get(tkey) != b["args"].get(tkey):
-                    # [Codex F9 2026-10-07] 대상이 다른 두 갈래를 하나로 합치면 실행 의미가 바뀐다
+                    # [2026-10-07] 대상이 다른 두 갈래를 하나로 합치면 실행 의미가 바뀐다
                     raise PlanIssue("%s: if (%s) 의 두 갈래가 같은 스킬 %s 이지만 대상이 다름(%r vs %r) — "
                                     "조건부 실행 의미를 보존할 수 없음"
                                     % (where, cond, a["skill"], a["args"].get(tkey), b["args"].get(tkey)))
@@ -361,7 +395,7 @@ class Converter(object):
                           % (where, cond, merged["skill"]))
                 return [merged]
             if self.strict_conditionals:
-                # [Codex R10] 판정 불가 조건의 서로 다른 갈래는 트리로 표현할 수 없다
+                # [2026-10-07] 판정 불가 조건의 서로 다른 갈래는 트리로 표현할 수 없다
                 raise PlanIssue("%s: if (%s) 의 조건을 판정할 수 없고 두 갈래가 다른 단계(%s / %s) — "
                                 "조건부 실행 의미를 보존할 수 없음(strict)"
                                 % (where, cond, [s.get("skill") for s in then_steps],
@@ -373,7 +407,7 @@ class Converter(object):
             steps = then_steps + else_steps
             only_report = all(s["type"] == "atomic" and s["skill"] in MERGE_REPORT_SKILLS for s in steps)
             if self.strict_conditionals and not only_report:
-                # [Codex R10] 한쪽 갈래뿐이고 조건을 판정할 수 없으면 '무조건 실행'으로 바꿀 수 없다
+                # [2026-10-07] 한쪽 갈래뿐이고 조건을 판정할 수 없으면 '무조건 실행'으로 바꿀 수 없다
                 raise PlanIssue("%s: if (%s) 의 조건을 판정할 수 없는 조건부 단계 %d개(%s) — "
                                 "무조건 실행으로 바꾸지 않음(strict)"
                                 % (where, cond, len(steps), [s.get("skill") for s in steps]))
@@ -392,7 +426,7 @@ class Converter(object):
         extra = list(a.get("extra_skills") or []) + [x for x in (b.get("extra_skills") or [])
                                                       if x not in (a.get("extra_skills") or [])]
         if extra:
-            out["extra_skills"] = extra          # [Codex R10] 능력 태그는 합집합
+            out["extra_skills"] = extra          # [2026-10-07] 능력 태그는 합집합
         return out
 
     def iter_values(self, node, env):
@@ -402,6 +436,9 @@ class Converter(object):
             return lit
         if isinstance(node, ast.Name) and isinstance(env.get(node.id), list):
             return env[node.id]
+        found, val = self.subscript(node, env, "for")                  # [2026-10-13] for x in ITEMS[goal]
+        if found and isinstance(val, list):
+            return val
         return None
 
     def handle_for_inline(self, st, env, depth, where):
@@ -535,7 +572,7 @@ class Converter(object):
                             blocks.append(("SEQ", [("__atomic__", at)]))
                             self.warn("%s: def 밖 스킬 직접 호출 %s() — 한 단계 순차 블록" % (where, fid))
                     else:
-                        # [Codex F9 2026-10-07] 모듈 수준 미등록 호출도 거부
+                        # [2026-10-07] 모듈 수준 미등록 호출도 거부
                         raise PlanIssue("%s: 어휘 밖 호출 %s() — 실행할 수 없는 단계" % (where, fid))
                 return
             if isinstance(st, ast.For):
@@ -660,7 +697,7 @@ def validate_raw(raw, catalog):
                 if not isinstance(v, str) or not v:
                     report["errors"].append("%s.args.%s: non-empty string required" % (path, k))
             extra = node.get("extra_skills")
-            if extra is not None:                                   # [Codex R10] 능력 태그만 허용
+            if extra is not None:                                   # [2026-10-07] 능력 태그만 허용
                 if not isinstance(extra, list) or any(x not in CAPABILITY_TAGS for x in extra):
                     report["errors"].append("%s: extra_skills must be a list of capability tags %s; got %r"
                                             % (path, sorted(CAPABILITY_TAGS), extra))
@@ -793,7 +830,7 @@ def normalize(raw, catalog, root_meta=None):
             "type": "atomic",
             "skill": skill,
             "args": copy.deepcopy(node["args"]),
-            "required_skills": [skill] + [x for x in (node.get("extra_skills") or []) if x != skill],   # [Codex R10]
+            "required_skills": [skill] + [x for x in (node.get("extra_skills") or []) if x != skill],   # [2026-10-07]
             "goal": "%s:%s" % (skill, target),
         }
 
@@ -868,7 +905,7 @@ def validate_canonical(doc, catalog, allow_extra_skills=False):
                     report["errors"].append("%s: required_skills must start with skill" % path)
             elif not isinstance(rs, list) or not rs or rs[0] != node.get("skill") \
                     or any(x not in CAPABILITY_TAGS for x in rs[1:]):
-                # [Codex R10] strict: [skill] 또는 [skill, <능력 태그>…] 만
+                # [2026-10-07] strict: [skill] 또는 [skill, <능력 태그>…] 만
                 report["errors"].append("%s: required_skills must be [skill] plus capability tags %s"
                                         % (path, sorted(CAPABILITY_TAGS)))
             md = node.get("metadata")
@@ -969,7 +1006,7 @@ def convert_code(code, catalog=None, source=None, strict_conditionals=True):
         "text": meta["text"],
         "raw": raw,
         "canonical": canonical,
-        "radar_marks": list(conv.radar_marks),        # [Codex F9 2026-10-07] use_radar=True 표시 대상
+        "radar_marks": list(conv.radar_marks),        # [2026-10-07] use_radar=True 표시 대상
         "warnings": list(conv.warnings),
         "raw_validation": validate_raw(raw, catalog),
         "canonical_validation": validate_canonical(canonical, catalog),
@@ -1023,7 +1060,7 @@ def main(argv=None):
     ap.add_argument("--full", action="store_true", help="--out 에 raw/warnings/검증까지 저장")
     ap.add_argument("--quiet", action="store_true")
     ap.add_argument("--loose-conditionals", action="store_true",
-                    help="[Codex R10] 판정 불가 조건부 단계를 거부하지 않고 경고와 함께 넣는다(변환 실험용, 운영 금지)")
+                    help="[2026-10-07] 판정 불가 조건부 단계를 거부하지 않고 경고와 함께 넣는다(변환 실험용, 운영 금지)")
     a = ap.parse_args(argv)
     try:
         r = convert_file(a.plan, a.catalog, strict_conditionals=not a.loose_conditionals)

@@ -164,7 +164,7 @@ include_directories(
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 ## Mark executable scripts (Python etc.) for installation
-# [JnP-0.8.1 2026-10-07] install 공간 실행용(Codex F6): 노드 2개 + 같은 폴더 모듈 3개
+# [JnP-0.8.1 2026-10-07] install 공간 실행용: 노드 2개 + 같은 폴더 모듈 3개
 catkin_install_python(PROGRAMS
   scripts/jnp_agent.py
   scripts/jnp_group.py
