@@ -10,7 +10,9 @@
 
 ## 경로
 
-1. **계획** — LLM-TDM 형식(`# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`)의 미리 작성된 템플릿. 실행 중 LLM 을 부르지는 않는다.
+1. **계획** — LLM-TDM 형식(`# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`)의 **example 템플릿**: 다섯 파일 모두 사람이 직접 쓴
+   분할이며 LLM-TDM 모듈의 출력이 아니다(머리의 `# Plan Source: example`; 기록·Monitor 에 `plan_source` 로 표시). 실행 중 LLM 을 부르지 않는다.
+   LLM-TDM 모듈이 만든 계획을 쓰려면 같은 형식의 파일에 `# Plan Source: llm-tdm` 을 적어 두면 된다.
    `# CODE` 는 실행되지 않고 `scripts/plan_to_tasktree.py` 가 ast 로 기호 평가한다: 함수 호출 = 복합 task, 모듈 수준 `threading.Thread`
    start/join = 병렬 가지, 최상위 `for` = 순차, 스킬 호출(`GoTo(...)` 등) = 원자 task. 쓸 수 있는 스킬과 인수는 `config/skills_catalog_basic.json`.
    - **상수는 바인딩 뒤 읽기 전용**이다. 모듈 상수는 문자열 리스트·사전(값은 문자열 또는 문자열 리스트)이고, `NAME[key]` 첨자는

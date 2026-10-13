@@ -114,8 +114,9 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
   - Relay / Multi-Goal Move / Collision Avoidance / Distributed Search-Mapping / Distributed Search-Find Object
   - 0.8.2 = 0.8.1 + 8 edits (no more debug `/root/empty_file*.txt` touch, group script as a parameter, roslaunch-style remap args accepted, runs without stdin, in-progress navigation is preempted when the group dissolves, mission_id in group status, master deregistration checked before exit, install rules). The invocation (`rosrun jnp jnp_agent.py __ns:=… __name:=… none.xml`, `task:<goal>:<payload>` on `/jnp_agent_join_event`) is unchanged from 0.8.1.
   - **Task-decomposition path** — the task tree of each of the five basic tasks is built from the **decomposition
-    plan** in `jnp/jnp_0.8.2/plans/<task>.py` (LLM-TDM layout: `# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`;
-    pre-written templates). The group (`jnp_group.py`) binds the plan's module constants (ROBOTS, TARGETS, GOALS, ITEMS,
+    plan** in `jnp/jnp_0.8.2/plans/<task>.py` (LLM-TDM layout: `# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`).
+    These five plans are **examples**: hand-written decomposition templates in the LLM-TDM layout, not output of the
+    LLM-TDM module (`# Plan Source: example` in each file, EXAMPLE badge in the Monitor); no LLM is called at run time. The group (`jnp_group.py`) binds the plan's module constants (ROBOTS, TARGETS, GOALS, ITEMS,
     FIRST/REST, HOST/EXPLORERS) from the GUI payload → `scripts/plan_to_tasktree.py` (symbolic ast evaluation of the plan
     code: a function = composite task, `threading.Thread` = parallel branch, top-level `for` = sequential) produces the
     canonical TaskTree (JSON) → a **per-task compatibility adapter** in `scripts/jnp_plan.py` turns it into the Task objects

@@ -319,6 +319,7 @@ def run_record():
     rows = rec['subtasks']
     f += expect_ok('F plan_record JSON 직렬화·기본 키', all(k in rec for k in ('source', 'goal', 'group', 'task_description', 'bindings', 'canonical', 'tree', 'subtasks'))
                    and rec['source'] == 'plan' and 'Mapping' in rec['task_description'] and len(js) > 100)
+    f += expect_ok('F plan_source = example (사람이 쓴 템플릿 표기)', rec.get('plan_source') == 'example')
     f += expect_ok('F 행 수 = 실행 원자 수(4) · 모두 스킬·요구 능력 있음', len(rows) == 4 and all(x['skill'] and x['requirement'] for x in rows),
                    str([(x['node'], x['skill'], x['requirement']) for x in rows]))
     byn = {x['node']: x for x in rows}

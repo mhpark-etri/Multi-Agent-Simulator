@@ -1,4 +1,6 @@
 # Task Description: Distributed Search – Mapping — every robot explores the unknown area; one robot (the merge host) merges all maps, the others send theirs
+# Plan Source: example — hand-written template in the LLM-TDM layout for this basic task; NOT produced by the LLM-TDM module
+# (예시 계획: 기본 협업 태스크용으로 사람이 LLM-TDM 형식에 맞춰 직접 작성한 분할. LLM-TDM 모듈이 생성한 것이 아님)
 # [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '분산 탐색-지도 제작' 의 작업 분할 계획. 병합 호스트(탑재 컴퓨팅 성능 순, 멤버 capability)는
 # 실행 환경 정보라 그룹이 고르고(jnp_group.py 의 _compute_rank) HOST·EXPLORERS 로 바인딩한다.
 # 구조: 모든 가지가 병렬 — 로봇마다 탐사(Explore) 가지와 지도 서비스(MergeMaps 또는 SendMap, 상시 가상 서비스) 가지. 둘 사이에 순서는 없다.

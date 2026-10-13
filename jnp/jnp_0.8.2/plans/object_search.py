@@ -1,4 +1,6 @@
 # Task Description: Distributed Search – Find Object — robots patrol their own partition of a known map while an object detector watches each camera; done when every target class is found or all partitions are covered
+# Plan Source: example — hand-written template in the LLM-TDM layout for this basic task; NOT produced by the LLM-TDM module
+# (예시 계획: 기본 협업 태스크용으로 사람이 LLM-TDM 형식에 맞춰 직접 작성한 분할. LLM-TDM 모듈이 생성한 것이 아님)
 # [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '분산 탐색-물건 찾기' 의 작업 분할 계획. 그룹이 payload(robots=…)로 ROBOTS 를 바인딩한다.
 # 구조: 모든 가지가 병렬 — 로봇마다 순찰(Patrol) 가지와 탐지 서비스(Detect, 상시 가상 서비스) 가지. 둘 사이에 순서는 없다.
 
