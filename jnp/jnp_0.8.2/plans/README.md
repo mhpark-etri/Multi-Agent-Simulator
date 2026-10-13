@@ -12,8 +12,16 @@
 
 1. **계획** — LLM-TDM 형식(`# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`)의 미리 작성된 템플릿. 실행 중 LLM 을 부르지는 않는다.
    `# CODE` 는 실행되지 않고 `scripts/plan_to_tasktree.py` 가 ast 로 기호 평가한다: 함수 호출 = 복합 task, 모듈 수준 `threading.Thread`
-   start/join = 병렬 가지, 최상위 `for` = 순차, 스킬 호출(`GoTo(...)` 등) = 원자 task. 모듈 상수는 리스트·사전(`TARGETS[robot]`)을 쓸 수 있다.
-   쓸 수 있는 스킬과 인수는 `config/skills_catalog_basic.json`.
+   start/join = 병렬 가지, 최상위 `for` = 순차, 스킬 호출(`GoTo(...)` 등) = 원자 task. 쓸 수 있는 스킬과 인수는 `config/skills_catalog_basic.json`.
+   - **상수는 바인딩 뒤 읽기 전용**이다. 모듈 상수는 문자열 리스트·사전(값은 문자열 또는 문자열 리스트)이고, `NAME[key]` 첨자는
+     **스킬 인수·함수 호출/`Thread` 인수·`for` 반복 대상** 자리에서만 해석된다(키는 리터럴 또는 바인딩된 이름; 없는 키는 거부).
+     지역 대입(`pos = TARGETS[robot]`)이나 조건식(`if D[k]:`) 안의 첨자는 지원하지 않는다.
+   - **거부되는 구문**(변환 전에 PlanIssue → PlanBuildError, 조용히 건너뛰지 않음): 첨자/속성/다중 대입(`TARGETS[r] = …`), 증감 대입(`+=`),
+     `del`, 상수에 대한 메서드 호출(`TARGETS.update(...)`, `ROBOTS.append(...)`, `.pop()` …), 카탈로그에 없는 스킬·키워드 인자,
+     카탈로그보다 많은 위치 인자(`GoTo(robot, target, 'radar')`), 리터럴로 해석되지 않는 스킬 인자, `while`, 정적으로 판정할 수 없는 `if`.
+     스레드 DSL(`t.start()`, `t.join()`, `threads.append(t)`)과 `import`·`pass`·docstring 은 그대로 허용된다.
+   - 능력 태그(`use_radar=True` → `radar`)는 배정 대상 스킬(GoTo·Trip·Explore·Patrol)에만 붙일 수 있다. 가상/상시 서비스 단계
+     (WaitPass·Detect·SendMap·MergeMaps)에 붙이면 거부된다(배정 대상이 아니라 센서 사용을 강제할 수 없다).
 2. **바인딩** — 그룹이 모듈 상수(`ROBOTS = []` 등)를 payload 값으로 바꿔 넣는다(`scripts/jnp_plan.py` `bind`): 값은 JSON 리터럴로 넣고
    치환은 callable replacement 로 해 백슬래시·따옴표가 그대로 보존된다. 제어문자(줄바꿈 등)가 든 값은 거부한다.
    ETA 순서(Avoidance)와 병합 호스트(MapExplore)는 실행 환경 정보(로봇 속도·멤버 capability)라 계획 밖에서 정한다 —
@@ -26,8 +34,8 @@
 - **R1 카탈로그가 원자 node 실행 속성의 원천** — goal 문자열(`exec_goal` 템플릿을 args 로 포맷: `nav:{target}`, `trip:{target}@{goal}`,
   `virtual:wait`, `explore`, `search`, `service:yolov8`, `publish:map`, `service:map_merge`), 요구 능력(`requirement`), 원자 종류(`node`:
   sequential/parallel), `optional`, `preassigned`(에이전트에 배정하지 않는 상시 가상 서비스 — 표시용 agent `/etri/<robot>`).
-- **R2 추가 능력 태그 → 요구 능력** — canonical `required_skills` 의 스킬 외 항목(예: `use_radar=True` → `radar`)은 원자 node 의
-  requirement 에 더한다(할당기가 그 능력을 광고한 에이전트만 고른다). 조용히 버리지 않는다.
+- **R2 추가 능력 태그 → 요구 능력** — canonical `required_skills` 의 스킬 외 항목(예: `use_radar=True` → `radar`)은 배정 대상 원자
+  node 의 requirement 에 더한다(할당기가 그 능력을 광고한 에이전트만 고른다). 가상/상시 서비스 단계에 붙은 태그는 거부한다. 조용히 버리지 않는다.
 - **R3 로봇별 묶음(MapExplore·ObjectSearch)** — 같은 `robot` 인수를 가진 병렬 가지들을 로봇 단위 병렬 복합(`make_maps.<r>`, `search.<r>`)으로
   묶는다. 병렬의 병렬이므로 순서 제약은 그대로다.
 - **R4 navigate 래퍼(MapExplore)** — Explore 원자는 순차 복합 `navigate.<r>` 안에 둔다. 자식이 하나라 순서 제약은 없고, 실행 중 병목 양보
@@ -41,17 +49,20 @@
 
 ## 반환 전 검사 (어긋나면 PlanBuildError → 그룹은 0.8.1 고정 빌더로 대체, `_plan_strict:=true` 면 예외 전파)
 
-- **계약** — canonical 원자 ↔ 실행 원자 1:1, 순서 제약(선행 쌍) 집합 동일. 계획의 구조를 바꾸면(예: Relay 를 병렬로, ObjectSearch 를 순차로)
-  어댑터의 고정 묶음과 어긋나 거부된다 — 구조를 바꾸려면 어댑터 규칙도 함께 바꿔야 한다.
+- **계약** — canonical 원자 ↔ 실행 원자 1:1, 순서 제약(선행 쌍) 집합 동일(순차 복합의 앞/뒤 원자 모든 쌍 + 명시적 선행의 직접 간선;
+  전이 폐쇄는 계산하지 않으므로 어댑터가 만드는 트리 범위의 검사다). 계획의 구조를 바꾸면(예: Relay 를 병렬로, ObjectSearch 를 순차로)
+  어댑터의 고정 묶음과 어긋나 거부된다 — 구조를 바꾸려면 어댑터 규칙도 함께 바꿔야 한다. 원자의 실행 속성은 이 검사가 아니라
+  카탈로그(R1)와 `test/test_plan_trees.py` 의 동일성 검사가 확인한다.
 - **완전성** — 태스크별 필수 스킬 수·중복·로봇·호스트: Relay 는 다리마다 GoTo 1개(payload 와 같은 순서), Mult-Goal 은 물품마다 Trip 1개,
   Avoidance 는 로봇마다 GoTo 1개 + (첫 로봇 제외) 앞 로봇을 기다리는 WaitPass 1개(ETA 순), MapExplore 는 로봇마다 Explore 1개 + 호스트는
   MergeMaps 1개·나머지는 SendMap 1개, ObjectSearch 는 로봇마다 Patrol 1개 + Detect 1개. 참여 로봇 밖의 단계, 어휘 밖 스킬·키워드 인자는 거부.
-- **지원 범위** — Relay 로봇 이름 유일, MapExplore 호스트는 참여 로봇 중 하나, 바인딩 값에 제어문자 없음.
+- **지원 범위** — Relay 로봇 이름 유일, MapExplore 호스트는 참여 로봇 중 하나, 바인딩 값에 제어문자 없음, 카탈로그 값(`node`, `requirement`) 유효.
 
 ## 확인
 
 - `source <workspace>/devel/setup.bash && python3 test/test_plan_trees.py` — ROS 마스터 불필요. A/B/C 동일성(0.8.1 고정 빌더와 서명 동일)·
-  불변식(부모·선행/후행 상호 참조·별칭·complete)·계약, D 반례(바인딩 왕복/거부, 불완전·구조 변경·지원 범위 밖 계획의 거부, radar 태그 반영),
+  불변식(부모·선행/후행 상호 참조·별칭·complete)·계약, D 반례(바인딩 왕복/거부, 불완전·구조 변경·지원 범위 밖 계획의 거부, radar 태그 반영,
+  상수 변경문·상수 메서드 호출·초과 위치 인자·해석 불가 인자의 거부),
   E 그룹 연결부(대체 정책·strict·기록 여부).
 - `python3 scripts/jnp_plan.py Relay "tb3_0=1.00,0.00,0.00;tb3_1=2.00,0.00,0.00"` — 계획·canonical·트리 덤프(변환 예제. MapExplore 는
   `host=<robot>` 로 호스트를 지정; 실제 그룹은 컴퓨팅 등급으로 고른다).

@@ -6,7 +6,8 @@
 # A. 동일성: 계획 경로 vs 0.8.1 고정 빌더 — 서명(이름·종류·goal·요구·선행·optional·상시표시·agent·자식 순서) 동일
 # B. 불변식: 두 트리 모두 부모 참조·선행/후행 상호 참조·predessesors 별칭·complete=False·노드 중복 없음 (손상 트리는 걸러짐)
 # C. 계약: canonical ↔ 실행 트리 원자 1:1, 순서 제약 집합 동일 (jnp_plan.check_contract 를 직접도 호출)
-# D. 반례(검수 보고서 2026-10-13): F1 바인딩 왕복/거부, F3 불완전 계획·추가 능력 태그·구조 변경·지원 범위 밖 입력의 거부
+# D. 반례(검수 보고서 2026-10-13 1·2차): F1 바인딩 왕복/거부, F3 불완전 계획·추가 능력 태그·구조 변경·지원 범위 밖 입력의 거부,
+#    R2-F1 상수 변경문·상수 메서드 호출·초과 위치 인자·해석 불가 인자의 거부
 import copy
 import json
 import os
@@ -217,6 +218,31 @@ def run_counterexamples():
         f += expect_error('어휘 밖 스킬 Fly', lambda: P.build_relay('tb3_0=1,2,0'))
     with plan_variant('Relay', 'GoTo(robot, target)', 'GoTo(robot, target, speed=2)'):
         f += expect_error('카탈로그에 없는 키워드 인자', lambda: P.build_relay('tb3_0=1,2,0'))
+    # R2-F1 (2차 검수 2026-10-13) — 의미를 바꾸는 미지원 구문은 변환 전에 거부(상수는 바인딩 뒤 읽기 전용)
+    site = '    relay_leg(robot, TARGETS[robot])'
+    for what, old, new, key in [
+        ('R2-F1 사전 첨자 대입 TARGETS[robot] = …', site, "    TARGETS[robot] = '99,99,0'\n" + site, '읽기 전용'),
+        ('R2-F1 dict.update(…)', site, "    TARGETS.update({robot: '99,99,0'})\n" + site, '읽기 전용'),
+        ('R2-F1 초과 위치 인자 GoTo(robot, target, \'radar\')', 'GoTo(robot, target)', "GoTo(robot, target, 'radar')", '초과분'),
+        ('R2-F1 증감 대입 ROBOTS += […]', site, "    ROBOTS += ['x']\n" + site, '읽기 전용'),
+        ('R2-F1 del TARGETS[robot]', site, "    del TARGETS[robot]\n" + site, '읽기 전용'),
+        ('R2-F1 함수 안 TARGETS.pop(robot)', '    GoTo(robot, target)', "    TARGETS.pop(robot)\n    GoTo(robot, target)", '읽기 전용'),
+        ('R2-F1 리스트 상수 ROBOTS.append(…)', site, "    ROBOTS.append('x')\n" + site, '읽기 전용'),
+        ('R2-F1 해석 불가 인자(지역 첨자 대입)', '    GoTo(robot, target)', "    pos = TARGETS[robot]\n    GoTo(robot, pos)", '리터럴이 아니거나'),
+    ]:
+        with plan_variant('Relay', old, new):
+            f += expect_error(what, lambda: P.build_relay('tb3_0=1,2,0'), must_contain=key)
+    with plan_variant('Relay', 'GoTo(robot, target)', 'GoTo(robot, target)'):     # 변형 없음 — 기본 계획은 여전히 통과
+        r = P.build_relay('tb3_0=1,2,0')
+        f += expect_ok('R2-F1 기본 계획은 strict_source 에서도 통과', r['root'].subtasks[0].goal == 'nav:1,2,0' and not r['plan']['warnings'])
+    # 가상/상시 서비스 단계의 능력 태그는 의미가 없어 거부; 카탈로그 값 오류도 거부
+    with plan_variant('Avoidance', 'WaitPass(robot, PREV[robot])', 'WaitPass(robot, PREV[robot], use_radar=True)'):
+        f += expect_error('가상 단계(WaitPass)에 radar 태그', lambda: P.build_avoidance('bt=2,0,0.6;routes=tb3_0:0,0>4,0|tb3_1:0.5,0>4,0.5',
+                                                                              G.parse_avoidance_payload, G._robot_speed), must_contain='능력 태그')
+    _cat = P.p2t.load_catalog()
+    _bad = json.loads(json.dumps(_cat)); _bad['actions']['GoTo']['node'] = 'paralel'
+    with patch.object(P.p2t, 'load_catalog', return_value=_bad):
+        f += expect_error('카탈로그 node 오타(paralel)', lambda: P.build_relay('tb3_0=1,2,0'), must_contain='node')
     # 불변식 검사기가 손상 트리를 거르는가 (검수 보고서의 서명 우회 반례)
     a = G.build_relay_tree('tb3_0=1,2,0;tb3_1=2,3,0')
     b = G.build_relay_tree('tb3_0=1,2,0;tb3_1=2,3,0')

@@ -106,7 +106,8 @@ def bind(code, consts):
 def convert(code, source):
     cat = p2t.load_catalog()
     try:
-        r = p2t.convert_code(code, cat, source=source)
+        # strict_source: 상수 변경문·상수 메서드 호출·카탈로그 밖 위치 인자·해석 불가 인자는 변환 전에 거부(PlanIssue)
+        r = p2t.convert_code(code, cat, source=source, strict_source=True)
     except p2t.PlanIssue as e:
         raise PlanBuildError('계획 변환 실패(%s): %s' % (source, e))
     errs = []
@@ -138,16 +139,25 @@ def atomic_from(node, name, parent, catalog):
     if info is None:
         raise PlanBuildError('카탈로그에 없는 스킬 %s' % skill)
     args = node.get('args') or {}
+    kind = info.get('node', 'sequential')
+    if kind not in ('sequential', 'parallel'):
+        raise PlanBuildError('카탈로그 %s.node 값 %r — sequential|parallel 만 허용' % (skill, kind))
+    req = info.get('requirement')
+    if not isinstance(req, str) or not req:
+        raise PlanBuildError('카탈로그 %s.requirement 가 비어 있음' % skill)
     try:
         goal = str(info['exec_goal']).format(**args)
     except (KeyError, IndexError) as e:
         raise PlanBuildError('%s: exec_goal 템플릿 인수 %s 가 없음' % (skill, e))
-    cls = SequentialAtomicTask if info.get('node', 'sequential') == 'sequential' else ParallelAtomicTask
+    cls = SequentialAtomicTask if kind == 'sequential' else ParallelAtomicTask
     t = cls(name=name, parent=parent, goal=goal)
-    t.addRequirement(str(info['requirement']))
+    t.addRequirement(req)
     for tag in node.get('required_skills') or []:          # R2: 추가 능력 태그(radar 등) → 요구 능력
-        if tag != skill and tag not in t.requirement:
-            t.addRequirement(tag)
+        if tag == skill or tag in t.requirement:
+            continue
+        if req == 'virtual' or info.get('preassigned'):
+            raise PlanBuildError('%s: 가상/상시 서비스 단계에는 능력 태그 %r 를 붙일 수 없음(배정 대상이 아님)' % (skill, tag))
+        t.addRequirement(tag)
     if info.get('optional'):
         t.optional = True
     if info.get('preassigned'):
@@ -191,7 +201,8 @@ def order_pairs_canonical(doc):
 
 
 def order_pairs_exec(root):
-    """실행 트리의 순서 제약: SequentialCompositeTask 자식 순서 + 명시적 predecessors (canonical id 로 표현)."""
+    """실행 트리의 순서 제약: SequentialCompositeTask 자식 순서(앞/뒤 하위 트리 원자의 모든 쌍) + 명시적 predecessors(직접 간선만).
+    전이 폐쇄는 계산하지 않는다 — 어댑터가 만드는 트리(순차 복합 + 그와 중복인 선행 사슬) 범위에서만 동치 검사로 쓴다."""
     pairs = set()
 
     def pid(t):
@@ -216,7 +227,9 @@ def order_pairs_exec(root):
 
 
 def check_contract(canonical, root):
-    """어댑터가 canonical 의 의미를 바꾸지 않았는지: 원자 1:1 + 순서 제약 집합 동일. 어긋나면 PlanBuildError."""
+    """canonical 과 실행 트리의 원자 ID 대응(1:1)과 순서 제약 집합을 검사한다. 어긋나면 PlanBuildError.
+    원자의 실행 속성(goal·requirement·종류·optional·preassigned)은 atomic_from 이 카탈로그에서 채우고 test 의 동일성 검사가 확인하며,
+    트리 참조 불변식과 소스 문법 적합성은 각각 test 의 불변식 검사·변환기(strict_source)가 맡는다 — 이 함수의 범위가 아니다."""
     c_ids = [a['id'] for a in p2t.iter_atomics(canonical)]
     e_ids = [getattr(a, '_plan_id', None) for a in _exec_atomics(root)]
     if sorted(c_ids) != sorted(e_ids) or len(set(e_ids)) != len(e_ids):
