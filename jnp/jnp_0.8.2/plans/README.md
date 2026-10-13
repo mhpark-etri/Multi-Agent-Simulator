@@ -66,4 +66,5 @@
   E 그룹 연결부(대체 정책·strict·기록 여부).
 - `python3 scripts/jnp_plan.py Relay "tb3_0=1.00,0.00,0.00;tb3_1=2.00,0.00,0.00"` — 계획·canonical·트리 덤프(변환 예제. MapExplore 는
   `host=<robot>` 로 호스트를 지정; 실제 그룹은 컴퓨팅 등급으로 고른다).
-- rosparam `/jnp/plan/<group>`: `source`(plan|legacy), `plan_file`, `bindings`, `canonical`, `warnings`, `tree`, 대체 시 `reason`.
+- rosparam `/jnp/plan/<group>`: `source`(plan|legacy), `plan_file`, `bindings`, `canonical`, `warnings`, `tree`, `subtasks`(행별 스킬·요구 능력·실행 node), 대체 시 `reason`.
+  같은 내용이 latched 토픽 `/jnp/plan`(std_msgs/String, JSON 한 줄)로도 나간다 — JnP Monitor 의 '미션 → 작업 분할 → 스킬 매칭' 패널이 받는다.
