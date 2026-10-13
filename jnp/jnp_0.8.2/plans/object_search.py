@@ -1,28 +1,34 @@
-# Task Description: Distributed Search (Find Object) — patrol the known map with several robots in parallel and detect the target objects with the camera
-# [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '분산 탐색-물건 찾기' 의 작업 분할 계획. 그룹이 payload(robots=…;targets=…;count=…)로 ROBOTS 를 채운다.
-# 구조: 로봇별 가지 병렬 — 순찰(search) 과 탐지 서비스(가상, 상시). 병목 양보/통과 task 는 실행 중 그룹이 가지에 추가한다.
+# Task Description: Distributed Search – Find Object — robots patrol their own partition of a known map while an object detector watches each camera; done when every target class is found or all partitions are covered
+# [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '분산 탐색-물건 찾기' 의 작업 분할 계획. 그룹이 payload(robots=…)로 ROBOTS 를 바인딩한다.
+# 구조: 모든 가지가 병렬 — 로봇마다 순찰(Patrol) 가지와 탐지 서비스(Detect, 상시 가상 서비스) 가지. 둘 사이에 순서는 없다.
 
 # GENERAL TASK DECOMPOSITION
-# One branch per robot, all branches in parallel. In each branch the robot patrols its waypoints while the
-# object detector (YOLO service) runs alongside and reports found objects.
+# Per robot, two independent activities run side by side: (a) patrol the way-points of its own partition,
+# (b) a standing detection service (YOLO on the robot's camera) that reports found objects to the group.
+# Nothing waits on anything else; a robot that fails to patrol does not end the mission (optional).
 
 # CODE
-ROBOTS = []   # ["robot"] (bound at run time)
+import threading
 
-def search_objects(robot):
-    # 0: patrol the assigned waypoints
+ROBOTS = []   # robots taking part (bound at run time)
+
+def patrol_area(robot):
+    # 0: patrol the way-points of this robot's partition
     Patrol(robot)
-    # 1: detect target objects with the camera (service, always on)
+
+def detect_objects(robot):
+    # 0: standing service: detect target objects in this robot's camera images
     Detect(robot)
 
-import threading
 threads = []
 for robot in ROBOTS:
-    t = threading.Thread(target=search_objects, args=(robot,))
-    threads.append(t)
-    t.start()
-
+    t1 = threading.Thread(target=patrol_area, args=(robot,))
+    t1.start()
+    threads.append(t1)
+    t2 = threading.Thread(target=detect_objects, args=(robot,))
+    t2.start()
+    threads.append(t2)
 for t in threads:
     t.join()
 
-# Task Distributed Search (Find Object) is done
+# Task Distributed Search – Find Object is done

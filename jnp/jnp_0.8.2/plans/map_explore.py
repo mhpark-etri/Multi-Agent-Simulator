@@ -1,39 +1,47 @@
-# Task Description: Distributed Search (Mapping) — explore the unknown environment with several robots in parallel and merge their maps on the host robot
-# [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '분산 탐색-지도 제작' 의 작업 분할 계획. 그룹이 payload(robots=…)와 멤버 컴퓨팅 등급으로 HOST/EXPLORERS 를 채운다.
-# 구조: 로봇별 가지 병렬 — 탐색(explore) 와 지도 송신/병합(가상, 상시 서비스). 병목 양보/통과 task 는 실행 중 그룹이 가지에 추가한다.
+# Task Description: Distributed Search – Mapping — every robot explores the unknown area; one robot (the merge host) merges all maps, the others send theirs
+# [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '분산 탐색-지도 제작' 의 작업 분할 계획. 병합 호스트(탑재 컴퓨팅 성능 순, 멤버 capability)는
+# 실행 환경 정보라 그룹이 고르고(jnp_group.py 의 _compute_rank) HOST·EXPLORERS 로 바인딩한다.
+# 구조: 모든 가지가 병렬 — 로봇마다 탐사(Explore) 가지와 지도 서비스(MergeMaps 또는 SendMap, 상시 가상 서비스) 가지. 둘 사이에 순서는 없다.
 
 # GENERAL TASK DECOMPOSITION
-# One branch per robot, all branches in parallel. In each branch the robot explores frontiers; its map is continuously
-# published (non-host) or merged (host). Exploring and map service run side by side within the branch.
+# Per robot, two independent activities run side by side: (a) exploring frontiers until the area is covered,
+# (b) a standing map service — the host merges every robot's map into /map, every other robot publishes its own map.
+# Nothing waits on anything else; a robot that fails to explore does not end the mission (optional).
 
 # CODE
-HOST = []        # ["robot"] — map-merge host (highest compute rank; bound at run time)
-EXPLORERS = []   # ["robot"] — other robots (bound at run time)
+import threading
 
-def make_maps_host(robot):
-    # 0: explore frontiers until the map is complete
+HOST = []        # [robot] — the single map-merge host (bound at run time)
+EXPLORERS = []   # every other robot (bound at run time)
+
+def navigate(robot):
+    # 0: explore frontiers assigned by the group's feeder until coverage is complete
     Explore(robot)
-    # 1: merge the maps of all robots (service, always on)
+
+def merge_maps(robot):
+    # 0: standing service on the host: merge all robots' maps into /map
     MergeMaps(robot)
 
-def make_maps(robot):
-    # 0: explore frontiers until the map is complete
-    Explore(robot)
-    # 1: publish own map to the host (service, always on)
+def send_map(robot):
+    # 0: standing service: publish this robot's map for the host
     SendMap(robot)
 
-import threading
 threads = []
 for robot in HOST:
-    t = threading.Thread(target=make_maps_host, args=(robot,))
-    threads.append(t)
-    t.start()
+    t1 = threading.Thread(target=navigate, args=(robot,))
+    t1.start()
+    threads.append(t1)
+    t2 = threading.Thread(target=merge_maps, args=(robot,))
+    t2.start()
+    threads.append(t2)
 for robot in EXPLORERS:
-    t = threading.Thread(target=make_maps, args=(robot,))
-    threads.append(t)
-    t.start()
-
+    t1 = threading.Thread(target=navigate, args=(robot,))
+    t1.start()
+    threads.append(t1)
+    t2 = threading.Thread(target=send_map, args=(robot,))
+    t2.start()
+    threads.append(t2)
 for t in threads:
     t.join()
 
-# Task Distributed Search (Mapping) is done
+# Task Distributed Search – Mapping is done

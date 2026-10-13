@@ -135,7 +135,32 @@ class Converter(object):
             v = list(v)
         if isinstance(v, (str, int, float, list)):
             return v
+        # [2026-10-13] 사전 상수(TARGETS = {"tb3_0": "1.0,2.0"}) — 모듈 상수 바인딩용. 키는 문자열, 값은 문자열/숫자/리스트
+        if isinstance(v, dict) and all(isinstance(k, str) for k in v) \
+                and all(isinstance(x, (str, int, float, list)) for x in v.values()):
+            return v
         return None
+
+    def subscript(self, node, env, where):
+        """[2026-10-13] NAME[key] — env 의 사전/리스트 상수에서 원소를 꺼낸다. (found, value) 반환.
+        key 는 리터럴 또는 env 의 문자열/정수 이름. 없으면 PlanIssue(값을 조용히 바꾸지 않는다)."""
+        if not isinstance(node, ast.Subscript) or not isinstance(node.value, ast.Name):
+            return (False, None)
+        base = env.get(node.value.id)
+        if not isinstance(base, (dict, list)):
+            return (False, None)
+        sl = node.slice
+        if hasattr(ast, "Index") and isinstance(sl, ast.Index):      # Python 3.8
+            sl = sl.value
+        key = self.literal(sl)
+        if key is None and isinstance(sl, ast.Name) and isinstance(env.get(sl.id), (str, int)):
+            key = env[sl.id]
+        if key is None:
+            raise PlanIssue("%s: 첨자 '%s' 를 해석할 수 없음" % (where, self._src(node)))
+        try:
+            return (True, base[key])
+        except (KeyError, IndexError, TypeError):
+            raise PlanIssue("%s: '%s' — 상수 %s 에 키 %r 가 없음" % (where, self._src(node), node.value.id, key))
 
     def resolve(self, node, env, where):
         """인자 노드 → 문자열 값. 해석 불가면 None(+경고)."""
@@ -164,6 +189,12 @@ class Converter(object):
                     inner = self.resolve(v.value, env, where)
                     parts.append(inner if inner is not None else "{?}")
             return "".join(parts)
+        found, val = self.subscript(node, env, where)                 # [2026-10-13] NAME[key]
+        if found:
+            if isinstance(val, (str, int, float)):
+                return str(val)
+            self.warn("%s: '%s' 는 문자열이 아님(%r) — 인자로 못 씀" % (where, self._src(node), type(val).__name__))
+            return None
         self.warn("%s: 인자 '%s' 는 리터럴이 아님" % (where, self._src(node)))
         return None
 
@@ -176,6 +207,9 @@ class Converter(object):
             return env[node.id]
         if isinstance(node, ast.JoinedStr):
             return self.resolve(node, env, where)
+        found, val = self.subscript(node, env, where)                 # [2026-10-13] NAME[key]
+        if found:
+            return val
         return _Unknown(self._src(node))
 
     # ── 스킬 호출 → raw atomic ──
@@ -402,6 +436,9 @@ class Converter(object):
             return lit
         if isinstance(node, ast.Name) and isinstance(env.get(node.id), list):
             return env[node.id]
+        found, val = self.subscript(node, env, "for")                  # [2026-10-13] for x in ITEMS[goal]
+        if found and isinstance(val, list):
+            return val
         return None
 
     def handle_for_inline(self, st, env, depth, where):
