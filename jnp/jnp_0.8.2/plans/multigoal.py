@@ -1,4 +1,6 @@
 # Task Description: Multi-Goal Move — carry a given number of items to each of several goals; every item is one round trip, items can be carried in parallel by any free robot
+# Plan Source: example — hand-written template in the LLM-TDM layout for this basic task; NOT produced by the LLM-TDM module
+# (예시 계획: 기본 협업 태스크용으로 사람이 LLM-TDM 형식에 맞춰 직접 작성한 분할. LLM-TDM 모듈이 생성한 것이 아님)
 # [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '다목적 이동' 의 작업 분할 계획. 그룹이 payload(goals=G:x,y:count|…)로 GOALS·ITEMS·GOAL_POS 를 바인딩한다.
 # 구조: 병렬 — 물품 하나가 왕복(trip) 원자 task 하나, 서로 독립. 어느 로봇이 어느 물품을 옮기는지는 할당기(MultiGoalAllocator, ETA)가 정한다.
 
