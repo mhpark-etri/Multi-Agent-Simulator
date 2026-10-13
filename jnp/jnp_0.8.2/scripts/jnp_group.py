@@ -401,7 +401,7 @@ def _plan_or_legacy(goal, payload, legacy, **kw):
     계획 경로가 실패하면(계획 파일 없음·변환 실패·계약/완전성 검사 실패·그 밖의 예외) 사유를 남기고 0.8.1 고정 빌더(legacy)로
     대체한다 — 호환 모드. ~plan_strict=true(개발·CI)면 대체하지 않고 예외를 그대로 올린다.
     보호 범위는 jnp_plan.build·publish 까지이며, legacy() 자체와 그 뒤 그룹 코드의 실패는 이 함수가 막지 않는다.
-    반환 {'root','meta','dicts','source'('plan'|'legacy'),'published'(rosparam 기록 성공 여부),'fallback_reason'}."""
+    반환 {'root','meta','dicts','source'('plan'|'legacy'),'published'(rosparam 기록 ∧ /jnp/plan 토픽 publish 호출 성공),'fallback_reason'}."""
     node = rospy.get_name() if rospy.core.is_initialized() else 'group'
     strict = bool(_param('~plan_strict', False))
     reason = None
@@ -678,6 +678,7 @@ class JnPGroup:
             return d
         msg = {'group': self.node_name, 'goal': self.goal, 'state': state, 'note': note,
                'mission_id': getattr(self, '_mission_id', ''),   # [JnP-0.8.1 2026-10-07] 미션·라운드 식별
+               'run_id': jnp_plan.current_run_id() or '',          # [JnP-0.8.2 2026-10-14] /jnp/plan 기록과 같은 회차 id (Monitor 결합 키)
                'members': [{'name': a.name, 'cap': sorted(a.capability_set)}
                            for a in self.member_list],
                'tree': node(root_task) if root_task is not None else None,

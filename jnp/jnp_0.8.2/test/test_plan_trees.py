@@ -320,6 +320,17 @@ def run_record():
     f += expect_ok('F plan_record JSON 직렬화·기본 키', all(k in rec for k in ('source', 'goal', 'group', 'task_description', 'bindings', 'canonical', 'tree', 'subtasks'))
                    and rec['source'] == 'plan' and 'Mapping' in rec['task_description'] and len(js) > 100)
     f += expect_ok('F plan_source = example (사람이 쓴 템플릿 표기)', rec.get('plan_source') == 'example')
+    f += expect_ok('F run_id·schema 존재', bool(rec.get('run_id')) and rec.get('schema') == 'jnp-plan-record/1')
+    r0 = build_plan('Mult-Goal', 'goals=A:1,2:0;robots=tb3_0:0,0', {})
+    f += expect_ok('F 변환을 건너뛴 빈 계획(수량 0)도 plan_source=example', r0['plan'].get('plan_source') == 'example')
+    f += expect_ok('F Plan Source 열거 밖 값 → unknown', P.plan_source('# Task Description: x\n# Plan Source: mystery\n') == 'unknown'
+                   and P.plan_source('# Plan Source: LLM-TDM\n') == 'llm-tdm' and P.plan_source('# x\n') == 'unknown')
+    import rospy as _rp
+    with patch.object(_rp, 'set_param', side_effect=RuntimeError('no master')):
+        before = P.current_run_id()
+        P.publish(r, 'MapExplore', '/group_map_explore')
+        f += expect_ok('F publish 가 새 run_id 를 만들고 기록·상태 결합 키로 노출', P.current_run_id() and P.current_run_id() != before
+                       and P.plan_record(r, 'MapExplore', '/group_map_explore')['run_id'] == P.current_run_id())
     f += expect_ok('F 행 수 = 실행 원자 수(4) · 모두 스킬·요구 능력 있음', len(rows) == 4 and all(x['skill'] and x['requirement'] for x in rows),
                    str([(x['node'], x['skill'], x['requirement']) for x in rows]))
     byn = {x['node']: x for x in rows}

@@ -21,7 +21,9 @@ import math
 import os
 import re
 import sys
+import time
 import types
+import uuid
 
 HERE = os.path.dirname(os.path.realpath(__file__))
 if HERE not in sys.path:
@@ -103,10 +105,40 @@ def bind(code, consts):
     return code
 
 
+PLAN_SOURCES = ('example', 'llm-tdm', 'unknown')   # 작성자 선언(생성 사실을 검증하지 않음): example = 사람이 쓴 템플릿, llm-tdm = 모듈 출력
+
+
 def plan_source(code):
-    """계획 머리의 '# Plan Source: …' — example(사람이 쓴 템플릿) 또는 llm-tdm(모듈 출력) 등. 없으면 'unknown'."""
+    """계획 머리의 '# Plan Source: …' → 'example' | 'llm-tdm' | 'unknown'. 없거나 열거 밖의 값이면 'unknown'(경고)."""
     m = re.search(r"^#\s*Plan Source:\s*([A-Za-z0-9_\-]+)", code, flags=re.M)
-    return m.group(1).lower() if m else 'unknown'
+    if not m:
+        return 'unknown'
+    v = m.group(1).lower()
+    if v not in PLAN_SOURCES:
+        print("[PLAN] warning: Plan Source %r 는 %s 밖의 값 — unknown 으로 기록" % (m.group(1), PLAN_SOURCES), flush=True)
+        return 'unknown'
+    return v
+
+
+def _plan_meta(conv, path, code, bindings):
+    """빌더 반환의 'plan' 항목. 변환을 건너뛴 빈 계획(물품 0개 등)에도 파일 출처(plan_source)는 남긴다."""
+    d = dict(conv or {})
+    d.update(file=path, bindings=bindings, plan_source=plan_source(code))
+    return d
+
+
+# 실행 회차 식별자 — 그룹 프로세스 하나 = 회차 하나. publish()/publish_fallback() 가 만들고 /jnp/plan 기록과
+# 그룹의 /jnp/status(run_id) 양쪽에 실린다. JnP Monitor 는 같은 run_id 끼리만 계획과 상태를 결합한다.
+_RUN = {'id': None}
+
+
+def new_run_id(node_name='group'):
+    _RUN['id'] = '%s@%d-%s' % ((node_name or 'group').strip('/'), int(time.time() * 1000), uuid.uuid4().hex[:6])
+    return _RUN['id']
+
+
+def current_run_id():
+    return _RUN['id']
 
 
 def convert(code, source):
@@ -285,7 +317,7 @@ def build_relay(payload):
         prev = t
     if conv:
         check_contract(conv['canonical'], root)
-    return {'root': root, 'meta': None, 'dicts': {}, 'plan': dict(conv or {}, file=path, bindings=bindings)}
+    return {'root': root, 'meta': None, 'dicts': {}, 'plan': _plan_meta(conv, path, code, bindings)}
 
 
 def build_multigoal(payload, parse_fn):
@@ -312,7 +344,7 @@ def build_multigoal(payload, parse_fn):
         subs[g].add(t)
     if conv:
         check_contract(conv['canonical'], root)
-    return {'root': root, 'meta': None, 'dicts': {}, 'plan': dict(conv or {}, file=path, bindings=bindings)}
+    return {'root': root, 'meta': None, 'dicts': {}, 'plan': _plan_meta(conv, path, code, bindings)}
 
 
 def build_avoidance(payload, parse_fn, speed_fn):
@@ -323,7 +355,7 @@ def build_avoidance(payload, parse_fn, speed_fn):
     root = ParallelCompositeTask(name="avoidance")
     path, code = load_plan('Avoidance')
     if not bt:
-        return {'root': root, 'meta': None, 'dicts': {}, 'plan': {'file': path, 'bindings': {}, 'warnings': ['bt 없음 — 빈 트리']}}
+        return {'root': root, 'meta': None, 'dicts': {}, 'plan': _plan_meta({'warnings': ['bt 없음 — 빈 트리']}, path, code, {})}
     cx, cy, r = bt
 
     def _eta(nm):
@@ -357,7 +389,7 @@ def build_avoidance(payload, parse_fn, speed_fn):
     root._bt_meta = {'order': order, 'moves': moves, 'waits': waits, 'center': (cx, cy), 'r': r,
                      'starts': {n: (routes[n][0], routes[n][1]) for n in routes},
                      'targets': {n: (routes[n][2], routes[n][3]) for n in routes}}
-    return {'root': root, 'meta': root._bt_meta, 'dicts': {}, 'plan': dict(conv or {}, file=path, bindings=bindings)}
+    return {'root': root, 'meta': root._bt_meta, 'dicts': {}, 'plan': _plan_meta(conv, path, code, bindings)}
 
 
 def _group_by_robot(brs, names, what):
@@ -405,7 +437,7 @@ def build_map_explore(names, merge_host):
     if conv:
         check_contract(conv['canonical'], root)
     return {'root': root, 'meta': None, 'dicts': {'etasks': etasks, 'mtasks': mtasks, 'branch': branch, 'seqbr': seqbr},
-            'plan': dict(conv or {}, file=path, bindings=bindings)}
+            'plan': _plan_meta(conv, path, code, bindings)}
 
 
 def build_object_search(names):
@@ -432,7 +464,7 @@ def build_object_search(names):
     if conv:
         check_contract(conv['canonical'], root)
     return {'root': root, 'meta': None, 'dicts': {'etasks': etasks, 'dtasks': dtasks, 'spars': spars},
-            'plan': dict(conv or {}, file=path, bindings=bindings)}
+            'plan': _plan_meta(conv, path, code, bindings)}
 
 
 # ───────────────────────── 공통 진입점·표시·기록 ─────────────────────────
@@ -480,7 +512,11 @@ _PUB = {}
 
 def subtask_rows(root, canonical=None, catalog=None):
     """실행 트리의 원자 task 하나 = 한 행. canonical 이 있으면 _plan_id 로 이어 스킬·인수·요구 스킬을 붙인다
-    (어댑터가 붙인 _plan_id 가 canonical ↔ 실행 원자의 1:1 대응). 고정 빌더 트리(legacy)는 스킬 없이 실행 속성만."""
+    (어댑터가 붙인 _plan_id 가 canonical ↔ 실행 원자의 1:1 대응 — 이 함수는 그 대응을 검증하지 않는다; check_contract 가 한다).
+    고정 빌더 트리(legacy)는 id/skill=None 으로 실행 속성만. **초기 트리**(실행 전) 기준의 기록이다:
+      preassigned = 초기 트리에서 이미 agent 가 붙어 있는 상시 가상 서비스(Detect·SendMap·MergeMaps) 표시 — 실행 뒤 배정된 일반 task 에
+                    같은 함수를 다시 쓰면 그것도 True 가 되므로 초기 호출에만 쓴다.
+      after       = 명시적 predecessors 목록(Relay 의 선행 사슬)만. 순차 복합의 자식 순서는 여기 없고 canonical/실행 트리 구조가 담는다."""
     by_id = {a['id']: a for a in p2t.iter_atomics(canonical)} if canonical else {}
     acts = (catalog or {}).get('actions') or {}
     rows = []
@@ -507,6 +543,7 @@ def plan_record(res, goal, node_name='group'):
     """계획 경로의 기록(JSON 직렬화 가능): 미션(자연어 Task Description)·바인딩·canonical·실행 트리·행별 스킬 매칭."""
     plan = res.get('plan') or {}
     return {
+        'schema': 'jnp-plan-record/1', 'run_id': current_run_id() or new_run_id(node_name),
         'source': 'plan', 'goal': goal, 'group': node_name, 'plan_file': plan.get('file', ''),
         'plan_name': os.path.basename(plan.get('file', '') or ''),
         'plan_source': plan.get('plan_source', 'unknown'),     # example = 사람이 쓴 템플릿(LLM-TDM 모듈 미사용)
@@ -522,7 +559,9 @@ def plan_record(res, goal, node_name='group'):
 
 def fallback_record(goal, reason, node_name='group', root=None):
     return {
+        'schema': 'jnp-plan-record/1', 'run_id': current_run_id() or new_run_id(node_name),
         'source': 'legacy', 'goal': goal, 'group': node_name, 'reason': str(reason), 'plan_file': '', 'plan_name': '',
+        'plan_source': '',          # legacy 는 계획 파일이 없으므로 빈 문자열(EXAMPLE/LLM-TDM 배지 대상 아님)
         'task_description': '', 'bindings': {}, 'canonical': {}, 'canonical_dump': '', 'warnings': [],
         'tree': tree_text(root) if root is not None else '',
         'subtasks': subtask_rows(root) if root is not None else [],
@@ -557,7 +596,10 @@ def _set_param(key, value):
 
 
 def publish(res, goal, node_name='group'):
-    """계획·canonical·바인딩·트리를 콘솔에 덤프하고 rosparam /jnp/plan/<group> 에 둔다(source=plan). 기록 성공 여부 반환."""
+    """계획·canonical·바인딩·트리를 콘솔에 덤프하고 rosparam /jnp/plan/<group> 과 latched 토픽 /jnp/plan 에 둔다(source=plan).
+    새 회차 id(run_id)를 만든다 — 그룹의 /jnp/status 도 같은 id 를 싣는다. 반환 = rosparam 기록 ∧ 토픽 publish 호출 성공
+    (구독자 수신·화면 반영을 뜻하지 않음)."""
+    new_run_id(node_name)
     plan = res.get('plan') or {}
     print('[PLAN] source=plan %s ← %s (plan source: %s)  bindings=%s' % (goal, os.path.basename(plan.get('file', '?')),
                                                                         plan.get('plan_source', 'unknown'), plan.get('bindings')), flush=True)
@@ -572,7 +614,7 @@ def publish(res, goal, node_name='group'):
     ok_param = _set_param(_param_key(node_name), {
         'source': 'plan', 'goal': goal, 'plan_file': plan.get('file', ''),
         'bindings': json.dumps(plan.get('bindings') or {}, ensure_ascii=False),
-        'task_description': plan.get('text', ''), 'plan_source': rec['plan_source'],
+        'task_description': plan.get('text', ''), 'plan_source': rec['plan_source'], 'run_id': rec['run_id'],
         'canonical': json.dumps(plan.get('canonical') or {}, ensure_ascii=False),
         'warnings': list(plan.get('warnings') or []), 'tree': tree_text(res['root']),
         'subtasks': json.dumps(rec['subtasks'], ensure_ascii=False)})
@@ -581,11 +623,12 @@ def publish(res, goal, node_name='group'):
 
 
 def publish_fallback(goal, reason, node_name='group', root=None):
-    """고정 빌더로 간 사실을 같은 rosparam 에 남긴다(source=legacy) — 이전 계획 기록이 현재 것으로 오인되지 않게."""
+    """고정 빌더로 간 사실을 같은 rosparam·토픽에 남긴다(source=legacy) — 이전 계획 기록이 현재 것으로 오인되지 않게. 새 run_id."""
+    new_run_id(node_name)
     print('[PLAN] source=legacy %s — %s' % (goal, reason), flush=True)
     rec = fallback_record(goal, reason, node_name, root)
     ok_param = _set_param(_param_key(node_name), {
-        'source': 'legacy', 'goal': goal, 'reason': str(reason), 'plan_file': '', 'bindings': '{}',
+        'source': 'legacy', 'goal': goal, 'reason': str(reason), 'plan_file': '', 'bindings': '{}', 'run_id': rec['run_id'],
         'task_description': '', 'canonical': '{}', 'warnings': [], 'tree': tree_text(root) if root is not None else '',
         'subtasks': json.dumps(rec['subtasks'], ensure_ascii=False)})
     ok_topic = _topic_publish(rec)

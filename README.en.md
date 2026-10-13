@@ -300,8 +300,10 @@ python3 main.py
      shows the mission in natural language (the plan file's Task Description), the payload bindings,
      the decomposed subtasks (skill, arguments, required capability), which execution node each subtask
      became, which agent (with its advertised capabilities) it was assigned to, whether the capability
-     requirement is met, and its progress. The Agents list shows each member's capabilities and the
-     task-tree nodes show the skill and required capability.
+     requirement is met, and its progress. "Match" means required ⊆ advertised capabilities (compatibility);
+     the actual assignment also depends on idleness, affinity and ETA. Plans and states are joined only within the
+     same run (`run_id`), and finished or dissolved groups are shown as history. The Agents list shows each member's
+     capabilities and the task-tree nodes show the skill and required capability.
 
 ### Notes
   - A model file (.pkl) is required to run the Image-to-Image environment-enhancement feature.
