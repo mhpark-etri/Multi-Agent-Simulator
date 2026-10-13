@@ -1448,7 +1448,7 @@ class Ui_MainWindow(object):
         self.gbRobotROSJnp.setTitle(QCoreApplication.translate("MainWindow", u"Jnp", None))
         self.btnRobotROSJNPStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.cmbJnpVersion.setItemText(0, QCoreApplication.translate("MainWindow", u"JnP 0.2.1 (\uae30\uc874)", None))
-        self.cmbJnpVersion.setItemText(1, QCoreApplication.translate("MainWindow", u"JnP 0.8.1", None))
+        self.cmbJnpVersion.setItemText(1, QCoreApplication.translate("MainWindow", u"JnP 0.8.2", None))
 
 #if QT_CONFIG(tooltip)
         self.cmbJnpVersion.setToolTip(QCoreApplication.translate("MainWindow", u"JnP \uc5d0\uc774\uc804\ud2b8 \ubc84\uc804 \uc120\ud0dd", None))
