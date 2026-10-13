@@ -1,4 +1,6 @@
 # Task Description: Collision Avoidance — every robot crosses a bottleneck to its own target without blocking the passage; robots pass one at a time in ETA order
+# Plan Source: example — hand-written template in the LLM-TDM layout for this basic task; NOT produced by the LLM-TDM module
+# (예시 계획: 기본 협업 태스크용으로 사람이 LLM-TDM 형식에 맞춰 직접 작성한 분할. LLM-TDM 모듈이 생성한 것이 아님)
 # [JnP-0.8.2 2026-10-13] 기본 협업 태스크 '충돌회피' 의 작업 분할 계획. 통과 순서(ETA = 시작점-병목 거리 ÷ 로봇 속도)는 실행 환경 정보라
 # 계획 밖에서 계산한다(jnp_plan.build_avoidance 가 payload 의 bt·routes 와 그룹이 넘긴 속도 함수로 FIRST·REST·PREV·TARGETS 를 바인딩).
 # 구조: 로봇별 병렬 가지; 첫 로봇은 바로 이동, 나머지는 앞 로봇의 통과를 기다린 뒤(가상 task, 그룹 관찰자가 완료 처리) 이동.

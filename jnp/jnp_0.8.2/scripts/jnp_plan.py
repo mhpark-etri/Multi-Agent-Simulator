@@ -103,6 +103,12 @@ def bind(code, consts):
     return code
 
 
+def plan_source(code):
+    """계획 머리의 '# Plan Source: …' — example(사람이 쓴 템플릿) 또는 llm-tdm(모듈 출력) 등. 없으면 'unknown'."""
+    m = re.search(r"^#\s*Plan Source:\s*([A-Za-z0-9_\-]+)", code, flags=re.M)
+    return m.group(1).lower() if m else 'unknown'
+
+
 def convert(code, source):
     cat = p2t.load_catalog()
     try:
@@ -117,7 +123,7 @@ def convert(code, source):
         raise PlanBuildError('canonical 검증 실패(%s): %s' % (source, errs))
     can = r['canonical']
     return {'canonical': can, 'warnings': r.get('warnings') or [], 'text': r.get('text', ''),
-            'dump': p2t.dump_tree(can), 'catalog': cat}
+            'dump': p2t.dump_tree(can), 'catalog': cat, 'plan_source': plan_source(code)}
 
 
 def branches(doc):
@@ -503,6 +509,7 @@ def plan_record(res, goal, node_name='group'):
     return {
         'source': 'plan', 'goal': goal, 'group': node_name, 'plan_file': plan.get('file', ''),
         'plan_name': os.path.basename(plan.get('file', '') or ''),
+        'plan_source': plan.get('plan_source', 'unknown'),     # example = 사람이 쓴 템플릿(LLM-TDM 모듈 미사용)
         'task_description': plan.get('text', ''),
         'bindings': plan.get('bindings') or {},
         'canonical': plan.get('canonical') or {},
@@ -552,7 +559,10 @@ def _set_param(key, value):
 def publish(res, goal, node_name='group'):
     """계획·canonical·바인딩·트리를 콘솔에 덤프하고 rosparam /jnp/plan/<group> 에 둔다(source=plan). 기록 성공 여부 반환."""
     plan = res.get('plan') or {}
-    print('[PLAN] source=plan %s ← %s  bindings=%s' % (goal, os.path.basename(plan.get('file', '?')), plan.get('bindings')), flush=True)
+    print('[PLAN] source=plan %s ← %s (plan source: %s)  bindings=%s' % (goal, os.path.basename(plan.get('file', '?')),
+                                                                        plan.get('plan_source', 'unknown'), plan.get('bindings')), flush=True)
+    if plan.get('text'):
+        print('[PLAN] mission (%s): %s' % (plan.get('plan_source', 'unknown'), plan['text']), flush=True)
     if plan.get('dump'):
         print('[PLAN] canonical TaskTree:\n' + plan['dump'], flush=True)
     for w in plan.get('warnings') or []:
@@ -562,7 +572,7 @@ def publish(res, goal, node_name='group'):
     ok_param = _set_param(_param_key(node_name), {
         'source': 'plan', 'goal': goal, 'plan_file': plan.get('file', ''),
         'bindings': json.dumps(plan.get('bindings') or {}, ensure_ascii=False),
-        'task_description': plan.get('text', ''),
+        'task_description': plan.get('text', ''), 'plan_source': rec['plan_source'],
         'canonical': json.dumps(plan.get('canonical') or {}, ensure_ascii=False),
         'warnings': list(plan.get('warnings') or []), 'tree': tree_text(res['root']),
         'subtasks': json.dumps(rec['subtasks'], ensure_ascii=False)})
