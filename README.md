@@ -287,7 +287,11 @@ python3 main.py
      지정합니다. 저장한 항목만 그 태스크에 적용되고, 나머지는 공통 설정 →
      기본값 순으로 적용됩니다.
    - **JnP Monitor**: coalition 구성과 task tree 를 실시간으로 표시합니다
-     (제목줄 최대화 또는 F11 로 전체화면).
+     (제목줄 최대화 또는 F11 로 전체화면). 가운데 패널 **"미션 → 작업 분할(subtask) → 스킬 매칭"** 은
+     그룹이 발행하는 `/jnp/plan`(latched JSON) 을 받아, 미션의 자연어 설명(계획 파일의 Task Description)과
+     payload 바인딩, 분할된 subtask(스킬·인수·요구 능력), 각 subtask 가 어느 실행 node 가 되어 어느 에이전트
+     (보유 capability)에 배정됐는지와 매칭 여부·진행 상태를 표로 보여 줍니다. Agents 목록에는 멤버의 보유
+     capability 가, task tree 노드에는 스킬·요구 능력이 함께 표시됩니다.
 
 ### 기타
   - ※ 본 프로젝트의 Image-to-Image 가상환경향상 기능을 실행하기 위해서는 모델파일(.pkl)이 필요합니다.
