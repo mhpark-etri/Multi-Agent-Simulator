@@ -33,96 +33,164 @@ def _esc(x):
     return (str(x).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
 
 
-def build_plan_html(plans, statuses, ko=True):
-    """[JnP-0.8.2 2026-10-14] '미션 → 분할된 subtask → 스킬 매칭' HTML.
-    plans: 그룹명 -> /jnp/plan 기록(JSON), statuses: 그룹명 -> /jnp/status 상태(멤버 capability·트리 상태).
-    행마다: canonical subtask(스킬·인수) → 요구 능력 → 실행 node → 배정 에이전트[보유 능력] → 매칭 → 상태."""
+def _short(agent):
+    return (agent or '').strip('/').split('/')[-1]
+
+
+def _as_dict(obj):
+    return obj if isinstance(obj, dict) else None
+
+
+def plan_row_for(plans, statuses, groups, node_name):
+    """트리 노드 라벨용 조회 — groups 안에서, 그룹의 현재 상태와 같은 run_id 를 가진 계획의 행만 본다.
+    같은 node 이름이 둘 이상에서 나오거나(모호) 회차가 맞지 않으면 None(미확인)."""
+    hits = []
+    for g in groups or []:
+        rec = _as_dict(plans.get(g))
+        st = _as_dict(statuses.get(g))
+        if not rec or not st or not rec.get('run_id') or rec.get('run_id') != st.get('run_id'):
+            continue
+        for r in rec.get('subtasks') or []:
+            if r.get('node') == node_name:
+                hits.append(r)
+    return hits[0] if len(hits) == 1 else None
+
+
+def build_plan_html(plans, statuses, ko=True, cap_history=None):
+    """[JnP-0.8.2 2026-10-14] '미션 → 분할된 subtask → 스킬 매칭' HTML (Qt 비의존).
+    plans: 그룹명 -> /jnp/plan 기록, statuses: 그룹명 -> /jnp/status, cap_history: (그룹, run_id) -> {agent: cap} 같은 회차에서 마지막 관측.
+    결합 규칙: 계획과 상태는 **같은 run_id** 일 때만 결합한다(이전 회차의 완료 상태가 새 계획에 붙지 않게). 상태가 없거나 회차가
+    다르면 행 상태를 '상태 미확인'으로 둔다. 그룹이 해체(dissolved)·완료(success/failed)면 이력으로 표시하고 후보는 계산하지 않는다.
+    매칭 = 요구 능력 ⊆ 보유 능력(능력 적합성). 유휴 여부·affinity·ETA 에 따른 실제 배정과는 다를 수 있다 — 표 밑에 명시."""
+    T = (lambda k, e: k) if ko else (lambda k, e: e)
     if not plans:
-        return ("<p style='color:#777'>%s</p>" % (
-            '협업 태스크를 발행하면 미션의 분할 결과와 스킬 매칭이 여기에 표시됩니다' if ko
-            else 'Publish a collaboration task to see the decomposition and skill matching'))
-    out = ["<style>table{border-collapse:collapse} td,th{border:1px solid #cfd8dc;padding:2px 6px;font-size:12px} "
-           "th{background:#eceff1} .ok{color:#2e7d32;font-weight:bold} .no{color:#c62828;font-weight:bold} "
-           ".run{color:#f57c00;font-weight:bold} .done{color:#2e7d32} .wait{color:#757575}</style>"]
+        return ("<p style='color:#777;font-size:14px'>%s</p>" % T(
+            '협업 태스크를 발행하면 미션의 분할 결과와 스킬 매칭이 여기에 표시됩니다',
+            'Publish a collaboration task to see the decomposition and skill matching'))
+    out = ["<style>body{font-size:13px} table{border-collapse:collapse;width:100%} td,th{border:1px solid #cfd8dc;padding:3px 7px;font-size:13px} "
+           "th{background:#eceff1} .ok{color:#2e7d32;font-weight:bold} .no{color:#c62828;font-weight:bold} .unk{color:#6d4c41;font-weight:bold} "
+           ".running{color:#ef6c00;font-weight:bold} .done{color:#2e7d32;font-weight:bold} .wait{color:#757575} .hist{color:#9e9e9e} "
+           ".mission{font-size:16px;font-weight:bold;color:#1a237e;background:#e8eaf6;border-left:5px solid #3f51b5;padding:5px 8px;margin:4px 0} "
+           ".badge{border-radius:3px;padding:0 5px;font-weight:bold} .head{font-size:14px;margin:4px 0}</style>"]
+    STATE_COLOR = {'forming': '#ffc107', 'running': '#03a9f4', 'success': '#4caf50', 'failed': '#f44336', 'dissolved': '#9e9e9e'}
     for grp in sorted(plans):
-        rec = plans[grp]
-        st = statuses.get(grp) or {}
-        caps = {m.get('name'): m.get('cap') or [] for m in st.get('members') or []}
-        # 실행 트리 상태(노드 이름 → state/agent)
+        rec = _as_dict(plans[grp]) or {}
+        st = _as_dict(statuses.get(grp)) or {}
+        rid, srid = rec.get('run_id') or '', st.get('run_id') or ''
+        linked = bool(rid) and rid == srid
+        gstate = st.get('state', '') if linked else ''
+        hist = gstate in ('dissolved', 'success', 'failed')
+        caps_now = {m.get('name'): (m.get('cap') if isinstance(m.get('cap'), list) else None)
+                    for m in (st.get('members') or []) if isinstance(m, dict)} if linked else {}
+        caps_last = (cap_history or {}).get((grp, rid)) or {}
         node_state = {}
 
         def walk(n):
-            if not n:
-                return
-            node_state[n.get('name')] = n
-            for c in n.get('children') or []:
-                walk(c)
-        walk(st.get('tree'))
+            if isinstance(n, dict):
+                node_state[n.get('name')] = n
+                for c in n.get('children') or []:
+                    walk(c)
+        if linked:
+            walk(st.get('tree'))
         src = rec.get('source', '?')
-        psrc = (rec.get('plan_source') or 'unknown').lower()
-        # 계획 출처 배지 — example: 사람이 LLM-TDM 형식으로 직접 쓴 템플릿(LLM-TDM 모듈 출력이 아님)
-        if psrc == 'example':
-            badge = ("<span style='background:#fff3e0;color:#e65100;border:1px solid #ffb74d;border-radius:3px;padding:0 4px;font-weight:bold'>EXAMPLE</span> "
-                     + ("<span style='color:#8d6e63'>(사람이 쓴 분할 템플릿 — LLM-TDM 모듈 출력 아님)</span>" if ko
-                        else "<span style='color:#8d6e63'>(hand-written template, not LLM-TDM output)</span>"))
+        psrc = (rec.get('plan_source') or '').lower()
+        if src != 'plan':
+            badge = ''
+        elif psrc == 'example':
+            badge = ("<span class='badge' style='background:#fff3e0;color:#e65100;border:1px solid #ffb74d'>EXAMPLE</span> "
+                     "<span style='color:#8d6e63'>%s</span>" % T('(사람이 쓴 분할 템플릿 — LLM-TDM 모듈 출력 아님)', '(hand-written template, not LLM-TDM output)'))
+        elif psrc == 'llm-tdm':
+            badge = "<span class='badge' style='background:#e3f2fd;color:#0d47a1;border:1px solid #64b5f6'>LLM-TDM</span>"
         else:
-            badge = "<span style='background:#e3f2fd;color:#0d47a1;border:1px solid #64b5f6;border-radius:3px;padding:0 4px;font-weight:bold'>%s</span>" % _esc(psrc.upper())
-        head = "<b>%s</b> &nbsp; goal=<b>%s</b> &nbsp; %s" % (_esc(grp), _esc(rec.get('goal', '')),
-               ("분할 계획 <code>%s</code> %s" % (_esc(rec.get('plan_name') or ''), badge)) if src == 'plan' and ko else
-               ("plan <code>%s</code> %s" % (_esc(rec.get('plan_name') or ''), badge)) if src == 'plan' else
-               ("<span class='no'>%s</span> (%s)" % ('고정 빌더로 대체' if ko else 'fixed builder (fallback)', _esc(rec.get('reason', '')))))
-        out.append("<p style='margin:4px 0'>%s</p>" % head)
+            badge = "<span class='badge' style='background:#eeeeee;color:#424242;border:1px solid #bdbdbd'>%s</span>" % _esc((psrc or 'unknown').upper())
+        # 그룹 상태 배지 (회차 결합 여부 포함)
+        if linked:
+            gs = "<span class='badge' style='background:%s;color:#fff'>%s</span>" % (STATE_COLOR.get(gstate, '#607d8b'), _esc(gstate or '?'))
+            if hist:
+                gs += " <span class='hist'>%s</span>" % T('— 종료됨: 마지막 관측 이력', '— finished: last observed history')
+        elif srid and rid and srid != rid:
+            gs = "<span class='unk'>%s</span>" % T('상태 회차 불일치 — 이 계획의 상태 기록이 아직 없음', 'status is from another run — no status for this plan yet')
+        else:
+            gs = "<span class='unk'>%s</span>" % T('상태 미확인(아직 /jnp/status 없음)', 'state unknown (no /jnp/status yet)')
+        if src == 'plan':
+            head = "<b>%s</b> &nbsp; goal=<b>%s</b> &nbsp; %s <code>%s</code> %s &nbsp; %s" % (
+                _esc(grp), _esc(rec.get('goal', '')), T('분할 계획', 'plan'), _esc(rec.get('plan_name') or ''), badge, gs)
+        else:
+            head = "<b>%s</b> &nbsp; goal=<b>%s</b> &nbsp; <span class='no'>%s</span> (%s) &nbsp; %s" % (
+                _esc(grp), _esc(rec.get('goal', '')), T('고정 빌더로 대체', 'fixed builder (fallback)'), _esc(rec.get('reason', '')), gs)
+        out.append("<p class='head'>%s</p>" % head)
         desc = rec.get('task_description') or ''
         if desc:
-            out.append("<p style='margin:2px 0'><b>%s</b> <i>%s</i></p>" % (
-                ('미션(자연어, example):' if psrc == 'example' else '미션(자연어):') if ko
-                else ('Mission (example):' if psrc == 'example' else 'Mission:'), _esc(desc)))
+            out.append("<div class='mission'>%s %s</div>" % (
+                T('미션(자연어, example):', 'Mission (example):') if psrc == 'example' else T('미션(자연어):', 'Mission:'), _esc(desc)))
         b = rec.get('bindings') or {}
-        if b:
+        if isinstance(b, dict) and b:
             bs = '; '.join('%s=%s' % (k, json.dumps(v, ensure_ascii=False)) for k, v in b.items())
-            out.append("<p style='margin:2px 0;color:#455a64'><b>%s</b> %s</p>" % ('바인딩(payload→상수):' if ko else 'bindings:', _esc(bs)[:600]))
-        rows = rec.get('subtasks') or []
-        if ko:
-            out.append("<table><tr><th>#</th><th>분할된 subtask (스킬·인수)</th><th>요구 능력</th><th>실행 node</th>"
-                       "<th>배정 에이전트 [보유 능력]</th><th>매칭</th><th>상태</th></tr>")
-        else:
-            out.append("<table><tr><th>#</th><th>subtask (skill·args)</th><th>needs</th><th>exec node</th>"
-                       "<th>agent [capabilities]</th><th>match</th><th>state</th></tr>")
-        for i, r in enumerate(rows, 1):
+            out.append("<p style='margin:2px 0;color:#455a64'><b>%s</b> %s</p>" % (T('바인딩(payload→상수):', 'bindings:'), _esc(bs)[:600]))
+        out.append("<table><tr><th>#</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>" % (
+            T('분할된 subtask (스킬·인수)', 'subtask (skill·args)'), T('요구 능력', 'needs'), T('실행 node', 'exec node'),
+            T('배정 에이전트 [보유 능력]', 'agent [capabilities]'), T('매칭(능력 적합성)', 'match (capability)'), T('상태', 'state')))
+        for i, r in enumerate(rec.get('subtasks') or [], 1):
+            if not isinstance(r, dict):
+                continue
             skill = r.get('skill')
-            args = r.get('args') or {}
-            sub = ("%s(%s)" % (skill, ', '.join('%s=%s' % (k, v) for k, v in args.items()))) if skill                 else (r.get('exec_goal') or '')
+            args = r.get('args') if isinstance(r.get('args'), dict) else {}
+            sub = ("%s(%s)" % (skill, ', '.join('%s=%s' % (k, v) for k, v in args.items()))) if skill else (r.get('exec_goal') or '')
             extra = [x for x in (r.get('required_skills') or []) if x != skill]
             if extra:
-                sub += " +" + ','.join(extra)
-            req = r.get('requirement') or []
+                sub += " +" + ','.join(str(x) for x in extra)
+            req = [str(x) for x in (r.get('requirement') or [])]
             ns = node_state.get(r.get('node')) or {}
-            agent = ns.get('agent') or r.get('preassigned_agent') or ''
-            state = ns.get('state') or ('wait' if not r.get('preassigned') else 'service')
+            agent = ns.get('agent') or (r.get('preassigned_agent') or '')
+            # ── 매칭 셀: 3상태(충족 / 명시적 불일치 / 정보 없음) + 가상·상시 서비스 ──
             if r.get('preassigned'):
-                match = "<span class='ok'>%s</span>" % ('상시 서비스' if ko else 'standing service')
-                agent_txt = _esc(agent.strip('/').split('/')[-1] if agent else '')
+                match = "<span class='ok'>%s</span>" % T('상시 서비스(초기 역할)', 'standing service (initial role)')
+                agent_txt = _esc(_short(agent))
             elif 'virtual' in req:
-                match = "<span class='wait'>%s</span>" % ('그룹이 완료 처리' if ko else 'completed by group')
+                match = "<span class='wait'>%s</span>" % T('그룹이 완료 처리', 'completed by group')
                 agent_txt = '—'
             elif agent:
-                have = caps.get(agent) or caps.get('/' + agent.strip('/')) or []
-                ok = set(req) <= set(have)
-                match = "<span class='%s'>%s</span>" % ('ok' if ok else 'no', ('✓ ' if ok else '✗ ') + '⊆'.join([','.join(req), '{' + ','.join(have) + '}']))
-                agent_txt = "%s [%s]" % (_esc(agent.strip('/').split('/')[-1]), _esc(','.join(have)))
+                src_cap = None
+                if agent in caps_now and caps_now[agent] is not None:
+                    have, src_cap = caps_now[agent], 'now'
+                elif agent in caps_last and caps_last[agent] is not None:
+                    have, src_cap = caps_last[agent], 'last'
+                else:
+                    have = None
+                if have is None:
+                    match = "<span class='unk'>%s</span>" % T('능력 정보 없음 — 검증 불가', 'no capability info — cannot verify')
+                    agent_txt = "%s [%s]" % (_esc(_short(agent)), T('정보 없음', 'unknown'))
+                else:
+                    ok = set(req) <= set(str(x) for x in have)
+                    note = '' if src_cap == 'now' else (" <span class='hist'>(%s)</span>" % T('같은 회차 마지막 관측', 'last observed in this run'))
+                    match = "<span class='%s'>%s %s⊆{%s}</span>%s" % ('ok' if ok else 'no', '✓' if ok else '✗', _esc(','.join(req)), _esc(','.join(str(x) for x in have)), note)
+                    agent_txt = "%s [%s]" % (_esc(_short(agent)), _esc(','.join(str(x) for x in have)))
             else:
-                # 미배정 — 요구 능력을 가진 후보 멤버 수를 보여 준다
-                cands = [n.strip('/').split('/')[-1] for n, c in caps.items() if set(req) <= set(c or [])]
-                match = "<span class='wait'>%s %s</span>" % ('후보' if ko else 'candidates', _esc(','.join(cands)) or '0')
-                agent_txt = ('(미배정)' if ko else '(unassigned)')
-            st_txt = {'running': ('실행 중' if ko else 'running'), 'done': ('완료' if ko else 'done'),
-                      'wait': ('대기' if ko else 'wait'), 'service': ('상시' if ko else 'service')}.get(state, state)
+                if hist or not linked:
+                    match = "<span class='hist'>—</span>"
+                else:
+                    cands = [_short(n) for n, c in caps_now.items() if c is not None and set(req) <= set(str(x) for x in c)]
+                    match = "<span class='wait'>%s: %s</span>" % (T('능력 충족 후보', 'capability-compatible candidates'), _esc(', '.join(cands)) or '0')
+                agent_txt = T('(미배정)', '(unassigned)')
+            if not linked:
+                state, st_cls = T('상태 미확인', 'unknown'), 'unk'
+            else:
+                raw = ns.get('state') or ('service' if r.get('preassigned') else 'wait')
+                st_cls = raw if raw in ('running', 'done', 'wait') else 'wait'
+                state = {'running': T('실행 중', 'running'), 'done': T('완료', 'done'), 'wait': T('대기', 'wait'),
+                         'service': T('상시', 'service')}.get(raw, raw)
+                if hist:
+                    st_cls = 'hist'
+                    state += T('(이력)', '(history)')
             out.append("<tr><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>%s</td></tr>" % (
                 i, _esc(sub), _esc(','.join(req)) + (' (optional)' if r.get('optional') else ''), _esc(r.get('node', '')),
-                agent_txt, match, state if state in ('running', 'done', 'wait') else 'wait', _esc(st_txt)))
+                agent_txt, match, st_cls, _esc(state)))
         out.append("</table>")
+        out.append("<p style='color:#607d8b;margin:2px 0;font-size:12px'>%s</p>" % T(
+            '매칭 = 요구 능력 ⊆ 보유 능력(능력 적합성). 실제 배정은 유휴 여부·affinity·ETA 에 따라 달라질 수 있음. 상시 서비스는 초기 역할 표시이며 실행 성공의 증빙이 아님.',
+            'match = required ⊆ advertised capabilities (compatibility). Actual assignment also depends on idleness, affinity and ETA. "standing service" describes the initial role, not execution success.'))
         if rec.get('warnings'):
-            out.append("<p style='color:#8d6e63;margin:2px 0'>%s %s</p>" % ('변환 경고:' if ko else 'warnings:', _esc('; '.join(rec['warnings']))))
+            out.append("<p style='color:#8d6e63;margin:2px 0'>%s %s</p>" % (T('변환 경고:', 'warnings:'), _esc('; '.join(str(w) for w in rec['warnings']))))
     return ''.join(out)
 
 
@@ -161,6 +229,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self.m_statuses = {}        # 그룹명 -> 최신 상태 (goal별 다중 coalition 지원)
         self.m_dissolved = set()    # 해체 확정 그룹 (잔여 상태 역전 방어)
         self.m_plans = {}           # 그룹명 -> /jnp/plan 기록 (미션·분할·스킬 매칭)
+        self.m_caps = {}            # (그룹명, run_id) -> {agent: cap} 같은 회차에서 마지막 관측한 보유 능력 (멤버 방출 뒤 표시용)
+        self._cluster_groups = {}   # 트리 표시 키 -> 원래 그룹 목록 (노드 라벨의 그룹별 계획 조회)
         self.m_procs = []
 
         # 메시지 언어 (메인 창의 한/영 콤보 설정을 공유)
@@ -192,8 +262,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             else '미션 → 작업 분할(subtask) → 스킬 매칭  (/jnp/plan)')
         pf = self.m_lbPlanTitle.font(); pf.setPointSize(11); pf.setBold(True); self.m_lbPlanTitle.setFont(pf)
         self.m_tbPlan = QtWidgets.QTextBrowser(self)
-        self.m_tbPlan.setMinimumHeight(150)
-        self.m_tbPlan.setMaximumHeight(300)
+        self.m_tbPlan.setMinimumHeight(170)
+        self.m_tbPlan.setMaximumHeight(380)
         self.m_tbPlan.setOpenExternalLinks(False)
         self.m_tbPlan.setHtml(build_plan_html({}, {}, self.m_ko))
         planBox = QtWidgets.QWidget(self)
@@ -359,8 +429,16 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             rec = json.loads(line)
         except ValueError:
             return
+        if not isinstance(rec, dict) or not isinstance(rec.get('subtasks', []), list):
+            self._log('[진단] /jnp/plan 형식 오류(객체가 아님) — 무시' if self.m_ko else '[diag] malformed /jnp/plan record ignored')
+            return
         grp = rec.get('group') or '?'
         self.m_plans[grp] = rec
+        # 새 계획 = 새 회차: 다른 run_id 의 상태(이전 회차)는 이 그룹에서 끊는다 — 완료 상태가 새 목표에 붙지 않게
+        prev_st = self.m_statuses.get(grp)
+        if prev_st and prev_st.get('run_id') != rec.get('run_id'):
+            self.m_statuses.pop(grp, None)
+            self.m_dissolved.discard(grp)
         n = len(rec.get('subtasks') or [])
         if rec.get('source') == 'plan':
             tag = (' [example — 사람이 쓴 템플릿]' if self.m_ko else ' [example — hand-written template]') \
@@ -372,18 +450,15 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         else:
             self._log((f"작업 분할 대체: {grp} 고정 빌더 — {rec.get('reason')}" if self.m_ko
                        else f"decomposition fallback: {grp} fixed builder — {rec.get('reason')}"))
+        self._redraw()          # 트리 라벨(스킬·요구 능력)도 갱신
         self._redraw_plan()
 
     def _redraw_plan(self):
-        self.m_tbPlan.setHtml(build_plan_html(self.m_plans, self.m_statuses, self.m_ko))
+        self.m_tbPlan.setHtml(build_plan_html(self.m_plans, self.m_statuses, self.m_ko, self.m_caps))
 
-    def _plan_row(self, node_name):
-        """실행 node 이름 → 계획 기록의 subtask 행 (트리 노드 라벨에 스킬·요구 능력을 쓰기 위해)."""
-        for rec in self.m_plans.values():
-            for r in rec.get('subtasks') or []:
-                if r.get('node') == node_name:
-                    return r
-        return None
+    def _plan_row(self, groups, node_name):
+        """실행 node 이름 → 계획 기록의 subtask 행 — 지정 그룹들 안에서, 상태와 같은 run_id 의 계획만(모호하면 None)."""
+        return plan_row_for(self.m_plans, self.m_statuses, groups, node_name)
 
     # /jnp/status : 그룹 상태 JSON
     def _on_status_line(self, line):
@@ -391,7 +466,16 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             status = json.loads(line)
         except ValueError:
             return
+        if not isinstance(status, dict):
+            return
         grp = status.get('group') or '?'
+        # 같은 회차에서 관측한 멤버 보유 능력을 기억 — 방출된 멤버의 완료 task 에도 '마지막 관측' 으로 표시
+        rid = status.get('run_id') or ''
+        if rid:
+            hist = self.m_caps.setdefault((grp, rid), {})
+            for m in status.get('members') or []:
+                if isinstance(m, dict) and m.get('name') and isinstance(m.get('cap'), list):
+                    hist[m['name']] = list(m['cap'])
         # 해체 이후 늦게 도착하는 완료 상태는 무시 (해체가 최종 — 역전 레이스 방어)
         if grp in self.m_dissolved and status.get('state') in ('success', 'failed'):
             return
@@ -401,8 +485,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             self.m_dissolved.discard(grp)
         prev = self.m_statuses.get(grp)
         prev_state = prev.get('state') if prev else None
-        # 트리가 빠진 상태 발행에도 마지막 트리를 유지 (그룹별)
-        if not status.get('tree') and prev and prev.get('tree'):
+        # 트리가 빠진 상태 발행에도 마지막 트리를 유지 (그룹별, **같은 회차**일 때만)
+        if not status.get('tree') and prev and prev.get('tree') and prev.get('run_id') == status.get('run_id'):
             status['tree'] = prev['tree']
         self.m_statuses[grp] = status
         self.m_status = status
@@ -557,10 +641,14 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             root = (st.get('tree') or {}).get('name')
             clusters.setdefault(root or grp, []).append((grp, st))
         display = {}
+        self._cluster_groups = {}
         for key, lst in clusters.items():
             if len(lst) == 1 or not lst[0][1].get('tree'):
                 display.update(dict(lst))
+                for g, _ in lst:
+                    self._cluster_groups[g] = [g]
                 continue
+            self._cluster_groups[' + '.join(g for g, _ in lst)] = [g for g, _ in lst]
             states = [st.get('state', '?') for _, st in lst]
             state = ('running' if 'running' in states else
                      'forming' if 'forming' in states else states[0])
@@ -592,6 +680,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
                 '#d32f2f' if state == 'dissolved' else '#37474f')))
             cap.setPos(0, -34)
             self.m_scene.addItem(cap)
+            self._cur_groups = self._cluster_groups.get(grp, [grp])
             self._layout_tree(tree, 0, 0)
             new_items = [it for it in self.m_scene.items() if it not in before]
             if state == 'dissolved':
@@ -650,14 +739,14 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         prefix = {'seq': '[S] ', 'par': '[P] '}.get(kind, '')
         label = prefix + node.get('name', '')
         agent = node.get('agent', '')
-        row = self._plan_row(node.get('name')) if kind == 'atomic' else None
+        row = self._plan_row(getattr(self, '_cur_groups', []), node.get('name')) if kind == 'atomic' else None
         if row and row.get('skill'):
-            # 분할된 subtask 의 스킬과 요구 능력 — 스킬 매칭의 근거
-            label += "\n" + row['skill'] + " · " + ','.join(row.get('requirement') or [])
+            # 분할된 subtask 의 스킬과 요구 능력 — 스킬 매칭의 근거 (같은 회차의 계획 행만)
+            label += "\n" + str(row['skill']) + " · " + ','.join(str(x) for x in (row.get('requirement') or []))
         if agent:
             # 할당 로봇 표기 — /etri/locobot_0 → locobot_0 (마지막 성분이 로봇 이름)
             label += "\n→ " + agent.strip('/').split('/')[-1]
-        elif kind == 'atomic' and not row:
+        elif kind == 'atomic' and not (row and row.get('skill')):
             label += "\n(" + (node.get('goal', '') or '-')[:22] + ")"
         text = QtWidgets.QGraphicsSimpleTextItem(label)
         f = text.font()
