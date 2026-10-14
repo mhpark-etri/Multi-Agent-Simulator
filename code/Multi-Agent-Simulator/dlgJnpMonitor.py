@@ -137,6 +137,8 @@ def build_plan_html(plans, statuses, ko=True, cap_history=None):
             gs = "<span class='badge' style='background:%s;color:#fff'>%s</span>" % (STATE_COLOR.get(gstate, '#607d8b'), _esc(gstate or '?'))
             if hist:
                 gs += " <span class='hist'>%s</span>" % T('— 종료됨: 마지막 관측 이력', '— finished: last observed history')
+        elif st.get('_run_unknown'):
+            gs = "<span class='unk'>%s</span>" % T('회차 미식별 상태(run_id 없는 구버전 그룹) — 계획과 결합하지 않음', 'status without run_id (legacy group) — not linked to the plan')
         elif srid and rid and srid != rid:
             gs = "<span class='unk'>%s</span>" % T('상태 회차 불일치 — 이 계획의 상태 기록이 아직 없음', 'status is from another run — no status for this plan yet')
         else:
@@ -263,7 +265,11 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         # '표시 상태'(계획이 있으면 계획과 같은 run_id 의 상태, 없으면 가장 최근에 수용한 상태 — 구버전/계획 없는 그룹 정책).
         self.m_runs = {}
         self.m_run_seq = 0
-        self.MAX_RUNS_PER_GROUP = 20   # 그룹당 보관 회차 상한(오래된 회차부터 정리 — m_caps 도 함께)
+        self.MAX_RUNS_PER_GROUP = 20   # 그룹당 상세 보관(상태·트리·cap) 상한 — 가장 오래 갱신되지 않은 항목부터 정리, 현재 계획의 회차는 보호
+        # 종료(dissolved) 표식은 상세와 별도로 더 오래 보관(그룹당 run_id 최대 MAX_FINISHED_PER_GROUP 개): 상세가 정리된 회차의 늦은
+        # 상태도 이 창 안에서는 거부된다. 창 밖(더 오래된 회차)의 늦은 상태는 재확인할 수 없어 새 항목으로 수용되며 '이력 만료' 로 본다.
+        self.m_finished = {}           # 그룹명 -> [run_id, …] (수용 순)
+        self.MAX_FINISHED_PER_GROUP = 200
         self._cluster_groups = {}   # 트리 표시 키 -> 원래 그룹 목록 (노드 라벨의 그룹별 계획 조회)
         self.m_procs = []
 
@@ -470,6 +476,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self.m_plans[grp] = rec
         # 새 계획의 표시 상태 = 같은 run_id 로 먼저 도착해 둔 상태(있으면) — 다른 회차 상태는 끊되 버리지 않고 회차 보관함에 둔다
         self._select_display_status(grp)
+        self._prune_runs(grp)
         n = len(rec.get('subtasks') or [])
         if rec.get('source') == 'plan':
             tag = (' [example — 사람이 쓴 템플릿]' if self.m_ko else ' [example — hand-written template]') \
@@ -492,11 +499,13 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         return plan_row_for(self.m_plans, self.m_statuses, groups, node_name)
 
     def _select_display_status(self, grp):
-        """그룹의 표시 상태를 정한다: 계획이 있으면 그 run_id 의 상태(없으면 표시 없음 → '상태 미확인'),
-        계획이 없으면 가장 최근에 수용한 회차의 상태(계획 없는 구버전 그룹 정책)."""
+        """그룹의 표시 상태를 정한다: 계획이 있으면 그 run_id 의 상태(없으면 표시 없음 → '상태 미확인'; 계획의 run_id 가 비어 있으면
+        결합하지 않음), 계획이 없으면 가장 최근에 **수용한** 상태(수신 수용 순서, 실행 시작 시각 아님 — 계획 없는 구버전 그룹 정책;
+        run_id 없는 상태는 '회차 미식별' 호환 표시)."""
         rec = self.m_plans.get(grp)
         if rec:
-            run = self.m_runs.get((grp, rec.get('run_id') or ''))
+            prid = rec.get('run_id') or ''
+            run = self.m_runs.get((grp, prid)) if prid else None
         else:
             runs = [(v['order'], v) for (g, _r), v in self.m_runs.items() if g == grp]
             run = max(runs)[1] if runs else None
@@ -511,11 +520,29 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             self.m_statuses.pop(grp, None)
             self.m_dissolved.discard(grp)
 
+    def _protected_runs(self, grp):
+        """정리에서 보호하는 회차: 현재 계획이 선택한 run_id 와 현재 표시 중인 상태의 run_id."""
+        keep = set()
+        rec = self.m_plans.get(grp)
+        if rec and rec.get('run_id'):
+            keep.add((grp, rec['run_id']))
+        cur = self.m_statuses.get(grp)
+        if cur is not None:
+            keep.add((grp, cur.get('run_id') or ''))
+        return keep
+
     def _prune_runs(self, grp):
-        keys = sorted([k for k in self.m_runs if k[0] == grp], key=lambda k: self.m_runs[k]['order'])
-        for k in keys[:-self.MAX_RUNS_PER_GROUP]:
+        """상세 보관(m_runs·m_caps)은 그룹당 MAX_RUNS_PER_GROUP 개 — 가장 오래 갱신되지 않은 항목부터 정리하되 보호 회차는 남긴다.
+        종료 표식(m_finished)은 별도 창(MAX_FINISHED_PER_GROUP)에서 더 오래 유지된다."""
+        keep = self._protected_runs(grp)
+        keys = sorted([k for k in self.m_runs if k[0] == grp and k not in keep], key=lambda k: self.m_runs[k]['order'])
+        limit = max(0, self.MAX_RUNS_PER_GROUP - len([k for k in keep if k in self.m_runs]))
+        for k in keys[:max(0, len(keys) - limit)]:
             self.m_runs.pop(k, None)
             self.m_caps.pop(k, None)
+        fin = self.m_finished.get(grp)
+        if fin and len(fin) > self.MAX_FINISHED_PER_GROUP:
+            del fin[:len(fin) - self.MAX_FINISHED_PER_GROUP]
 
     # /jnp/status : 그룹 상태 JSON — 회차(run_id)별로 보관·판정 (2차 검수 R2-M1a)
     def _on_status_line(self, line):
@@ -529,26 +556,34 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         rid = status.get('run_id') or ''
         key = (grp, rid)
         run = self.m_runs.get(key)
-        # 같은 회차의 dissolved 는 최종 — 그 뒤에 오는 같은 회차의 forming/running/success/failed 는 수용하지 않는다.
-        # (다른 회차의 해체 표식은 이 회차를 막지 않는다: 키가 다르다.)
-        if run and run['dissolved'] and status.get('state') != 'dissolved':
-            return
-        # 트리가 빠진 상태 발행에도 마지막 트리를 유지 — 같은 회차의 보관 상태에서만
-        if not status.get('tree') and run and run['status'].get('tree'):
-            status['tree'] = run['status']['tree']
+        fin = self.m_finished.setdefault(grp, [])
+        if rid:
+            # 같은 회차의 dissolved 는 최종 — 그 뒤에 오는 같은 회차의 forming/running/success/failed 는 수용하지 않는다
+            # (상세가 정리된 회차도 종료 표식 창 안이면 거부). 다른 회차의 해체 표식은 이 회차를 막지 않는다: 키가 다르다.
+            if status.get('state') != 'dissolved' and ((run and run['dissolved']) or rid in fin):
+                return
+            # 트리가 빠진 상태 발행에도 마지막 트리를 유지 — 같은 회차의 보관 상태에서만
+            if not status.get('tree') and run and run['status'].get('tree'):
+                status['tree'] = run['status']['tree']
+        else:
+            # run_id 없음/빈 문자열 = **회차 미식별 호환 모드**(구버전 그룹): 재시작과 지연 메시지를 구분할 수 없으므로
+            # 해체 최종성·트리 유지·cap 이력·계획 결합을 적용하지 않고 최근 수신 상태를 표시만 한다(표에는 '상태 미확인').
+            status['_run_unknown'] = True
         # 수용 확정 → 그 뒤에만 보유 능력 이력을 갱신한다(거부된 잔여 상태가 마지막 관측 cap 을 바꾸지 않게)
         self.m_run_seq += 1
-        self.m_runs[key] = {'status': status, 'dissolved': bool(run and run['dissolved']) or status.get('state') == 'dissolved',
+        self.m_runs[key] = {'status': status, 'dissolved': bool(rid) and (bool(run and run['dissolved']) or status.get('state') == 'dissolved'),
                             'order': self.m_run_seq}
         if rid:
+            if status.get('state') == 'dissolved' and rid not in fin:
+                fin.append(rid)
             hist = self.m_caps.setdefault(key, {})
             for m in status.get('members') or []:
                 if isinstance(m, dict) and m.get('name') and isinstance(m.get('cap'), list):
                     hist[m['name']] = list(m['cap'])
-        self._prune_runs(grp)
         prev = self.m_statuses.get(grp)
         prev_state = prev.get('state') if prev else None
         self._select_display_status(grp)
+        self._prune_runs(grp)          # 보호 대상(현재 계획·표시 회차)이 정해진 뒤 정리
         cur = self.m_statuses.get(grp)
         if cur is status and status.get('state') != prev_state:
             self._log(f"coalition [{status.get('group','?')}] "
