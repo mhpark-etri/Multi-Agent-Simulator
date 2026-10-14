@@ -156,9 +156,9 @@ COPY third_party/map_merge       /root/catkin_ws_explo/src/map_merge
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && cd /root/catkin_ws_explo && catkin_make -DCMAKE_BUILD_TYPE=Release"
 RUN echo "source /root/catkin_ws_explo/devel/setup.bash" >> /root/.bashrc
 
-# 2. JnP 0.8.1 워크스페이스 — 협업 태스크(릴레이·다목적 이동·충돌회피·지도제작·물건찾기)
-RUN mkdir -p /root/catkin_ws_jnp081/src \
- && ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt \
- && ln -s /root/tesla/jnp/jnp_0.8.1 /root/catkin_ws_jnp081/src/jnp
-RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && cd /root/catkin_ws_jnp081 && catkin_make -DCMAKE_BUILD_TYPE=Release"
+# 2. JnP 0.8.2 워크스페이스 — 협업 태스크(릴레이·다목적 이동·충돌회피·지도제작·물건찾기). 0.8.1 소스는 jnp/jnp_0.8.1 에 참고용으로 남긴다
+RUN mkdir -p /root/catkin_ws_jnp082/src \
+ && ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp082/src/CMakeLists.txt \
+ && ln -s /root/tesla/jnp/jnp_0.8.2 /root/catkin_ws_jnp082/src/jnp
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && cd /root/catkin_ws_jnp082 && catkin_make -DCMAKE_BUILD_TYPE=Release"
 
