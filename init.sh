@@ -37,11 +37,11 @@ source xslocobot_amd64_install4.sh -b create3 -d noetic
 ## ── v1.9 협업 태스크 런타임 ───────────────────────────────────────
 ## Docker 이미지에는 이미 빌드되어 있습니다. 이미지 없이 수동 구성할 때만 필요합니다.
 
-## JnP 0.8.1 (릴레이·다목적 이동·충돌회피·분산 탐색)
-mkdir -p /root/catkin_ws_jnp081/src
-ln -sf /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
-ln -sf /root/tesla/jnp/jnp_0.8.1 /root/catkin_ws_jnp081/src/jnp
-cd /root/catkin_ws_jnp081 && catkin_make
+## JnP 0.8.2 (릴레이·다목적 이동·충돌회피·분산 탐색) — 0.8.1 은 jnp/jnp_0.8.1 에 참고용
+mkdir -p /root/catkin_ws_jnp082/src
+ln -sf /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp082/src/CMakeLists.txt
+ln -sf /root/tesla/jnp/jnp_0.8.2 /root/catkin_ws_jnp082/src/jnp
+cd /root/catkin_ws_jnp082 && catkin_make
 
 ## 탐사 스택 (프런티어 검출 rrt_exploration + 지도 병합 map_merge)
 ##  ※ 원본 라이선스(MIT / BSD-3)는 NOTICE, third_party/README.md 참조

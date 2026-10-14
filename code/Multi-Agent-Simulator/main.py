@@ -134,7 +134,7 @@ class MainWindow(QtWidgets.QMainWindow):
     m_orgPersonColorJeans = []              # OrgPersonJeansColor x,y,z    
     m_exeSimulator = None                   # 현재 실핼중인 Gazebo Process
     m_arrJnpProcess = []                    # Jnp sub proecess
-    m_startedJnp081 = False                 # JnP 0.8.1 모드로 에이전트를 띄웠는지 (협업태스크 분기용)
+    m_startedJnp082 = False                 # JnP 0.8.2 모드로 에이전트를 띄웠는지 (협업태스크 분기용)
     m_startedJnp021 = False                 # JnP 0.2.1 모드로 에이전트를 띄웠는지 (협업태스크 미지원 안내용)
     m_arrROSCollaborationTask = []          # ROS Collaboration Task
     m_prevSelectedCollaborationTask = 0     # 이전 선택된 협업태스크 작업 목록
@@ -1675,7 +1675,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 체크를 껐으면 떠 있는 2D 뷰를 닫는다
         self.EnsureRelayRviz()
 
-        # JnP 0.8.1 에이전트가 떠 있으면 다이얼로그가 task 발행(coalition 트리거) 모드로 동작
+        # JnP 0.8.2 에이전트가 떠 있으면 다이얼로그가 task 발행(coalition 트리거) 모드로 동작
         # ★ 비모달(show) — 모달(exec)이면 메인 창이 잠겨 릴레이 중 Stop 을 못 누른다
         if getattr(self, 'm_dlgCollab', None) is not None:
             self.m_dlgCollab.close()
@@ -1685,7 +1685,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #   사용은 다이얼로그의 다목적(MOVE) 분기에서만 하므로 항상 넘겨도 무해.
         basePos = dict(MULTIGOAL_BASE_POSITIONS)
         self.m_dlgCollab = DialogStartROSCollaborationTask(
-            self.m_simulator, jnp081Active=self.m_startedJnp081,
+            self.m_simulator, jnp082Active=self.m_startedJnp082,
             jnp021Active=self.m_startedJnp021,
             monitorOpener=self.ShowJnpMonitor, basePositions=basePos)
         self.m_dlgCollab.show()
@@ -1731,7 +1731,7 @@ class MainWindow(QtWidgets.QMainWindow):
     ## 비활성화하는 1회용 설계였음 — Stop 이후 재시작 가능하도록 되살린다)
     def _OnStopFinished(self, *args):
         self.m_arrJnpProcess.clear()
-        self.m_startedJnp081 = False
+        self.m_startedJnp082 = False
         self.ui.btnStartSimulator.setEnabled(True)
         self.ui.btnStopSimulator.setEnabled(True)
         self.enableRobotList()
@@ -1766,13 +1766,13 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             # 배포 위치에 스크립트가 없을 때의 최소 정리 (동일 패턴)
             for pat in ('ros[l]aunch', 'gz[s]erver', 'gz[c]lient', 'ros[m]aster',
-                        'jnp_0.8.1/scripts/jnp_[a]gent', 'jnp_0.8.1/scripts/jnp_grou[p]',
+                        'catkin_ws_jnp082/.*jnp_[a]gent', 'catkin_ws_jnp082/.*jnp_grou[p]',
                         'goal_label[s]', 'loco_ready_ini[t]',
                         'relay_runne[r]', 'multigoal_runne[r]',
                         'rviz -f map -d .*relay_2d[.]rviz', '[g]nome-terminal'):
                 subprocess.run(['pkill', '-9', '-f', pat])
         self.m_arrJnpProcess.clear()
-        self.m_startedJnp081 = False
+        self.m_startedJnp082 = False
 
     ## 협업용 RViz 2D 뷰 늦은 기동/종료 — 체크박스 상태를 협업 창 열 때마다 반영
     ## (시뮬 시작 시 show_rviz2d 로 띄우는 것과 별개로, 사후 체크/해제도 동작)
@@ -1821,14 +1821,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if len(self.m_arrJnpProcess) > 0:
             self.CloseJnp(self.m_arrJnpProcess)
 
-        ## JnP 버전 선택 (콤보박스: 0 = 기존 0.2.1, 1 = 0.8.1)
-        # 0.8.1은 발견/설명까지만 상시 수행하고, 협업 태스크(goal)가 발행되면
+        ## JnP 버전 선택 (콤보박스: 0 = 기존 0.2.1, 1 = 0.8.2)
+        # 0.8.2은 발견/설명까지만 상시 수행하고, 협업 태스크(goal)가 발행되면
         # coalition 형성 → task tree 할당/스케줄 실행 → goal 도달 시 해체한다
-        useJnp081 = self.ui.cmbJnpVersion.currentIndex() == 1
-        # 실제로 에이전트를 띄웠을 때만 0.8.1 시작 상태로 기록 (로봇 0대면 아무것도 안 뜸)
-        self.m_startedJnp081 = useJnp081 and len(self.m_simulator.robots) > 0
-        self.m_startedJnp021 = (not useJnp081) and len(self.m_simulator.robots) > 0
-        pathSourceJnp = PATH_SOURCE_JNP081_SETUP if useJnp081 else PATH_SOURCE_JNP_SETUP
+        useJnp082 = self.ui.cmbJnpVersion.currentIndex() == 1
+        # 실제로 에이전트를 띄웠을 때만 0.8.2 시작 상태로 기록 (로봇 0대면 아무것도 안 뜸)
+        self.m_startedJnp082 = useJnp082 and len(self.m_simulator.robots) > 0
+        self.m_startedJnp021 = (not useJnp082) and len(self.m_simulator.robots) > 0
+        pathSourceJnp = PATH_SOURCE_JNP082_SETUP if useJnp082 else PATH_SOURCE_JNP_SETUP
 
         ## 각 모델 별 Jnp 실행
         # ns는 기본 사용
@@ -1838,8 +1838,8 @@ class MainWindow(QtWidgets.QMainWindow):
             # 실행
             name = self.m_simulator.robots[i].name
             command = command + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
-            if useJnp081:
-                command = command + CMD_COMMON_SPACE + CMD_ROS_JNP081_AGENT_XML_ARG
+            if useJnp082:
+                command = command + CMD_COMMON_SPACE + CMD_ROS_JNP082_AGENT_XML_ARG
             completeCmd = CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE
             process = subprocess.Popen([completeCmd], shell=True)
             self.m_arrJnpProcess.append(process)
@@ -1871,13 +1871,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 process.kill()
 
         subprocess.run(['pkill', '-f', 'gnome-terminal'])
-        # 0.8.1 모드로 시작했을 때만, 0.8.1 경로 한정 패턴으로 잔여 정리
+        # 0.8.2 모드로 시작했을 때만, 0.8.2 경로 한정 패턴으로 잔여 정리
         # (광역 'jnp_agent.py' 패턴은 이 기계의 다른 JnP 프로세스까지 죽인다 — 리뷰 확정)
-        if getattr(self, 'm_startedJnp081', False):
-            subprocess.run(['pkill', '-f', 'jnp_0.8.1/scripts/jnp_group.py'])
-            subprocess.run(['pkill', '-f', 'jnp_0.8.1/scripts/jnp_agent.py'])
+        if getattr(self, 'm_startedJnp082', False):
+            subprocess.run(['pkill', '-f', 'catkin_ws_jnp082/.*jnp_group.py'])
+            subprocess.run(['pkill', '-f', 'catkin_ws_jnp082/.*jnp_agent.py'])
         arrProcess.clear()
-        self.m_startedJnp081 = False
+        self.m_startedJnp082 = False
         self.m_startedJnp021 = False
 
     # DQN 실행
