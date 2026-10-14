@@ -71,7 +71,7 @@ source init.sh
 > |---|---|---|
 > | 4.1 | Interbotix 설치 | **필수** (설치 화면에서 y 입력) |
 > | 4.2 | JnP 0.2.1 빌드 | **필수** |
-> | 4.2.1 | JnP 0.8.1 | 불필요 — 이미지·init.sh 가 이미 빌드 |
+> | 4.2.1 | JnP 0.8.2 | 불필요 — 이미지·init.sh 가 이미 빌드 |
 > | 4.2.2 | 탐사 스택 | 불필요 — 이미지·init.sh 가 이미 빌드 |
 > | 4.2.3 | YOLO | 선택 — 물건 찾기 태스크를 쓸 때만 |
 > | 4.3 / 4.4 | Ai-Bot / Stretch2 | 해당 로봇을 쓸 때 |
@@ -104,20 +104,36 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" />
 <br><br>
 
-### 4.2.1 JnP 0.8.1 (v1.9 협업 태스크) — 참고용, 실행 불필요
+### 4.2.1 JnP 0.8.2 (v1.9 협업 태스크) — 참고용, 실행 불필요
 
 > 이미지와 `init.sh` 가 이미 빌드합니다. **건너뛰어도 됩니다.**
 > 소스를 고쳐 다시 빌드하거나, 이미지 없이 구성할 때만 보십시오.
 
-- v1.9 협업 태스크는 JnP **0.8.1** 을 사용합니다.
+- v1.9 협업 태스크는 JnP **0.8.2** 를 사용합니다(`jnp/jnp_0.8.2/`; 2026-10 전환).
   - 릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 / 분산 탐색-물건 찾기
+  - 0.8.2 = 0.8.1 + 8곳 수정(디버그 잔재 `/root/empty_file*.txt` 생성 제거, 그룹 스크립트 파라미터화, roslaunch 식 remap 인수 허용, stdin 없이 실행 가능, 그룹 해체 시 진행 중 이동 선점, 그룹 상태에 mission_id, 종료 전 master 등록 해제 확인, install 규칙). 호출 방식(`rosrun jnp jnp_agent.py __ns:=… __name:=… none.xml`, `/jnp_agent_join_event` 의 `task:<goal>:<payload>`)은 0.8.1 과 같습니다.
+  - **작업 분할(task decomposition) 경로** — 기본 협업 태스크 5종의 task tree 는 `jnp/jnp_0.8.2/plans/<task>.py` 의
+    **분할 계획**(LLM-TDM 형식: `# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`)에서 만들어집니다. 이 다섯 계획은
+    **example** — 사람이 LLM-TDM 형식에 맞춰 직접 쓴 분할 템플릿이며 LLM-TDM 모듈이 생성한 것이 아닙니다(파일 머리의
+    `# Plan Source: example`, Monitor 의 EXAMPLE 배지). 실행 중 LLM 을 부르지 않습니다.
+    그룹(`jnp_group.py`)이 GUI payload 로 계획의 모듈 상수(ROBOTS·TARGETS·GOALS·ITEMS·FIRST/REST·HOST/EXPLORERS)를 바인딩 →
+    `scripts/plan_to_tasktree.py`(계획 코드를 ast 로 기호 평가: 함수 = 복합 task, `threading.Thread` = 병렬 가지, 최상위 `for` = 순차)가
+    canonical TaskTree(JSON)를 만들고 → `scripts/jnp_plan.py` 의 **태스크별 호환 어댑터**가 스케줄러가 쓰는 Task 객체 트리로 바꿉니다.
+    원자 task 의 실행 속성(goal 문자열·요구 능력·순차/병렬·optional·상시 가상 서비스)은 스킬 카탈로그 `config/skills_catalog_basic.json`
+    에서 읽고, 어댑터는 노드 이름과 복합 node 의 묶음(로봇별 묶음, navigate 래퍼 등)만 정합니다 — 규칙은 `plans/README.md` 의
+    '실행 변환 규칙'. 어댑터는 반환 전에 canonical 과 실행 트리의 순서 제약이 같은지(계약)와 태스크별 완전성(필수 스킬·로봇·호스트)을
+    검사하며, 지원하지 않는 계획 형태는 거부합니다. 계획·canonical·바인딩은 그룹 콘솔(`[PLAN]`)과 rosparam `/jnp/plan/<group>` 에 남습니다.
+    0.8.1 고정 빌더는 호환 대체 경로로 남아 있습니다(`_plan_mode:=false`, 또는 계획 경로가 실패하면 사유를 기록하고 대체;
+    `_plan_strict:=true` 면 대체하지 않고 예외). 두 경로가 같은 트리를 만드는지와 보고서의 반례는
+    `jnp/jnp_0.8.2/test/test_plan_trees.py`(ROS 마스터 불필요)로 확인합니다. 작업 **할당**(coalition·스케줄러·할당기)은 0.8.1 과 같습니다.
+  - 0.8.1 소스는 `jnp/jnp_0.8.1/` 에 참고용으로 남겨 두었습니다(이미지는 빌드하지 않음).
 - 소스에서 다시 빌드하려면 아래를 실행합니다.
 
 ```
-mkdir -p /root/catkin_ws_jnp081/src
-ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
-ln -s /root/tesla/jnp/jnp_0.8.1 /root/catkin_ws_jnp081/src/jnp
-cd /root/catkin_ws_jnp081 && catkin_make
+mkdir -p /root/catkin_ws_jnp082/src
+ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp082/src/CMakeLists.txt
+ln -s /root/tesla/jnp/jnp_0.8.2 /root/catkin_ws_jnp082/src/jnp
+cd /root/catkin_ws_jnp082 && catkin_make
 ```
 
 ### 4.2.2 탐사 스택 (third_party) — 참고용, 실행 불필요
@@ -265,13 +281,20 @@ python3 main.py
    - Behavior (Action) 패널의 **Collaboration Tasks** 에서 태스크를 고르고 Start.
    - 제공 태스크: 릴레이 / 다목적 이동 / 충돌회피 / 분산 탐색-지도 제작 /
      분산 탐색-물건 찾기.
-   - **Execution** 콤보에서 `JnP 0.8.1` 을 선택하면 에이전트들이 coalition 을
-     형성해 태스크를 수행합니다.
+   - **Execution** 콤보에서 `JnP 0.8.2` 를 선택하면 에이전트들이 coalition 을
+     형성해 태스크를 수행합니다. 태스크의 task tree 는 `jnp/jnp_0.8.2/plans/` 의
+     작업 분할 계획에서 만들어지고(4.2.1 참조), 그룹 콘솔의 `[PLAN]` 줄과
+     rosparam `/jnp/plan/<group>` 에서 계획·트리를 볼 수 있습니다.
    - **Nav 설정** 버튼: 태스크별 항법 파라미터(속도·팽창 반경·플래너 등)를
      지정합니다. 저장한 항목만 그 태스크에 적용되고, 나머지는 공통 설정 →
      기본값 순으로 적용됩니다.
    - **JnP Monitor**: coalition 구성과 task tree 를 실시간으로 표시합니다
-     (제목줄 최대화 또는 F11 로 전체화면).
+     (제목줄 최대화 또는 F11 로 전체화면). 가운데 패널 **"미션 → 작업 분할(subtask) → 스킬 매칭"** 은
+     그룹이 발행하는 `/jnp/plan`(latched JSON) 을 받아, 미션의 자연어 설명(계획 파일의 Task Description)과
+     payload 바인딩, 분할된 subtask(스킬·인수·요구 능력), 각 subtask 가 어느 실행 node 가 되어 어느 에이전트
+     (보유 capability)에 배정됐는지와 매칭 여부·진행 상태를 표로 보여 줍니다. 매칭은 요구 능력 ⊆ 보유 능력(능력 적합성)이며
+     실제 배정은 유휴 여부·affinity·ETA 에 따라 다를 수 있습니다. 계획과 상태는 같은 회차(`run_id`)끼리만 결합되고, 종료·해체된
+     그룹은 이력으로 표시됩니다. Agents 목록에는 멤버의 보유 capability 가, task tree 노드에는 스킬·요구 능력이 함께 표시됩니다.
 
 ### 기타
   - ※ 본 프로젝트의 Image-to-Image 가상환경향상 기능을 실행하기 위해서는 모델파일(.pkl)이 필요합니다.

@@ -1438,13 +1438,39 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
                         </item>
                         <item>
                          <property name="text">
-                          <string>JnP 0.8.1</string>
+                          <string>JnP 0.8.2</string>
                          </property>
                         </item>
                        </widget>
                       </item>
                       <item>
                        <widget class="QPushButton" name="btnRobotROSJNPMonitor">
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                        </property>
                         <property name="toolTip">
                          <string>JnP 동작(discovery/coalition/scheduling)을 그래픽 창으로 표시</string>
                         </property>
