@@ -4,6 +4,7 @@
 #   source <workspace>/devel/setup.bash && QT_QPA_PLATFORM=offscreen python3 code/Multi-Agent-Simulator/test_dlgJnpMonitor_html.py
 # M1 회차·그룹·해체 결합, M2 능력 정보 3상태·후보 문구, M3 이스케이프 (검수 보고서 CODEX_REVIEW_MONITOR_20261014 의 반례를 회귀검사로)
 # R2-M1a 수신 handler 의 회차별 상태·해체 최종성·늦은 계획 결합, R2-M1c 합친 트리의 node 소유 그룹 (ROUND2 보고서 §6 반례 포함)
+# R3-F1 run_id 없는 구버전 그룹의 회차 미식별 호환 모드, R3-F2 보관 상한에서 현재 계획 회차·종료 표식 보호 (ROUND3 §5 반례 포함)
 import copy
 import json
 import os
@@ -97,7 +98,8 @@ from dlgJnpMonitor import DialogJnpMonitor as D
 
 def receiver():
     return SimpleNamespace(m_plans={}, m_statuses={}, m_dissolved=set(), m_caps={}, m_runs={}, m_run_seq=0,
-                           MAX_RUNS_PER_GROUP=20, m_ko=True, m_status=None, _log=lambda *a: None,
+                           MAX_RUNS_PER_GROUP=20, m_finished={}, MAX_FINISHED_PER_GROUP=200,
+                           m_ko=True, m_status=None, _log=lambda *a: None,
                            _redraw=lambda: None, _redraw_plan=lambda: None,
                            _select_display_status=lambda grp, _o=None: None, _prune_runs=lambda grp: None)
 
@@ -105,6 +107,7 @@ def receiver():
 def bind(o):
     o._select_display_status = lambda grp: D._select_display_status(o, grp)
     o._prune_runs = lambda grp: D._prune_runs(o, grp)
+    o._protected_runs = lambda grp: D._protected_runs(o, grp)
     return o
 
 
@@ -179,5 +182,56 @@ o = bind(receiver()); pl(o, rec); st(o, dict(sA, state='dissolved')); st(o, sA)
 ok('보고서 반례3 반전: dissolved 유지', o.m_statuses[g]['state'] != 'running')
 s2x = dict(copy.deepcopy(sA), group='/group_relay_2', run_id='run2'); s2x['tree']['goal'] = 'nav:5,5,0'
 ok('보고서 반례4 반전: 계획 없는 그룹의 동명 node 에 다른 그룹 행이 붙지 않음', plan_row_for({g: rec}, {g: sA, '/group_relay_2': s2x}, [g, '/group_relay_2'], node) is None)
+# ── R3-F1: run_id 없는(구버전) 그룹은 회차 미식별 호환 모드 — 재시작이 영구 차단되지 않음 ──
+for label, mk in (('생략', lambda x: {k: v for k, v in x.items() if k != 'run_id'}), ('빈 문자열', lambda x: dict(x, run_id=''))):
+    o = bind(receiver()); lg = mk(sA)
+    st(o, dict(lg, state='dissolved')); st(o, dict(lg, state='forming')); st(o, dict(lg, state='running'))
+    ok('R3-F1 run_id %s: dissolved 뒤 forming/running 이 표시됨(재시작 허용)' % label, o.m_statuses[g]['state'] == 'running' and g not in o.m_dissolved)
+    ok('R3-F1 run_id %s: 회차 미식별 표식·cap 이력 없음·종료 표식 없음' % label, o.m_statuses[g].get('_run_unknown') is True and (g, '') not in o.m_caps and not o.m_finished.get(g))
+    st(o, dict(lg, state='running', tree=None))
+    ok('R3-F1 run_id %s: 트리 유지도 적용하지 않음' % label, not o.m_statuses[g].get('tree'))
+    o2 = bind(receiver()); pl(o2, rec); st(o2, dict(lg, state='running'))
+    ok('R3-F1 run_id %s: 계획이 있는 그룹에서는 결합하지 않음(상태 미확인)' % label, g not in o2.m_statuses and '상태 미확인' in build_plan_html(o2.m_plans, o2.m_statuses, True, o2.m_caps))
+    o3 = bind(receiver()); st(o3, dict(lg, state='running'))
+    ok('R3-F1 run_id %s: 미식별 상태를 직접 넘기면 패널 머리말에 회차 미식별 안내·행은 상태 미확인' % label,
+       '회차 미식별' in build_plan_html({g: rec}, o3.m_statuses, True) and '상태 미확인' in build_plan_html({g: rec}, o3.m_statuses, True)
+       and 'without run_id' in build_plan_html({g: rec}, o3.m_statuses, False))
+o = bind(receiver()); pl(o, rec); st(o, dict(sA, state='dissolved')); st(o, sA)
+ok('R3-F1 비어 있지 않은 run_id 의 해체 최종성은 유지', o.m_statuses[g]['state'] == 'dissolved')
+# ── R3-F2: 보관 상한이 현재 계획 회차의 상태·해체 표식을 지우지 않음 ──
+o = bind(receiver()); pl(o, rec); st(o, dict(sA, state='dissolved'))
+for i in range(20):
+    st(o, dict(sA, run_id='other-%d' % i))
+ok('R3-F2 현재 계획 회차는 정리에서 보호됨', (g, rid) in o.m_runs and o.m_statuses.get(g, {}).get('state') == 'dissolved')
+ok('R3-F2 상세 보관 상한 유지(보호 1 + 나머지 19 = 20)', len([k for k in o.m_runs if k[0] == g]) == 20)
+st(o, dict(sA, members=[dict(name='/etri/tb3_0', cap=['bogus'])]))
+ok('R3-F2 늦은 A:running 은 거부(해체 최종성 유지)·cap 미반영', o.m_statuses[g]['state'] == 'dissolved' and o.m_caps[(g, rid)]['/etri/tb3_0'] == ['lidar'])
+# 상세가 정리된(비보호) 종료 회차의 늦은 상태도 종료 표식 창 안에서는 거부
+o = bind(receiver()); st(o, dict(sA, run_id='fin-1', state='dissolved'))
+for i in range(25):
+    st(o, dict(sA, run_id='x-%d' % i))
+ok('R3-F2 정리된 종료 회차의 표식은 별도 창에 남음', (g, 'fin-1') not in o.m_runs and 'fin-1' in o.m_finished[g])
+st(o, dict(sA, run_id='fin-1', state='running'))
+ok('R3-F2 정리된 종료 회차의 늦은 running 도 거부', (g, 'fin-1') not in o.m_runs)
+# 계획이 다른 회차로 바뀌면 보호 대상도 바뀜
+o = bind(receiver()); pl(o, rec); st(o, sA)
+rec_b = dict(rec, run_id='B-run'); pl(o, rec_b); st(o, dict(sA, run_id='B-run'))
+for i in range(20):
+    st(o, dict(sA, run_id='o-%d' % i))
+ok('R3-F2 계획 교체 뒤 새 회차가 보호되고 옛 회차는 정리 가능', (g, 'B-run') in o.m_runs and (g, rid) not in o.m_runs)
+# 종료 표식 창 상한
+o = bind(receiver())
+for i in range(205):
+    st(o, dict(sA, run_id='d-%d' % i, state='dissolved'))
+ok('R3-F2 종료 표식 창 상한(200)', len(o.m_finished[g]) == 200 and 'd-0' not in o.m_finished[g] and 'd-204' in o.m_finished[g])
+# ROUND3 §5 재현 코드(기대값 반전)
+o = bind(receiver()); legacy = {k: v for k, v in sA.items() if k != 'run_id'}
+st(o, dict(legacy, state='dissolved')); st(o, dict(legacy, state='forming')); st(o, dict(legacy, state='running'))
+ok('ROUND3 반례 R3-F1 반전', o.m_statuses[g]['state'] != 'dissolved')
+o = bind(receiver()); pl(o, rec); st(o, dict(sA, state='dissolved'))
+for i in range(20):
+    st(o, dict(sA, run_id='other-' + str(i)))
+st(o, dict(sA, members=[dict(name='/etri/tb3_0', cap=['bogus'])]))
+ok('ROUND3 반례 R3-F2 반전', (g, rid) in o.m_runs and g in o.m_statuses and o.m_statuses[g]['state'] != 'running' and o.m_caps[(g, rid)]['/etri/tb3_0'] != ['bogus'])
 print('TOTAL monitor html %d FAIL' % F)
 sys.exit(1 if F else 0)
