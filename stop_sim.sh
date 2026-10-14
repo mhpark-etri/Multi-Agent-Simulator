@@ -26,8 +26,8 @@ pkill -f "ro[s]out"
 rm -f /root/.ros/rtabmap*.db 2>/dev/null
 
 echo "[2/3] JnP 에이전트/그룹/모니터 tap/터미널 정리"
-pkill -f "jnp_0.8.1/scripts/jnp_[a]gent"
-pkill -f "jnp_0.8.1/scripts/jnp_grou[p]"
+pkill -f "catkin_ws_jnp082/.*jnp_[a]gent"
+pkill -f "catkin_ws_jnp082/.*jnp_grou[p]"
 pkill -f "catkin_ws_jnp/.*jnp_[a]gent"     # 구 0.2.1 에이전트
 pkill -f "jnp_mon_ta[p]"                   # JnP Monitor 창의 토픽 tap
 pkill -f "loco_init_al[l]"

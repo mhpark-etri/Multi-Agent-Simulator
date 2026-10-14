@@ -72,7 +72,7 @@ source init.sh
 > |---|---|---|
 > | 4.1 | Interbotix installation | **Required** (answer `y` at the prompts) |
 > | 4.2 | Build JnP 0.2.1 | **Required** |
-> | 4.2.1 | JnP 0.8.1 | Not needed — already built by the image and `init.sh` |
+> | 4.2.1 | JnP 0.8.2 | Not needed — already built by the image and `init.sh` |
 > | 4.2.2 | Exploration stack | Not needed — already built by the image and `init.sh` |
 > | 4.2.3 | YOLO | Optional — only for the Find Object task |
 > | 4.3 / 4.4 | Ai-Bot / Stretch2 | Only if you use those robots |
@@ -105,20 +105,40 @@ chmod +x /root/catkin_ws_jnp/src/jnp/scripts/jnp_agent.py
 <img src="https://github.com/mhpark-etri/Multi-Agent-Simulator/assets/147698192/e07af797-ef12-4767-a422-4c191fd1f04e" width="50%" />
 <br><br>
 
-### 4.2.1 JnP 0.8.1 (v1.9 collaboration tasks) — reference only, no action needed
+### 4.2.1 JnP 0.8.2 (v1.9 collaboration tasks) — reference only, no action needed
 
 > The image and `init.sh` already build this. **You can skip it.**
 > Read on only to rebuild after editing the source, or to set things up without the image.
 
-- The v1.9 collaboration tasks run on JnP **0.8.1**.
+- The v1.9 collaboration tasks run on JnP **0.8.2** (`jnp/jnp_0.8.2/`; switched 2026-10).
   - Relay / Multi-Goal Move / Collision Avoidance / Distributed Search-Mapping / Distributed Search-Find Object
+  - 0.8.2 = 0.8.1 + 8 edits (no more debug `/root/empty_file*.txt` touch, group script as a parameter, roslaunch-style remap args accepted, runs without stdin, in-progress navigation is preempted when the group dissolves, mission_id in group status, master deregistration checked before exit, install rules). The invocation (`rosrun jnp jnp_agent.py __ns:=… __name:=… none.xml`, `task:<goal>:<payload>` on `/jnp_agent_join_event`) is unchanged from 0.8.1.
+  - **Task-decomposition path** — the task tree of each of the five basic tasks is built from the **decomposition
+    plan** in `jnp/jnp_0.8.2/plans/<task>.py` (LLM-TDM layout: `# Task Description / # GENERAL TASK DECOMPOSITION / # CODE`).
+    These five plans are **examples**: hand-written decomposition templates in the LLM-TDM layout, not output of the
+    LLM-TDM module (`# Plan Source: example` in each file, EXAMPLE badge in the Monitor); no LLM is called at run time. The group (`jnp_group.py`) binds the plan's module constants (ROBOTS, TARGETS, GOALS, ITEMS,
+    FIRST/REST, HOST/EXPLORERS) from the GUI payload → `scripts/plan_to_tasktree.py` (symbolic ast evaluation of the plan
+    code: a function = composite task, `threading.Thread` = parallel branch, top-level `for` = sequential) produces the
+    canonical TaskTree (JSON) → a **per-task compatibility adapter** in `scripts/jnp_plan.py` turns it into the Task objects
+    the scheduler runs. The execution attributes of each atomic task (goal string, required capability,
+    sequential/parallel, optional, standing virtual service) come from the skill catalog `config/skills_catalog_basic.json`;
+    the adapter only assigns node names and the grouping of composite nodes (per-robot grouping, the navigate wrapper) —
+    the rules are listed in `plans/README.md` ("execution transformation rules"). Before returning, the adapter checks that
+    the ordering constraints of the canonical tree and of the execution tree are identical (the contract) and the per-task
+    completeness (required skills, robots, host), and rejects unsupported plan shapes. The plan, the canonical tree and the
+    bindings are printed on the group console (`[PLAN]`) and stored in rosparam `/jnp/plan/<group>`.
+    The 0.8.1 fixed builders remain as the compatibility fallback (`_plan_mode:=false`, or when the plan path fails the
+    reason is recorded and the fallback is used; `_plan_strict:=true` raises instead). `jnp/jnp_0.8.2/test/test_plan_trees.py`
+    (no ROS master needed) checks that both paths build the same tree and runs the review counterexamples.
+    Task **allocation** (coalition, scheduler, allocators) is unchanged from 0.8.1.
+  - The 0.8.1 source stays under `jnp/jnp_0.8.1/` for reference (not built by the image).
 - To rebuild from source, run:
 
 ```
-mkdir -p /root/catkin_ws_jnp081/src
-ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp081/src/CMakeLists.txt
-ln -s /root/tesla/jnp/jnp_0.8.1 /root/catkin_ws_jnp081/src/jnp
-cd /root/catkin_ws_jnp081 && catkin_make
+mkdir -p /root/catkin_ws_jnp082/src
+ln -s /opt/ros/noetic/share/catkin/cmake/toplevel.cmake /root/catkin_ws_jnp082/src/CMakeLists.txt
+ln -s /root/tesla/jnp/jnp_0.8.2 /root/catkin_ws_jnp082/src/jnp
+cd /root/catkin_ws_jnp082 && catkin_make
 ```
 
 ### 4.2.2 Exploration stack (third_party) — reference only, no action needed
@@ -266,13 +286,24 @@ python3 main.py
    - Pick a task under **Collaboration Tasks** in the Behavior (Action) panel and press Start.
    - Available tasks: Relay / Multi-Goal Move / Collision Avoidance /
      Distributed Search-Mapping / Distributed Search-Find Object.
-   - Choose `JnP 0.8.1` in the **Execution** combo box: the agents then form a
-     coalition and carry out the task together.
+   - Choose `JnP 0.8.2` in the **Execution** combo box: the agents then form a
+     coalition and carry out the task together. The task tree comes from the
+     decomposition plan in `jnp/jnp_0.8.2/plans/` (see 4.2.1); the plan and the
+     tree are shown on the group console (`[PLAN]` lines) and in rosparam
+     `/jnp/plan/<group>`.
    - **Nav Settings** button: set navigation parameters per task (speed, inflation
      radius, planner, and so on). Only the values you save apply to that task;
      everything else falls back to the global settings and then to the defaults.
    - **JnP Monitor**: shows the coalition and the task tree in real time
-     (maximize from the title bar, or press F11 for full screen).
+     (maximize from the title bar, or press F11 for full screen). The middle panel
+     **"Mission → Decomposition → Skill matching"** reads the group's `/jnp/plan` (latched JSON) and
+     shows the mission in natural language (the plan file's Task Description), the payload bindings,
+     the decomposed subtasks (skill, arguments, required capability), which execution node each subtask
+     became, which agent (with its advertised capabilities) it was assigned to, whether the capability
+     requirement is met, and its progress. "Match" means required ⊆ advertised capabilities (compatibility);
+     the actual assignment also depends on idleness, affinity and ETA. Plans and states are joined only within the
+     same run (`run_id`), and finished or dissolved groups are shown as history. The Agents list shows each member's
+     capabilities and the task-tree nodes show the skill and required capability.
 
 ### Notes
   - A model file (.pkl) is required to run the Image-to-Image environment-enhancement feature.
