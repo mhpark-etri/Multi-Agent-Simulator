@@ -41,19 +41,48 @@ def _as_dict(obj):
     return obj if isinstance(obj, dict) else None
 
 
+def _tree_has(node, name):
+    if not isinstance(node, dict):
+        return 0
+    n = 1 if node.get('name') == name else 0
+    for c in node.get('children') or []:
+        n += _tree_has(c, name)
+    return n
+
+
 def plan_row_for(plans, statuses, groups, node_name):
-    """트리 노드 라벨용 조회 — groups 안에서, 그룹의 현재 상태와 같은 run_id 를 가진 계획의 행만 본다.
-    같은 node 이름이 둘 이상에서 나오거나(모호) 회차가 맞지 않으면 None(미확인)."""
-    hits = []
-    for g in groups or []:
-        rec = _as_dict(plans.get(g))
-        st = _as_dict(statuses.get(g))
-        if not rec or not st or not rec.get('run_id') or rec.get('run_id') != st.get('run_id'):
-            continue
-        for r in rec.get('subtasks') or []:
-            if r.get('node') == node_name:
-                hits.append(r)
+    """트리 노드 라벨용 조회 — node 의 **실제 소유 그룹**을 상태 트리에서 먼저 정한다:
+    groups 중 상태 트리에 그 node 이름을 가진 그룹이 둘 이상이면 모호 → None(미확인); 정확히 하나면 그 그룹만 본다;
+    하나도 없으면(트리 없음) 계획 행이 정확히 한 그룹에만 있을 때만 쓴다. 고른 그룹의 계획이 없거나 상태와 run_id 가 다르면 None.
+    (계획 hits 수만 세면 한 그룹의 계획이 아직 없을 때 다른 그룹의 행이 붙는다 — 2차 검수 R2-M1c.)"""
+    groups = list(groups or [])
+    owners = [g for g in groups if _tree_has((_as_dict(statuses.get(g)) or {}).get('tree'), node_name) > 0]
+    if len(owners) > 1:
+        return None
+    if len(owners) == 1:
+        cands = owners
+    else:
+        cands = [g for g in groups
+                 if any(r.get('node') == node_name for r in (_as_dict(plans.get(g)) or {}).get('subtasks') or [] if isinstance(r, dict))]
+        if len(cands) != 1:
+            return None
+    g = cands[0]
+    rec = _as_dict(plans.get(g))
+    st = _as_dict(statuses.get(g))
+    if not rec or not st or not rec.get('run_id') or rec.get('run_id') != st.get('run_id'):
+        return None
+    hits = [r for r in rec.get('subtasks') or [] if isinstance(r, dict) and r.get('node') == node_name]
     return hits[0] if len(hits) == 1 else None
+
+
+def _tag_tree(node, grp):
+    """트리 노드마다 소유 그룹을 적어 둔 사본(합쳐 그릴 때 각 node 가 자기 그룹의 계획만 보게)."""
+    if not isinstance(node, dict):
+        return node
+    out = dict(node)
+    out['_grp'] = grp
+    out['children'] = [_tag_tree(c, grp) for c in node.get('children') or []]
+    return out
 
 
 def build_plan_html(plans, statuses, ko=True, cap_history=None):
@@ -230,6 +259,11 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self.m_dissolved = set()    # 해체 확정 그룹 (잔여 상태 역전 방어)
         self.m_plans = {}           # 그룹명 -> /jnp/plan 기록 (미션·분할·스킬 매칭)
         self.m_caps = {}            # (그룹명, run_id) -> {agent: cap} 같은 회차에서 마지막 관측한 보유 능력 (멤버 방출 뒤 표시용)
+        # 회차별 상태 보관(2차 검수 R2-M1a): (그룹명, run_id) -> {'status','dissolved','order'}. m_statuses[그룹] 은 여기서 고른
+        # '표시 상태'(계획이 있으면 계획과 같은 run_id 의 상태, 없으면 가장 최근에 수용한 상태 — 구버전/계획 없는 그룹 정책).
+        self.m_runs = {}
+        self.m_run_seq = 0
+        self.MAX_RUNS_PER_GROUP = 20   # 그룹당 보관 회차 상한(오래된 회차부터 정리 — m_caps 도 함께)
         self._cluster_groups = {}   # 트리 표시 키 -> 원래 그룹 목록 (노드 라벨의 그룹별 계획 조회)
         self.m_procs = []
 
@@ -434,11 +468,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             return
         grp = rec.get('group') or '?'
         self.m_plans[grp] = rec
-        # 새 계획 = 새 회차: 다른 run_id 의 상태(이전 회차)는 이 그룹에서 끊는다 — 완료 상태가 새 목표에 붙지 않게
-        prev_st = self.m_statuses.get(grp)
-        if prev_st and prev_st.get('run_id') != rec.get('run_id'):
-            self.m_statuses.pop(grp, None)
-            self.m_dissolved.discard(grp)
+        # 새 계획의 표시 상태 = 같은 run_id 로 먼저 도착해 둔 상태(있으면) — 다른 회차 상태는 끊되 버리지 않고 회차 보관함에 둔다
+        self._select_display_status(grp)
         n = len(rec.get('subtasks') or [])
         if rec.get('source') == 'plan':
             tag = (' [example — 사람이 쓴 템플릿]' if self.m_ko else ' [example — hand-written template]') \
@@ -460,7 +491,33 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         """실행 node 이름 → 계획 기록의 subtask 행 — 지정 그룹들 안에서, 상태와 같은 run_id 의 계획만(모호하면 None)."""
         return plan_row_for(self.m_plans, self.m_statuses, groups, node_name)
 
-    # /jnp/status : 그룹 상태 JSON
+    def _select_display_status(self, grp):
+        """그룹의 표시 상태를 정한다: 계획이 있으면 그 run_id 의 상태(없으면 표시 없음 → '상태 미확인'),
+        계획이 없으면 가장 최근에 수용한 회차의 상태(계획 없는 구버전 그룹 정책)."""
+        rec = self.m_plans.get(grp)
+        if rec:
+            run = self.m_runs.get((grp, rec.get('run_id') or ''))
+        else:
+            runs = [(v['order'], v) for (g, _r), v in self.m_runs.items() if g == grp]
+            run = max(runs)[1] if runs else None
+        if run:
+            self.m_statuses[grp] = run['status']
+            self.m_status = run['status']
+            if run['status'].get('state') == 'dissolved':
+                self.m_dissolved.add(grp)
+            else:
+                self.m_dissolved.discard(grp)
+        else:
+            self.m_statuses.pop(grp, None)
+            self.m_dissolved.discard(grp)
+
+    def _prune_runs(self, grp):
+        keys = sorted([k for k in self.m_runs if k[0] == grp], key=lambda k: self.m_runs[k]['order'])
+        for k in keys[:-self.MAX_RUNS_PER_GROUP]:
+            self.m_runs.pop(k, None)
+            self.m_caps.pop(k, None)
+
+    # /jnp/status : 그룹 상태 JSON — 회차(run_id)별로 보관·판정 (2차 검수 R2-M1a)
     def _on_status_line(self, line):
         try:
             status = json.loads(line)
@@ -469,31 +526,37 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         if not isinstance(status, dict):
             return
         grp = status.get('group') or '?'
-        # 같은 회차에서 관측한 멤버 보유 능력을 기억 — 방출된 멤버의 완료 task 에도 '마지막 관측' 으로 표시
         rid = status.get('run_id') or ''
+        key = (grp, rid)
+        run = self.m_runs.get(key)
+        # 같은 회차의 dissolved 는 최종 — 그 뒤에 오는 같은 회차의 forming/running/success/failed 는 수용하지 않는다.
+        # (다른 회차의 해체 표식은 이 회차를 막지 않는다: 키가 다르다.)
+        if run and run['dissolved'] and status.get('state') != 'dissolved':
+            return
+        # 트리가 빠진 상태 발행에도 마지막 트리를 유지 — 같은 회차의 보관 상태에서만
+        if not status.get('tree') and run and run['status'].get('tree'):
+            status['tree'] = run['status']['tree']
+        # 수용 확정 → 그 뒤에만 보유 능력 이력을 갱신한다(거부된 잔여 상태가 마지막 관측 cap 을 바꾸지 않게)
+        self.m_run_seq += 1
+        self.m_runs[key] = {'status': status, 'dissolved': bool(run and run['dissolved']) or status.get('state') == 'dissolved',
+                            'order': self.m_run_seq}
         if rid:
-            hist = self.m_caps.setdefault((grp, rid), {})
+            hist = self.m_caps.setdefault(key, {})
             for m in status.get('members') or []:
                 if isinstance(m, dict) and m.get('name') and isinstance(m.get('cap'), list):
                     hist[m['name']] = list(m['cap'])
-        # 해체 이후 늦게 도착하는 완료 상태는 무시 (해체가 최종 — 역전 레이스 방어)
-        if grp in self.m_dissolved and status.get('state') in ('success', 'failed'):
-            return
-        if status.get('state') == 'dissolved':
-            self.m_dissolved.add(grp)
-        elif status.get('state') in ('forming', 'running'):
-            self.m_dissolved.discard(grp)
+        self._prune_runs(grp)
         prev = self.m_statuses.get(grp)
         prev_state = prev.get('state') if prev else None
-        # 트리가 빠진 상태 발행에도 마지막 트리를 유지 (그룹별, **같은 회차**일 때만)
-        if not status.get('tree') and prev and prev.get('tree') and prev.get('run_id') == status.get('run_id'):
-            status['tree'] = prev['tree']
-        self.m_statuses[grp] = status
-        self.m_status = status
-        if status.get('state') != prev_state:
+        self._select_display_status(grp)
+        cur = self.m_statuses.get(grp)
+        if cur is status and status.get('state') != prev_state:
             self._log(f"coalition [{status.get('group','?')}] "
                       f"{prev_state or '-'} → {status.get('state')} "
                       f"({status.get('note','')})")
+        elif cur is not status:
+            self._log((f"[다른 회차 상태 보관] {grp} run={rid or '-'} state={status.get('state')} — 현재 계획의 회차가 아니라 표시하지 않음"
+                       if self.m_ko else f"[other-run status kept] {grp} run={rid or '-'} state={status.get('state')} — not the current plan's run"))
         self._redraw()
         self._redraw_plan()
 
@@ -644,8 +707,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self._cluster_groups = {}
         for key, lst in clusters.items():
             if len(lst) == 1 or not lst[0][1].get('tree'):
-                display.update(dict(lst))
-                for g, _ in lst:
+                for g, st in lst:
+                    display[g] = dict(st, tree=_tag_tree(st.get('tree'), g)) if st.get('tree') else st
                     self._cluster_groups[g] = [g]
                 continue
             self._cluster_groups[' + '.join(g for g, _ in lst)] = [g for g, _ in lst]
@@ -654,8 +717,9 @@ class DialogJnpMonitor(QtWidgets.QDialog):
                      'forming' if 'forming' in states else states[0])
             roots = [st['tree'] for _, st in lst]
             children = []
-            for r in roots:
-                children.extend(r.get('children') or [])
+            for g, st in lst:
+                # 합쳐 그려도 node 는 원래 그룹을 기억한다(R2-M1c) — 라벨 조회는 그 그룹의 계획·회차에서만
+                children.extend(_tag_tree(st['tree'], g).get('children') or [])
             display[' + '.join(g for g, _ in lst)] = {
                 'state': state,
                 'tree': {'name': roots[0].get('name'),
@@ -739,7 +803,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         prefix = {'seq': '[S] ', 'par': '[P] '}.get(kind, '')
         label = prefix + node.get('name', '')
         agent = node.get('agent', '')
-        row = self._plan_row(getattr(self, '_cur_groups', []), node.get('name')) if kind == 'atomic' else None
+        owner = node.get('_grp')
+        row = self._plan_row([owner] if owner else getattr(self, '_cur_groups', []), node.get('name')) if kind == 'atomic' else None
         if row and row.get('skill'):
             # 분할된 subtask 의 스킬과 요구 능력 — 스킬 매칭의 근거 (같은 회차의 계획 행만)
             label += "\n" + str(row['skill']) + " · " + ','.join(str(x) for x in (row.get('requirement') or []))
