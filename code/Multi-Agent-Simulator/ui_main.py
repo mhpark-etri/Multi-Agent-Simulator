@@ -881,30 +881,6 @@ class Ui_MainWindow(object):
 
         self.btnRobotROSJNPMonitor = QPushButton(self.gbRobotROSJnp)
         self.btnRobotROSJNPMonitor.setObjectName(u"btnRobotROSJNPMonitor")
-        self.btnRobotROSJNPMonitor.setStyleSheet(u"QPushButton {\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 4px;\n"
-"padding: 5px;\n"
-"margin-left: 10px;\n"
-"margin-right: 10px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}")
 
         self.horizontalLayout_23.addWidget(self.btnRobotROSJNPMonitor)
 
@@ -1472,7 +1448,7 @@ class Ui_MainWindow(object):
         self.gbRobotROSJnp.setTitle(QCoreApplication.translate("MainWindow", u"Jnp", None))
         self.btnRobotROSJNPStart.setText(QCoreApplication.translate("MainWindow", u"Start", None))
         self.cmbJnpVersion.setItemText(0, QCoreApplication.translate("MainWindow", u"JnP 0.2.1 (\uae30\uc874)", None))
-        self.cmbJnpVersion.setItemText(1, QCoreApplication.translate("MainWindow", u"JnP 0.8.2", None))
+        self.cmbJnpVersion.setItemText(1, QCoreApplication.translate("MainWindow", u"JnP 0.8.1", None))
 
 #if QT_CONFIG(tooltip)
         self.cmbJnpVersion.setToolTip(QCoreApplication.translate("MainWindow", u"JnP \uc5d0\uc774\uc804\ud2b8 \ubc84\uc804 \uc120\ud0dd", None))

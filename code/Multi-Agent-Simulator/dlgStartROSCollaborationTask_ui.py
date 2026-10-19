@@ -127,11 +127,11 @@ class Ui_DlgROSCollaborationTask(object):
     def retranslateUi(self, DlgROSCollaborationTask):
         DlgROSCollaborationTask.setWindowTitle(QCoreApplication.translate("DlgROSCollaborationTask", u"Start Collaboration Task", None))
         self.lbExecMode.setText(QCoreApplication.translate("DlgROSCollaborationTask", u"\uc2e4\ud589 \ubc29\uc2dd (Execution) :", None))
-        self.cmbExecMode.setItemText(0, QCoreApplication.translate("DlgROSCollaborationTask", u"JnP 0.8.2", None))
+        self.cmbExecMode.setItemText(0, QCoreApplication.translate("DlgROSCollaborationTask", u"JnP 0.8.1", None))
         self.cmbExecMode.setItemText(1, QCoreApplication.translate("DlgROSCollaborationTask", u"\uae30\uc874 launch (Legacy)", None))
 
 #if QT_CONFIG(tooltip)
-        self.cmbExecMode.setToolTip(QCoreApplication.translate("DlgROSCollaborationTask", u"JnP 0.8.2: \uc5d0\uc774\uc804\ud2b8 coalition\uc774 task tree\ub85c \uc2e4\ud589 (\ubbf8\uae30\ub3d9 \uc2dc \uc790\ub3d9 \uc2dc\uc791) / \uae30\uc874 launch: \uc9c1\uc811 move_base \uc21c\ucc28 \uc2e4\ud589", None))
+        self.cmbExecMode.setToolTip(QCoreApplication.translate("DlgROSCollaborationTask", u"JnP 0.8.1: \uc5d0\uc774\uc804\ud2b8 coalition\uc774 task tree\ub85c \uc2e4\ud589 (\ubbf8\uae30\ub3d9 \uc2dc \uc790\ub3d9 \uc2dc\uc791) / \uae30\uc874 launch: \uc9c1\uc811 move_base \uc21c\ucc28 \uc2e4\ud589", None))
 #endif // QT_CONFIG(tooltip)
         self.btnROSCollaborationTaskStart.setText(QCoreApplication.translate("DlgROSCollaborationTask", u"Start", None))
     # retranslateUi
