@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DlgWorldOptionFireEditor</class>
+ <widget class="QDialog" name="DlgWorldOptionFireEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>568</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>530</width>
+    <height>490</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>World Option - Fire</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayoutWorldOptionFireEditor">
+   <property name="spacing">
+    <number>11</number>
+   </property>
+   <property name="leftMargin">
+    <number>18</number>
+   </property>
+   <property name="topMargin">
+    <number>28</number>
+   </property>
+   <property name="rightMargin">
+    <number>18</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="gbWorldOptionFireProperties">
+     <property name="title">
+      <string>Properties</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QGroupBox#gbWorldOptionFireProperties {
+    border: 1px solid #aaaaaa;
+    margin-top: 16px;
+}
+QGroupBox#gbWorldOptionFireProperties::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 20px;
+    padding: 5px 19px;
+    background-color: #8b8b8b;
+    color: white;
+}
+QListWidget#lstwWorldOptionFireProperties {
+    background-color: #858585;
+    border: 1px solid #929292;
+    outline: none;
+}
+QListWidget#lstwWorldOptionFireProperties::item {
+    border: 2px solid transparent;
+    padding: 3px;
+}
+QListWidget#lstwWorldOptionFireProperties::item:selected {
+    background-color: #2389bf;
+    border-color: #2389bf;
+}
+</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutWorldOptionFireProperties">
+      <property name="spacing">
+       <number>7</number>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>22</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireActions">
+        <property name="spacing">
+         <number>7</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacerWorldOptionFireActions">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>1</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnWorldOptionFireAdd">
+          <property name="text">
+           <string>Add</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>87</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>87</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnWorldOptionFireDelete">
+          <property name="text">
+           <string>Delete</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>87</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>87</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QListWidget" name="lstwWorldOptionFireProperties">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="verticalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireSync">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lbWorldOptionFireSyncToSelectedItem">
+          <property name="text">
+           <string>Sync to Selected Item</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnWorldOptionFireSyncIgnStart">
+          <property name="text">
+           <string>Ign. Start</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>26</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnWorldOptionFireSyncIgnEnd">
+          <property name="text">
+           <string>Ign. End</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>26</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnWorldOptionFireSyncIgnIntensity">
+          <property name="text">
+           <string>Ign. Intensity</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>26</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnWorldOptionFireSyncIgnRate">
+          <property name="text">
+           <string>Ign. Rate</string>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>26</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireBottom">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <spacer name="horizontalSpacerWorldOptionFireBottom">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>3</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnWorldOptionFireStop">
+       <property name="text">
+        <string>Stop</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>93</width>
+         <height>43</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>93</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnWorldOptionFireStart">
+       <property name="text">
+        <string>Start</string>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>93</width>
+         <height>43</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>93</width>
+         <height>16777215</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources />
+ <connections />
+</ui>

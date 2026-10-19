@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WidgetWorldOptionFire</class>
+ <widget class="QWidget" name="WidgetWorldOptionFire">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>505</width>
+    <height>187</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>185</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Form - widgetWorldOptionFire.ui</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayoutWorldOptionFireItem">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>1</number>
+   </property>
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="rightMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
+   <item>
+    <widget class="QFrame" name="frameWorldOptionFireCard">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame#frameWorldOptionFireCard {
+    background-color: #eeeeee;
+    border: 1px solid #d3d3d3;
+    border-radius: 8px;
+}
+QFrame#frameWorldOptionFireHeader, QFrame#frameWorldOptionFireIgnStart,
+QFrame#frameWorldOptionFireIgnEnd, QFrame#frameWorldOptionFireIgnIntensity,
+QFrame#frameWorldOptionFireIgnRate {
+    background-color: #f8f8f8;
+    border: 1px solid #e4e4e4;
+    border-radius: 5px;
+}
+QLabel { border: none; background: transparent; color: #333333; }
+QLineEdit { background: white; border: 1px solid #bcbcbc; border-radius: 2px; color: #333333; }
+</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayoutWorldOptionFireCard">
+      <property name="spacing">
+       <number>5</number>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>8</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="frameWorldOptionFireHeader">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>31</height>
+         </size>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireHeader">
+         <property name="spacing">
+          <number>5</number>
+         </property>
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>8</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFireIDTitle">
+           <property name="text">
+            <string>ID :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFireID">
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>26</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>26</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacerWorldOptionFireID">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>12</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFirePosition">
+           <property name="text">
+            <string>Position</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>70</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>70</width>
+             <height>16777215</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFirePosX">
+           <property name="text">
+            <string>X :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leditWorldOptionFirePosX">
+           <property name="text">
+            <string>-10.0</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>43</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>43</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFirePosY">
+           <property name="text">
+            <string>Y :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leditWorldOptionFirePosY">
+           <property name="text">
+            <string>10</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>43</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>43</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFirePosZ">
+           <property name="text">
+            <string>Z :</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leditWorldOptionFirePosZ">
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>43</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>43</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frameWorldOptionFireIgnStart">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>29</height>
+         </size>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireIgnStart">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>8</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFireIgnStart">
+           <property name="text">
+            <string>Ignition Start Time(Sec)</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>184</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>184</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leditWorldOptionFireIgnStart">
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>51</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>51</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="toolTip">
+            <string>Start time of the ignition in seconds</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="vSliderWorldOptionFireIgnStart">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>1200</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="pageStep">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frameWorldOptionFireIgnEnd">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>29</height>
+         </size>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireIgnEnd">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>8</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFireIgnEnd">
+           <property name="text">
+            <string>Ignition End Time(Sec)</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>184</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>184</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leditWorldOptionFireIgnEnd">
+           <property name="text">
+            <string>1200</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>51</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>51</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="toolTip">
+            <string>End time of the ignition in seconds</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="vSliderWorldOptionFireIgnEnd">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>1800</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="pageStep">
+            <number>10</number>
+           </property>
+           <property name="value">
+            <number>1200</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frameWorldOptionFireIgnIntensity">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>29</height>
+         </size>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireIgnIntensity">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>8</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFireIgnIntensity">
+           <property name="text">
+            <string>Ignition Intensity(0~100)</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>184</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>184</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leditWorldOptionFireIgnIntensity">
+           <property name="text">
+            <string>50</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>51</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>51</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="toolTip">
+            <string>Ignition intensity</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="vSliderWorldOptionFireIgnIntensity">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="pageStep">
+            <number>5</number>
+           </property>
+           <property name="value">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frameWorldOptionFireIgnRate">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>29</height>
+         </size>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayoutWorldOptionFireIgnRate">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>8</number>
+         </property>
+         <property name="topMargin">
+          <number>1</number>
+         </property>
+         <property name="rightMargin">
+          <number>8</number>
+         </property>
+         <property name="bottomMargin">
+          <number>1</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="lbWorldOptionFireIgnRate">
+           <property name="text">
+            <string>Ignition Gradualness(0~100)</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>184</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>184</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="leditWorldOptionFireIgnRate">
+           <property name="text">
+            <string>80</string>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>51</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>51</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="toolTip">
+            <string>Ignition gradualness</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="vSliderWorldOptionFireIgnRate">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>1</number>
+           </property>
+           <property name="pageStep">
+            <number>5</number>
+           </property>
+           <property name="value">
+            <number>80</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources />
+ <connections />
+</ui>

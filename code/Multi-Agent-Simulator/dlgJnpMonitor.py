@@ -1,11 +1,9 @@
 ######################################################
-## JnP Monitor 다이얼로그 (JnP 0.8.2)                ##
+## JnP Monitor 다이얼로그 (JnP 0.8.1)                ##
 ## 설명 : JnP 동작(discovery/coalition/scheduling)을 ##
 ##        전용 창에서 그래픽으로 표시                 ##
 ##  - /jnp/status        : 그룹이 발행하는 JSON 상태  ##
 ##  - /jnp_agent_join_event : new/kill/task 이벤트    ##
-##  - /jnp/plan          : 작업 분할 기록(JSON, latched) ##
-##     미션(자연어) → 분할된 subtask → 스킬 매칭 표시  ##
 ######################################################
 import sys
 import re
@@ -25,204 +23,8 @@ COLOR_DONE = QtGui.QColor("#4caf50")        # 완료
 COLOR_COMPOSITE = QtGui.QColor("#546e7a")   # 복합(Seq/Par)
 COLOR_EDGE = QtGui.QColor("#90a4ae")
 
-NODE_W, NODE_H, GAP_X, GAP_Y = 220, 76, 26, 52   # 노드 3줄(이름/스킬·요구/배정)
+NODE_W, NODE_H, GAP_X, GAP_Y = 220, 68, 26, 52
 NODE_FONT_PT = 12               # 트리 글씨 크기 (굵게) — 시인성
-
-
-def _esc(x):
-    return (str(x).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'))
-
-
-def _short(agent):
-    return (agent or '').strip('/').split('/')[-1]
-
-
-def _as_dict(obj):
-    return obj if isinstance(obj, dict) else None
-
-
-def _tree_has(node, name):
-    if not isinstance(node, dict):
-        return 0
-    n = 1 if node.get('name') == name else 0
-    for c in node.get('children') or []:
-        n += _tree_has(c, name)
-    return n
-
-
-def plan_row_for(plans, statuses, groups, node_name):
-    """트리 노드 라벨용 조회 — node 의 **실제 소유 그룹**을 상태 트리에서 먼저 정한다:
-    groups 중 상태 트리에 그 node 이름을 가진 그룹이 둘 이상이면 모호 → None(미확인); 정확히 하나면 그 그룹만 본다;
-    하나도 없으면(트리 없음) 계획 행이 정확히 한 그룹에만 있을 때만 쓴다. 고른 그룹의 계획이 없거나 상태와 run_id 가 다르면 None.
-    (계획 hits 수만 세면 한 그룹의 계획이 아직 없을 때 다른 그룹의 행이 붙는다 — 2차 검수 R2-M1c.)"""
-    groups = list(groups or [])
-    owners = [g for g in groups if _tree_has((_as_dict(statuses.get(g)) or {}).get('tree'), node_name) > 0]
-    if len(owners) > 1:
-        return None
-    if len(owners) == 1:
-        cands = owners
-    else:
-        cands = [g for g in groups
-                 if any(r.get('node') == node_name for r in (_as_dict(plans.get(g)) or {}).get('subtasks') or [] if isinstance(r, dict))]
-        if len(cands) != 1:
-            return None
-    g = cands[0]
-    rec = _as_dict(plans.get(g))
-    st = _as_dict(statuses.get(g))
-    if not rec or not st or not rec.get('run_id') or rec.get('run_id') != st.get('run_id'):
-        return None
-    hits = [r for r in rec.get('subtasks') or [] if isinstance(r, dict) and r.get('node') == node_name]
-    return hits[0] if len(hits) == 1 else None
-
-
-def _tag_tree(node, grp):
-    """트리 노드마다 소유 그룹을 적어 둔 사본(합쳐 그릴 때 각 node 가 자기 그룹의 계획만 보게)."""
-    if not isinstance(node, dict):
-        return node
-    out = dict(node)
-    out['_grp'] = grp
-    out['children'] = [_tag_tree(c, grp) for c in node.get('children') or []]
-    return out
-
-
-def build_plan_html(plans, statuses, ko=True, cap_history=None):
-    """[JnP-0.8.2 2026-10-14] '미션 → 분할된 subtask → 스킬 매칭' HTML (Qt 비의존).
-    plans: 그룹명 -> /jnp/plan 기록, statuses: 그룹명 -> /jnp/status, cap_history: (그룹, run_id) -> {agent: cap} 같은 회차에서 마지막 관측.
-    결합 규칙: 계획과 상태는 **같은 run_id** 일 때만 결합한다(이전 회차의 완료 상태가 새 계획에 붙지 않게). 상태가 없거나 회차가
-    다르면 행 상태를 '상태 미확인'으로 둔다. 그룹이 해체(dissolved)·완료(success/failed)면 이력으로 표시하고 후보는 계산하지 않는다.
-    매칭 = 요구 능력 ⊆ 보유 능력(능력 적합성). 유휴 여부·affinity·ETA 에 따른 실제 배정과는 다를 수 있다 — 표 밑에 명시."""
-    T = (lambda k, e: k) if ko else (lambda k, e: e)
-    if not plans:
-        return ("<p style='color:#777;font-size:14px'>%s</p>" % T(
-            '협업 태스크를 발행하면 미션의 분할 결과와 스킬 매칭이 여기에 표시됩니다',
-            'Publish a collaboration task to see the decomposition and skill matching'))
-    out = ["<style>body{font-size:13px} table{border-collapse:collapse;width:100%} td,th{border:1px solid #cfd8dc;padding:3px 7px;font-size:13px} "
-           "th{background:#eceff1} .ok{color:#2e7d32;font-weight:bold} .no{color:#c62828;font-weight:bold} .unk{color:#6d4c41;font-weight:bold} "
-           ".running{color:#ef6c00;font-weight:bold} .done{color:#2e7d32;font-weight:bold} .wait{color:#757575} .hist{color:#9e9e9e} "
-           ".mission{font-size:16px;font-weight:bold;color:#1a237e;background:#e8eaf6;border-left:5px solid #3f51b5;padding:5px 8px;margin:4px 0} "
-           ".badge{border-radius:3px;padding:0 5px;font-weight:bold} .head{font-size:14px;margin:4px 0}</style>"]
-    STATE_COLOR = {'forming': '#ffc107', 'running': '#03a9f4', 'success': '#4caf50', 'failed': '#f44336', 'dissolved': '#9e9e9e'}
-    for grp in sorted(plans):
-        rec = _as_dict(plans[grp]) or {}
-        st = _as_dict(statuses.get(grp)) or {}
-        rid, srid = rec.get('run_id') or '', st.get('run_id') or ''
-        linked = bool(rid) and rid == srid
-        gstate = st.get('state', '') if linked else ''
-        hist = gstate in ('dissolved', 'success', 'failed')
-        caps_now = {m.get('name'): (m.get('cap') if isinstance(m.get('cap'), list) else None)
-                    for m in (st.get('members') or []) if isinstance(m, dict)} if linked else {}
-        caps_last = (cap_history or {}).get((grp, rid)) or {}
-        node_state = {}
-
-        def walk(n):
-            if isinstance(n, dict):
-                node_state[n.get('name')] = n
-                for c in n.get('children') or []:
-                    walk(c)
-        if linked:
-            walk(st.get('tree'))
-        src = rec.get('source', '?')
-        psrc = (rec.get('plan_source') or '').lower()
-        if src != 'plan':
-            badge = ''
-        elif psrc == 'example':
-            badge = ("<span class='badge' style='background:#fff3e0;color:#e65100;border:1px solid #ffb74d'>EXAMPLE</span> "
-                     "<span style='color:#8d6e63'>%s</span>" % T('(사람이 쓴 분할 템플릿 — LLM-TDM 모듈 출력 아님)', '(hand-written template, not LLM-TDM output)'))
-        elif psrc == 'llm-tdm':
-            badge = "<span class='badge' style='background:#e3f2fd;color:#0d47a1;border:1px solid #64b5f6'>LLM-TDM</span>"
-        else:
-            badge = "<span class='badge' style='background:#eeeeee;color:#424242;border:1px solid #bdbdbd'>%s</span>" % _esc((psrc or 'unknown').upper())
-        # 그룹 상태 배지 (회차 결합 여부 포함)
-        if linked:
-            gs = "<span class='badge' style='background:%s;color:#fff'>%s</span>" % (STATE_COLOR.get(gstate, '#607d8b'), _esc(gstate or '?'))
-            if hist:
-                gs += " <span class='hist'>%s</span>" % T('— 종료됨: 마지막 관측 이력', '— finished: last observed history')
-        elif st.get('_run_unknown'):
-            gs = "<span class='unk'>%s</span>" % T('회차 미식별 상태(run_id 없는 구버전 그룹) — 계획과 결합하지 않음', 'status without run_id (legacy group) — not linked to the plan')
-        elif srid and rid and srid != rid:
-            gs = "<span class='unk'>%s</span>" % T('상태 회차 불일치 — 이 계획의 상태 기록이 아직 없음', 'status is from another run — no status for this plan yet')
-        else:
-            gs = "<span class='unk'>%s</span>" % T('상태 미확인(아직 /jnp/status 없음)', 'state unknown (no /jnp/status yet)')
-        if src == 'plan':
-            head = "<b>%s</b> &nbsp; goal=<b>%s</b> &nbsp; %s <code>%s</code> %s &nbsp; %s" % (
-                _esc(grp), _esc(rec.get('goal', '')), T('분할 계획', 'plan'), _esc(rec.get('plan_name') or ''), badge, gs)
-        else:
-            head = "<b>%s</b> &nbsp; goal=<b>%s</b> &nbsp; <span class='no'>%s</span> (%s) &nbsp; %s" % (
-                _esc(grp), _esc(rec.get('goal', '')), T('고정 빌더로 대체', 'fixed builder (fallback)'), _esc(rec.get('reason', '')), gs)
-        out.append("<p class='head'>%s</p>" % head)
-        desc = rec.get('task_description') or ''
-        if desc:
-            out.append("<div class='mission'>%s %s</div>" % (
-                T('미션(자연어, example):', 'Mission (example):') if psrc == 'example' else T('미션(자연어):', 'Mission:'), _esc(desc)))
-        b = rec.get('bindings') or {}
-        if isinstance(b, dict) and b:
-            bs = '; '.join('%s=%s' % (k, json.dumps(v, ensure_ascii=False)) for k, v in b.items())
-            out.append("<p style='margin:2px 0;color:#455a64'><b>%s</b> %s</p>" % (T('바인딩(payload→상수):', 'bindings:'), _esc(bs)[:600]))
-        out.append("<table><tr><th>#</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>" % (
-            T('분할된 subtask (스킬·인수)', 'subtask (skill·args)'), T('요구 능력', 'needs'), T('실행 node', 'exec node'),
-            T('배정 에이전트 [보유 능력]', 'agent [capabilities]'), T('매칭(능력 적합성)', 'match (capability)'), T('상태', 'state')))
-        for i, r in enumerate(rec.get('subtasks') or [], 1):
-            if not isinstance(r, dict):
-                continue
-            skill = r.get('skill')
-            args = r.get('args') if isinstance(r.get('args'), dict) else {}
-            sub = ("%s(%s)" % (skill, ', '.join('%s=%s' % (k, v) for k, v in args.items()))) if skill else (r.get('exec_goal') or '')
-            extra = [x for x in (r.get('required_skills') or []) if x != skill]
-            if extra:
-                sub += " +" + ','.join(str(x) for x in extra)
-            req = [str(x) for x in (r.get('requirement') or [])]
-            ns = node_state.get(r.get('node')) or {}
-            agent = ns.get('agent') or (r.get('preassigned_agent') or '')
-            # ── 매칭 셀: 3상태(충족 / 명시적 불일치 / 정보 없음) + 가상·상시 서비스 ──
-            if r.get('preassigned'):
-                match = "<span class='ok'>%s</span>" % T('상시 서비스(초기 역할)', 'standing service (initial role)')
-                agent_txt = _esc(_short(agent))
-            elif 'virtual' in req:
-                match = "<span class='wait'>%s</span>" % T('그룹이 완료 처리', 'completed by group')
-                agent_txt = '—'
-            elif agent:
-                src_cap = None
-                if agent in caps_now and caps_now[agent] is not None:
-                    have, src_cap = caps_now[agent], 'now'
-                elif agent in caps_last and caps_last[agent] is not None:
-                    have, src_cap = caps_last[agent], 'last'
-                else:
-                    have = None
-                if have is None:
-                    match = "<span class='unk'>%s</span>" % T('능력 정보 없음 — 검증 불가', 'no capability info — cannot verify')
-                    agent_txt = "%s [%s]" % (_esc(_short(agent)), T('정보 없음', 'unknown'))
-                else:
-                    ok = set(req) <= set(str(x) for x in have)
-                    note = '' if src_cap == 'now' else (" <span class='hist'>(%s)</span>" % T('같은 회차 마지막 관측', 'last observed in this run'))
-                    match = "<span class='%s'>%s %s⊆{%s}</span>%s" % ('ok' if ok else 'no', '✓' if ok else '✗', _esc(','.join(req)), _esc(','.join(str(x) for x in have)), note)
-                    agent_txt = "%s [%s]" % (_esc(_short(agent)), _esc(','.join(str(x) for x in have)))
-            else:
-                if hist or not linked:
-                    match = "<span class='hist'>—</span>"
-                else:
-                    cands = [_short(n) for n, c in caps_now.items() if c is not None and set(req) <= set(str(x) for x in c)]
-                    match = "<span class='wait'>%s: %s</span>" % (T('능력 충족 후보', 'capability-compatible candidates'), _esc(', '.join(cands)) or '0')
-                agent_txt = T('(미배정)', '(unassigned)')
-            if not linked:
-                state, st_cls = T('상태 미확인', 'unknown'), 'unk'
-            else:
-                raw = ns.get('state') or ('service' if r.get('preassigned') else 'wait')
-                st_cls = raw if raw in ('running', 'done', 'wait') else 'wait'
-                state = {'running': T('실행 중', 'running'), 'done': T('완료', 'done'), 'wait': T('대기', 'wait'),
-                         'service': T('상시', 'service')}.get(raw, raw)
-                if hist:
-                    st_cls = 'hist'
-                    state += T('(이력)', '(history)')
-            out.append("<tr><td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>%s</td></tr>" % (
-                i, _esc(sub), _esc(','.join(req)) + (' (optional)' if r.get('optional') else ''), _esc(r.get('node', '')),
-                agent_txt, match, st_cls, _esc(state)))
-        out.append("</table>")
-        out.append("<p style='color:#607d8b;margin:2px 0;font-size:12px'>%s</p>" % T(
-            '매칭 = 요구 능력 ⊆ 보유 능력(능력 적합성). 실제 배정은 유휴 여부·affinity·ETA 에 따라 달라질 수 있음. 상시 서비스는 초기 역할 표시이며 실행 성공의 증빙이 아님.',
-            'match = required ⊆ advertised capabilities (compatibility). Actual assignment also depends on idleness, affinity and ETA. "standing service" describes the initial role, not execution success.'))
-        if rec.get('warnings'):
-            out.append("<p style='color:#8d6e63;margin:2px 0'>%s %s</p>" % (T('변환 경고:', 'warnings:'), _esc('; '.join(str(w) for w in rec['warnings']))))
-    return ''.join(out)
 
 
 class DialogJnpMonitor(QtWidgets.QDialog):
@@ -259,18 +61,6 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self.m_status = None        # (호환) 마지막 수신 상태
         self.m_statuses = {}        # 그룹명 -> 최신 상태 (goal별 다중 coalition 지원)
         self.m_dissolved = set()    # 해체 확정 그룹 (잔여 상태 역전 방어)
-        self.m_plans = {}           # 그룹명 -> /jnp/plan 기록 (미션·분할·스킬 매칭)
-        self.m_caps = {}            # (그룹명, run_id) -> {agent: cap} 같은 회차에서 마지막 관측한 보유 능력 (멤버 방출 뒤 표시용)
-        # 회차별 상태 보관(2차 검수 R2-M1a): (그룹명, run_id) -> {'status','dissolved','order'}. m_statuses[그룹] 은 여기서 고른
-        # '표시 상태'(계획이 있으면 계획과 같은 run_id 의 상태, 없으면 가장 최근에 수용한 상태 — 구버전/계획 없는 그룹 정책).
-        self.m_runs = {}
-        self.m_run_seq = 0
-        self.MAX_RUNS_PER_GROUP = 20   # 그룹당 상세 보관(상태·트리·cap) 상한 — 가장 오래 갱신되지 않은 항목부터 정리, 현재 계획의 회차는 보호
-        # 종료(dissolved) 표식은 상세와 별도로 더 오래 보관(그룹당 run_id 최대 MAX_FINISHED_PER_GROUP 개): 상세가 정리된 회차의 늦은
-        # 상태도 이 창 안에서는 거부된다. 창 밖(더 오래된 회차)의 늦은 상태는 재확인할 수 없어 새 항목으로 수용되며 '이력 만료' 로 본다.
-        self.m_finished = {}           # 그룹명 -> [run_id, …] (수용 순)
-        self.MAX_FINISHED_PER_GROUP = 200
-        self._cluster_groups = {}   # 트리 표시 키 -> 원래 그룹 목록 (노드 라벨의 그룹별 계획 조회)
         self.m_procs = []
 
         # 메시지 언어 (메인 창의 한/영 콤보 설정을 공유)
@@ -296,28 +86,12 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         # 전체 문구는 툴팁으로 보여준다(_redraw 에서 설정).
         self.ui.lbJnpCoalition.setMinimumWidth(200)
 
-        # ── 미션 → 분할된 subtask → 스킬 매칭 패널 (에이전트|트리 아래, 로그 위) ──
-        self.m_lbPlanTitle = QtWidgets.QLabel(
-            'Mission → Decomposition → Skill matching  (/jnp/plan)' if not self.m_ko
-            else '미션 → 작업 분할(subtask) → 스킬 매칭  (/jnp/plan)')
-        pf = self.m_lbPlanTitle.font(); pf.setPointSize(11); pf.setBold(True); self.m_lbPlanTitle.setFont(pf)
-        self.m_tbPlan = QtWidgets.QTextBrowser(self)
-        self.m_tbPlan.setMinimumHeight(170)
-        self.m_tbPlan.setMaximumHeight(380)
-        self.m_tbPlan.setOpenExternalLinks(False)
-        self.m_tbPlan.setHtml(build_plan_html({}, {}, self.m_ko))
-        planBox = QtWidgets.QWidget(self)
-        pl = QtWidgets.QVBoxLayout(planBox); pl.setContentsMargins(0, 0, 0, 0); pl.setSpacing(2)
-        pl.addWidget(self.m_lbPlanTitle); pl.addWidget(self.m_tbPlan)
-        self.ui.verticalLayout.insertWidget(2, planBox)
-
         # 토픽 구독은 소형 rospy tap 서브프로세스로 (GUI 프로세스를 ROS 노드로 만들지 않음
         # — master 재시작에도 창만 다시 열면 복구되는 단순한 구조).
         # ★ rostopic echo 는 긴 문자열을 이스케이프+줄바꿈 랩핑해 줄 단위 파싱이 깨진다(실측)
         #   → 원문 그대로 '한 줄 = 한 메시지'를 보장하는 tap 을 쓴다.
         self._spawn_watch('/jnp/status', self._on_status_line)
-        self._spawn_watch(CMD_ROS_JNP082_TASK_TOPIC, self._on_event_line)
-        self._spawn_watch('/jnp/plan', self._on_plan_line)        # latched — 늦게 열어도 마지막 계획을 받는다
+        self._spawn_watch(CMD_ROS_JNP081_TASK_TOPIC, self._on_event_line)
 
         # RTF/Sim/Real 표시 — /clock 을 2초 간격으로 샘플하는 tap (성능 부담 없음)
         self.m_clock_prev = None
@@ -385,7 +159,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         env.insert("PYTHONUNBUFFERED", "1")
         proc.setProcessEnvironment(env)
         proc.setProcessChannelMode(QtCore.QProcess.MergedChannels)
-        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
+        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
                + "; python3 -c \"" + self.CLOCK_CODE + "\"")
         proc.start("bash", ["-c", cmd])
         proc.readyReadStandardOutput.connect(
@@ -449,7 +223,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         env.insert("PYTHONUNBUFFERED", "1")
         proc.setProcessEnvironment(env)
         proc.setProcessChannelMode(QtCore.QProcess.MergedChannels)
-        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
+        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
                + "; python3 -c \"" + self.TAP_CODE.format(t=topic) + "\"")
         proc.start("bash", ["-c", cmd])
         proc.readyReadStandardOutput.connect(
@@ -463,137 +237,32 @@ class DialogJnpMonitor(QtWidgets.QDialog):
                 continue
             handler(line)
 
-    # /jnp/plan : 작업 분할 기록 JSON (그룹이 트리를 만들 때 1회, latched)
-    def _on_plan_line(self, line):
-        try:
-            rec = json.loads(line)
-        except ValueError:
-            return
-        if not isinstance(rec, dict) or not isinstance(rec.get('subtasks', []), list):
-            self._log('[진단] /jnp/plan 형식 오류(객체가 아님) — 무시' if self.m_ko else '[diag] malformed /jnp/plan record ignored')
-            return
-        grp = rec.get('group') or '?'
-        self.m_plans[grp] = rec
-        # 새 계획의 표시 상태 = 같은 run_id 로 먼저 도착해 둔 상태(있으면) — 다른 회차 상태는 끊되 버리지 않고 회차 보관함에 둔다
-        self._select_display_status(grp)
-        self._prune_runs(grp)
-        n = len(rec.get('subtasks') or [])
-        if rec.get('source') == 'plan':
-            tag = (' [example — 사람이 쓴 템플릿]' if self.m_ko else ' [example — hand-written template]') \
-                if (rec.get('plan_source') or '').lower() == 'example' else ''
-            self._log((f"작업 분할: {grp} goal={rec.get('goal')} ← {rec.get('plan_name')}{tag} → subtask {n}개"
-                       if self.m_ko else f"decomposition: {grp} goal={rec.get('goal')} ← {rec.get('plan_name')}{tag} → {n} subtasks"))
-            if rec.get('task_description'):
-                self._log(("미션: " if self.m_ko else "mission: ") + rec['task_description'])
-        else:
-            self._log((f"작업 분할 대체: {grp} 고정 빌더 — {rec.get('reason')}" if self.m_ko
-                       else f"decomposition fallback: {grp} fixed builder — {rec.get('reason')}"))
-        self._redraw()          # 트리 라벨(스킬·요구 능력)도 갱신
-        self._redraw_plan()
-
-    def _redraw_plan(self):
-        self.m_tbPlan.setHtml(build_plan_html(self.m_plans, self.m_statuses, self.m_ko, self.m_caps))
-
-    def _plan_row(self, groups, node_name):
-        """실행 node 이름 → 계획 기록의 subtask 행 — 지정 그룹들 안에서, 상태와 같은 run_id 의 계획만(모호하면 None)."""
-        return plan_row_for(self.m_plans, self.m_statuses, groups, node_name)
-
-    def _select_display_status(self, grp):
-        """그룹의 표시 상태를 정한다: 계획이 있으면 그 run_id 의 상태(없으면 표시 없음 → '상태 미확인'; 계획의 run_id 가 비어 있으면
-        결합하지 않음), 계획이 없으면 가장 최근에 **수용한** 상태(수신 수용 순서, 실행 시작 시각 아님 — 계획 없는 구버전 그룹 정책;
-        run_id 없는 상태는 '회차 미식별' 호환 표시)."""
-        rec = self.m_plans.get(grp)
-        if rec:
-            prid = rec.get('run_id') or ''
-            run = self.m_runs.get((grp, prid)) if prid else None
-        else:
-            runs = [(v['order'], v) for (g, _r), v in self.m_runs.items() if g == grp]
-            run = max(runs)[1] if runs else None
-        if run:
-            self.m_statuses[grp] = run['status']
-            self.m_status = run['status']
-            if run['status'].get('state') == 'dissolved':
-                self.m_dissolved.add(grp)
-            else:
-                self.m_dissolved.discard(grp)
-        else:
-            self.m_statuses.pop(grp, None)
-            self.m_dissolved.discard(grp)
-
-    def _protected_runs(self, grp):
-        """정리에서 보호하는 회차: 현재 계획이 선택한 run_id 와 현재 표시 중인 상태의 run_id."""
-        keep = set()
-        rec = self.m_plans.get(grp)
-        if rec and rec.get('run_id'):
-            keep.add((grp, rec['run_id']))
-        cur = self.m_statuses.get(grp)
-        if cur is not None:
-            keep.add((grp, cur.get('run_id') or ''))
-        return keep
-
-    def _prune_runs(self, grp):
-        """상세 보관(m_runs·m_caps)은 그룹당 MAX_RUNS_PER_GROUP 개 — 가장 오래 갱신되지 않은 항목부터 정리하되 보호 회차는 남긴다.
-        종료 표식(m_finished)은 별도 창(MAX_FINISHED_PER_GROUP)에서 더 오래 유지된다."""
-        keep = self._protected_runs(grp)
-        keys = sorted([k for k in self.m_runs if k[0] == grp and k not in keep], key=lambda k: self.m_runs[k]['order'])
-        limit = max(0, self.MAX_RUNS_PER_GROUP - len([k for k in keep if k in self.m_runs]))
-        for k in keys[:max(0, len(keys) - limit)]:
-            self.m_runs.pop(k, None)
-            self.m_caps.pop(k, None)
-        fin = self.m_finished.get(grp)
-        if fin and len(fin) > self.MAX_FINISHED_PER_GROUP:
-            del fin[:len(fin) - self.MAX_FINISHED_PER_GROUP]
-
-    # /jnp/status : 그룹 상태 JSON — 회차(run_id)별로 보관·판정 (2차 검수 R2-M1a)
+    # /jnp/status : 그룹 상태 JSON
     def _on_status_line(self, line):
         try:
             status = json.loads(line)
         except ValueError:
             return
-        if not isinstance(status, dict):
-            return
         grp = status.get('group') or '?'
-        rid = status.get('run_id') or ''
-        key = (grp, rid)
-        run = self.m_runs.get(key)
-        fin = self.m_finished.setdefault(grp, [])
-        if rid:
-            # 같은 회차의 dissolved 는 최종 — 그 뒤에 오는 같은 회차의 forming/running/success/failed 는 수용하지 않는다
-            # (상세가 정리된 회차도 종료 표식 창 안이면 거부). 다른 회차의 해체 표식은 이 회차를 막지 않는다: 키가 다르다.
-            if status.get('state') != 'dissolved' and ((run and run['dissolved']) or rid in fin):
-                return
-            # 트리가 빠진 상태 발행에도 마지막 트리를 유지 — 같은 회차의 보관 상태에서만
-            if not status.get('tree') and run and run['status'].get('tree'):
-                status['tree'] = run['status']['tree']
-        else:
-            # run_id 없음/빈 문자열 = **회차 미식별 호환 모드**(구버전 그룹): 재시작과 지연 메시지를 구분할 수 없으므로
-            # 해체 최종성·트리 유지·cap 이력·계획 결합을 적용하지 않고 최근 수신 상태를 표시만 한다(표에는 '상태 미확인').
-            status['_run_unknown'] = True
-        # 수용 확정 → 그 뒤에만 보유 능력 이력을 갱신한다(거부된 잔여 상태가 마지막 관측 cap 을 바꾸지 않게)
-        self.m_run_seq += 1
-        self.m_runs[key] = {'status': status, 'dissolved': bool(rid) and (bool(run and run['dissolved']) or status.get('state') == 'dissolved'),
-                            'order': self.m_run_seq}
-        if rid:
-            if status.get('state') == 'dissolved' and rid not in fin:
-                fin.append(rid)
-            hist = self.m_caps.setdefault(key, {})
-            for m in status.get('members') or []:
-                if isinstance(m, dict) and m.get('name') and isinstance(m.get('cap'), list):
-                    hist[m['name']] = list(m['cap'])
+        # 해체 이후 늦게 도착하는 완료 상태는 무시 (해체가 최종 — 역전 레이스 방어)
+        if grp in self.m_dissolved and status.get('state') in ('success', 'failed'):
+            return
+        if status.get('state') == 'dissolved':
+            self.m_dissolved.add(grp)
+        elif status.get('state') in ('forming', 'running'):
+            self.m_dissolved.discard(grp)
         prev = self.m_statuses.get(grp)
         prev_state = prev.get('state') if prev else None
-        self._select_display_status(grp)
-        self._prune_runs(grp)          # 보호 대상(현재 계획·표시 회차)이 정해진 뒤 정리
-        cur = self.m_statuses.get(grp)
-        if cur is status and status.get('state') != prev_state:
+        # 트리가 빠진 상태 발행에도 마지막 트리를 유지 (그룹별)
+        if not status.get('tree') and prev and prev.get('tree'):
+            status['tree'] = prev['tree']
+        self.m_statuses[grp] = status
+        self.m_status = status
+        if status.get('state') != prev_state:
             self._log(f"coalition [{status.get('group','?')}] "
                       f"{prev_state or '-'} → {status.get('state')} "
                       f"({status.get('note','')})")
-        elif cur is not status:
-            self._log((f"[다른 회차 상태 보관] {grp} run={rid or '-'} state={status.get('state')} — 현재 계획의 회차가 아니라 표시하지 않음"
-                       if self.m_ko else f"[other-run status kept] {grp} run={rid or '-'} state={status.get('state')} — not the current plan's run"))
         self._redraw()
-        self._redraw_plan()
 
     # /jnp_agent_join_event : new / kill / task
     def _on_event_line(self, line):
@@ -633,8 +302,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         targets = [g for g, st in self.m_statuses.items()
                    if st.get('state') in ('success', 'failed')]
         for group in targets:
-            cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
-                   + "; rostopic pub -1 " + CMD_ROS_JNP082_TASK_TOPIC
+            cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
+                   + "; rostopic pub -1 " + CMD_ROS_JNP081_TASK_TOPIC
                    + " std_msgs/String \"data: 'dissolve:" + group + "'\"")
             QtCore.QProcess.startDetached("bash", ["-c", cmd])
             self._log(f"그룹 해제 명령 발행: {group}" if self.m_ko
@@ -646,8 +315,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             self._log("해제할 그룹이 없습니다 (coalition 미형성)" if self.m_ko
                       else "no group to dissolve (no coalition formed)")
             return
-        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP082_SETUP
-               + "; rostopic pub -1 " + CMD_ROS_JNP082_TASK_TOPIC
+        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
+               + "; rostopic pub -1 " + CMD_ROS_JNP081_TASK_TOPIC
                + " std_msgs/String \"data: 'dissolve:" + group + "'\"")
         QtCore.QProcess.startDetached("bash", ["-c", cmd])
         self._log(f"그룹 해제 명령 발행: {group}" if self.m_ko
@@ -680,17 +349,10 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             f = hdr.font(); f.setBold(True); hdr.setFont(f)
             hdr.setForeground(QtGui.QColor('#ffd54f'))
             self.ui.lstJnpAgents.addItem(hdr)
-            caps = {mm.get('name'): mm.get('cap') or [] for mm in st.get('members', [])}
             for m in members:
                 it = QtWidgets.QListWidgetItem("      ● " + m)
                 it.setForeground(COLOR_DONE)
-                if caps.get(m):
-                    it.setToolTip('capability: ' + ', '.join(caps[m]))
                 self.ui.lstJnpAgents.addItem(it)
-                if caps.get(m):      # 보유 능력(스킬 매칭의 근거)을 한 줄 아래에
-                    sub = QtWidgets.QListWidgetItem("          [" + ', '.join(caps[m]) + "]")
-                    sub.setForeground(QtGui.QColor('#90a4ae'))
-                    self.ui.lstJnpAgents.addItem(sub)
         grouped = bool(in_group)
         # ── 미소속 에이전트 ──
         rest = [(n, st) for n, st in sorted(known.items())
@@ -739,22 +401,17 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             root = (st.get('tree') or {}).get('name')
             clusters.setdefault(root or grp, []).append((grp, st))
         display = {}
-        self._cluster_groups = {}
         for key, lst in clusters.items():
             if len(lst) == 1 or not lst[0][1].get('tree'):
-                for g, st in lst:
-                    display[g] = dict(st, tree=_tag_tree(st.get('tree'), g)) if st.get('tree') else st
-                    self._cluster_groups[g] = [g]
+                display.update(dict(lst))
                 continue
-            self._cluster_groups[' + '.join(g for g, _ in lst)] = [g for g, _ in lst]
             states = [st.get('state', '?') for _, st in lst]
             state = ('running' if 'running' in states else
                      'forming' if 'forming' in states else states[0])
             roots = [st['tree'] for _, st in lst]
             children = []
-            for g, st in lst:
-                # 합쳐 그려도 node 는 원래 그룹을 기억한다(R2-M1c) — 라벨 조회는 그 그룹의 계획·회차에서만
-                children.extend(_tag_tree(st['tree'], g).get('children') or [])
+            for r in roots:
+                children.extend(r.get('children') or [])
             display[' + '.join(g for g, _ in lst)] = {
                 'state': state,
                 'tree': {'name': roots[0].get('name'),
@@ -779,7 +436,6 @@ class DialogJnpMonitor(QtWidgets.QDialog):
                 '#d32f2f' if state == 'dissolved' else '#37474f')))
             cap.setPos(0, -34)
             self.m_scene.addItem(cap)
-            self._cur_groups = self._cluster_groups.get(grp, [grp])
             self._layout_tree(tree, 0, 0)
             new_items = [it for it in self.m_scene.items() if it not in before]
             if state == 'dissolved':
@@ -838,15 +494,10 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         prefix = {'seq': '[S] ', 'par': '[P] '}.get(kind, '')
         label = prefix + node.get('name', '')
         agent = node.get('agent', '')
-        owner = node.get('_grp')
-        row = self._plan_row([owner] if owner else getattr(self, '_cur_groups', []), node.get('name')) if kind == 'atomic' else None
-        if row and row.get('skill'):
-            # 분할된 subtask 의 스킬과 요구 능력 — 스킬 매칭의 근거 (같은 회차의 계획 행만)
-            label += "\n" + str(row['skill']) + " · " + ','.join(str(x) for x in (row.get('requirement') or []))
         if agent:
             # 할당 로봇 표기 — /etri/locobot_0 → locobot_0 (마지막 성분이 로봇 이름)
             label += "\n→ " + agent.strip('/').split('/')[-1]
-        elif kind == 'atomic' and not (row and row.get('skill')):
+        elif kind == 'atomic':
             label += "\n(" + (node.get('goal', '') or '-')[:22] + ")"
         text = QtWidgets.QGraphicsSimpleTextItem(label)
         f = text.font()
