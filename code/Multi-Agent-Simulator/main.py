@@ -4,6 +4,9 @@
 ## 설명 : 3D Agent Simulator 프로그램의 main 스크립트 ##
 ######################################################
 import os
+import sys
+import json
+import signal
 import shutil
 import copy
 import random
@@ -11,12 +14,12 @@ import subprocess
 from datetime import datetime  
 from PySide6 import QtWidgets
 from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox
-from PySide6.QtCore import Qt, QSettings, QProcess
+from PySide6.QtCore import Qt, QSettings, QProcess, QProcessEnvironment, QTimer
 from ui_main import Ui_MainWindow
 from dlgROSTeleop import DialogTeleop
 from dlgROSSlam import DialogSmal
 from dlgROSNavigation import DialogNavigation
-from dlgWorldOptionFire import DialogWorldOptionFire
+from dlgWorldOptionFireEditor import DialogWorldOptionFireEditor
 from dlgROSRViz import DialogRViz
 from dlgROSI2I import DialogROSI2I
 from dlgStartROSCollaborationTask import DialogStartROSCollaborationTask
@@ -134,7 +137,7 @@ class MainWindow(QtWidgets.QMainWindow):
     m_orgPersonColorJeans = []              # OrgPersonJeansColor x,y,z    
     m_exeSimulator = None                   # 현재 실핼중인 Gazebo Process
     m_arrJnpProcess = []                    # Jnp sub proecess
-    m_startedJnp082 = False                 # JnP 0.8.2 모드로 에이전트를 띄웠는지 (협업태스크 분기용)
+    m_startedJnp081 = False                 # JnP 0.8.1 모드로 에이전트를 띄웠는지 (협업태스크 분기용)
     m_startedJnp021 = False                 # JnP 0.2.1 모드로 에이전트를 띄웠는지 (협업태스크 미지원 안내용)
     m_arrROSCollaborationTask = []          # ROS Collaboration Task
     m_prevSelectedCollaborationTask = 0     # 이전 선택된 협업태스크 작업 목록
@@ -145,6 +148,15 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        # Fire Editor의 1..10개 발화 설정과 백그라운드 ROS 프로세스.
+        # QProcess는 MainWindow 소유: X/Stop/Simulator Stop에서 모델을 먼저 정리한다.
+        self.m_fire_editor_options = []
+        self.m_dlgWorldOptionFireEditor = None
+        self.m_procFire = None
+        self._fire_log_tail = []
+        self._fire_stop_callbacks = []
+        self._fire_stop_requested = False
 
         # 소멸자
         atexit.register(self.CleanUp)
@@ -333,6 +345,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # 시뮬레이터 시작
     def StartSimualtor(self):
+        if self.m_procFire is not None and self.m_procFire.state() != QProcess.NotRunning:
+            QtWidgets.QMessageBox.warning(
+                self, 'World Option - Fire',
+                self._msg('화재가 실행 중입니다. 먼저 시뮬레이터를 정지해 주세요.',
+                          'Fire is running. Stop the simulator before restarting.'))
+            return
         ## 맵 체크
         # Custom 맵들은 일반적인 작업으론 사용 할 수 없도록 조치
         selected_items = self.ui.lstwRobotROSCollaborationTasks.selectedItems()
@@ -498,9 +516,8 @@ class MainWindow(QtWidgets.QMainWindow):
             f.write(CMD_COMMON_ENTER)
 
         ## World 정보 입력
-    	# gazebo resources path
-        f.write(CMD_COMMON_SPACE_DOUBLE + CMD_INTERBOTIX_ENV_GAZEBO_RESOURCE_PATH + CMD_COMMON_ENTER)
-        f.write(CMD_COMMON_ENTER)
+        # Interbotix 전용 GAZEBO_RESOURCE_PATH는 Interbotix 로봇이 선택된 경우
+        # 위의 interbotixRobotCount > 0 분기에서만 작성한다.
         f.write(CMD_COMMON_SPACE_DOUBLE + CMD_WORLD_COMMENT_START + CMD_COMMON_ENTER)
         # <Inlcude
         f.write(CMD_COMMON_SPACE_DOUBLE + CMD_WORLD_INCLUDE_OPEN + CMD_COMMON_ENTER)
@@ -1675,7 +1692,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # 체크를 껐으면 떠 있는 2D 뷰를 닫는다
         self.EnsureRelayRviz()
 
-        # JnP 0.8.2 에이전트가 떠 있으면 다이얼로그가 task 발행(coalition 트리거) 모드로 동작
+        # JnP 0.8.1 에이전트가 떠 있으면 다이얼로그가 task 발행(coalition 트리거) 모드로 동작
         # ★ 비모달(show) — 모달(exec)이면 메인 창이 잠겨 릴레이 중 Stop 을 못 누른다
         if getattr(self, 'm_dlgCollab', None) is not None:
             self.m_dlgCollab.close()
@@ -1685,7 +1702,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #   사용은 다이얼로그의 다목적(MOVE) 분기에서만 하므로 항상 넘겨도 무해.
         basePos = dict(MULTIGOAL_BASE_POSITIONS)
         self.m_dlgCollab = DialogStartROSCollaborationTask(
-            self.m_simulator, jnp082Active=self.m_startedJnp082,
+            self.m_simulator, jnp081Active=self.m_startedJnp081,
             jnp021Active=self.m_startedJnp021,
             monitorOpener=self.ShowJnpMonitor, basePositions=basePos)
         self.m_dlgCollab.show()
@@ -1705,10 +1722,12 @@ class MainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if req != QtWidgets.QMessageBox.Yes:
             return
-        # 정리(수 초) 동안 두 버튼 잠금 — 정리 중 Start 를 누르면 새 프로세스가
-        # 정리 패턴에 맞아 같이 죽는 경합이 생긴다
+        # ROS/Gazebo 전체 종료 전에 Fire 파티클부터 안전하게 삭제한다.
         self.ui.btnStopSimulator.setEnabled(False)
         self.ui.btnStartSimulator.setEnabled(False)
+        self._RequestStopFireParticles(self._StopSimulatorAfterFire)
+
+    def _StopSimulatorAfterFire(self):
         # Stop 시 JnP Monitor 창도 함께 닫기 (2026-08-10 지시 — 관찰 대상이
         # 사라지므로; close 가 tap 서브프로세스도 정리한다)
         if getattr(self, 'm_dlgJnpMonitor', None) is not None:
@@ -1731,7 +1750,7 @@ class MainWindow(QtWidgets.QMainWindow):
     ## 비활성화하는 1회용 설계였음 — Stop 이후 재시작 가능하도록 되살린다)
     def _OnStopFinished(self, *args):
         self.m_arrJnpProcess.clear()
-        self.m_startedJnp082 = False
+        self.m_startedJnp081 = False
         self.ui.btnStartSimulator.setEnabled(True)
         self.ui.btnStopSimulator.setEnabled(True)
         self.enableRobotList()
@@ -1754,8 +1773,16 @@ class MainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if req != QtWidgets.QMessageBox.Yes:
             return
+        self._RequestStopFireParticles(self._ExitAfterFire)
+
+    def _ExitAfterFire(self):
         self._CleanupSimProcesses()
         QtWidgets.QApplication.quit()
+
+    def closeEvent(self, event):
+        # 윈도우 X 버튼도 Fire 정리 → Gazebo 종료 순서로 처리한다.
+        event.ignore()
+        self.ExitApplication()
 
     ## 시뮬 스택 정리 공통부 (확인창 없음) — Stop/Exit 이 공유
     def _CleanupSimProcesses(self):
@@ -1766,13 +1793,13 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             # 배포 위치에 스크립트가 없을 때의 최소 정리 (동일 패턴)
             for pat in ('ros[l]aunch', 'gz[s]erver', 'gz[c]lient', 'ros[m]aster',
-                        'catkin_ws_jnp082/.*jnp_[a]gent', 'catkin_ws_jnp082/.*jnp_grou[p]',
+                        'jnp_0.8.1/scripts/jnp_[a]gent', 'jnp_0.8.1/scripts/jnp_grou[p]',
                         'goal_label[s]', 'loco_ready_ini[t]',
                         'relay_runne[r]', 'multigoal_runne[r]',
                         'rviz -f map -d .*relay_2d[.]rviz', '[g]nome-terminal'):
                 subprocess.run(['pkill', '-9', '-f', pat])
         self.m_arrJnpProcess.clear()
-        self.m_startedJnp082 = False
+        self.m_startedJnp081 = False
 
     ## 협업용 RViz 2D 뷰 늦은 기동/종료 — 체크박스 상태를 협업 창 열 때마다 반영
     ## (시뮬 시작 시 show_rviz2d 로 띄우는 것과 별개로, 사후 체크/해제도 동작)
@@ -1821,14 +1848,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if len(self.m_arrJnpProcess) > 0:
             self.CloseJnp(self.m_arrJnpProcess)
 
-        ## JnP 버전 선택 (콤보박스: 0 = 기존 0.2.1, 1 = 0.8.2)
-        # 0.8.2은 발견/설명까지만 상시 수행하고, 협업 태스크(goal)가 발행되면
+        ## JnP 버전 선택 (콤보박스: 0 = 기존 0.2.1, 1 = 0.8.1)
+        # 0.8.1은 발견/설명까지만 상시 수행하고, 협업 태스크(goal)가 발행되면
         # coalition 형성 → task tree 할당/스케줄 실행 → goal 도달 시 해체한다
-        useJnp082 = self.ui.cmbJnpVersion.currentIndex() == 1
-        # 실제로 에이전트를 띄웠을 때만 0.8.2 시작 상태로 기록 (로봇 0대면 아무것도 안 뜸)
-        self.m_startedJnp082 = useJnp082 and len(self.m_simulator.robots) > 0
-        self.m_startedJnp021 = (not useJnp082) and len(self.m_simulator.robots) > 0
-        pathSourceJnp = PATH_SOURCE_JNP082_SETUP if useJnp082 else PATH_SOURCE_JNP_SETUP
+        useJnp081 = self.ui.cmbJnpVersion.currentIndex() == 1
+        # 실제로 에이전트를 띄웠을 때만 0.8.1 시작 상태로 기록 (로봇 0대면 아무것도 안 뜸)
+        self.m_startedJnp081 = useJnp081 and len(self.m_simulator.robots) > 0
+        self.m_startedJnp021 = (not useJnp081) and len(self.m_simulator.robots) > 0
+        pathSourceJnp = PATH_SOURCE_JNP081_SETUP if useJnp081 else PATH_SOURCE_JNP_SETUP
 
         ## 각 모델 별 Jnp 실행
         # ns는 기본 사용
@@ -1838,8 +1865,8 @@ class MainWindow(QtWidgets.QMainWindow):
             # 실행
             name = self.m_simulator.robots[i].name
             command = command + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_JNP + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NS + CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT + CMD_COMMON_SPACE + CMD_ROS_JNP_JNP_AGENT_NAME + name
-            if useJnp082:
-                command = command + CMD_COMMON_SPACE + CMD_ROS_JNP082_AGENT_XML_ARG
+            if useJnp081:
+                command = command + CMD_COMMON_SPACE + CMD_ROS_JNP081_AGENT_XML_ARG
             completeCmd = CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE
             process = subprocess.Popen([completeCmd], shell=True)
             self.m_arrJnpProcess.append(process)
@@ -1871,13 +1898,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 process.kill()
 
         subprocess.run(['pkill', '-f', 'gnome-terminal'])
-        # 0.8.2 모드로 시작했을 때만, 0.8.2 경로 한정 패턴으로 잔여 정리
+        # 0.8.1 모드로 시작했을 때만, 0.8.1 경로 한정 패턴으로 잔여 정리
         # (광역 'jnp_agent.py' 패턴은 이 기계의 다른 JnP 프로세스까지 죽인다 — 리뷰 확정)
-        if getattr(self, 'm_startedJnp082', False):
-            subprocess.run(['pkill', '-f', 'catkin_ws_jnp082/.*jnp_group.py'])
-            subprocess.run(['pkill', '-f', 'catkin_ws_jnp082/.*jnp_agent.py'])
+        if getattr(self, 'm_startedJnp081', False):
+            subprocess.run(['pkill', '-f', 'jnp_0.8.1/scripts/jnp_group.py'])
+            subprocess.run(['pkill', '-f', 'jnp_0.8.1/scripts/jnp_agent.py'])
         arrProcess.clear()
-        self.m_startedJnp082 = False
+        self.m_startedJnp081 = False
         self.m_startedJnp021 = False
 
     # DQN 실행
@@ -1957,20 +1984,164 @@ class MainWindow(QtWidgets.QMainWindow):
         self._CenterDlg(dlg)
         dlg.exec()
 
-    # World Fire 옵션 선택
+    # World Fire 옵션: modeless editor stays open after Start so Stop is usable.
     def OpenWorldOptionFireDialog(self):
-        if self.m_exeSimulator is None:
-            msg_box = QMessageBox(self)
-            msg_box.setIcon(QMessageBox.Warning)
-            msg_box.setWindowTitle("Warning")
-            msg_box.setText("Gazebo를 먼저 실행 해 주세요")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.exec_()
+        dlg = self.m_dlgWorldOptionFireEditor
+        if dlg is not None:
+            dlg.show()
+            dlg.raise_()
+            dlg.activateWindow()
             return
 
-        dlg = DialogWorldOptionFire()
+        dlg = DialogWorldOptionFireEditor(self, self.m_fire_editor_options)
+        dlg.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.m_dlgWorldOptionFireEditor = dlg
+        dlg.startRequested.connect(self._OnFireEditorStart)
+        dlg.stopRequested.connect(self._OnFireEditorStop)
+        dlg.finished.connect(self._OnFireEditorClosed)
+        dlg.SetFireRunning(self.m_procFire is not None)
+        if self._fire_stop_requested:
+            dlg.SetFireStopping()
         self._CenterDlg(dlg)
-        dlg.showModal()
+        dlg.show()
+
+    def _OnFireEditorClosed(self, _result):
+        # A closed editor must not be reused after WA_DeleteOnClose.
+        self.m_dlgWorldOptionFireEditor = None
+
+    def _OnFireEditorStart(self, fire_options):
+        if self.StartFireParticles(fire_options):
+            self.m_fire_editor_options = fire_options
+            dlg = self.m_dlgWorldOptionFireEditor
+            if dlg is not None:
+                dlg.SetFireRunning(True)
+
+    def _OnFireEditorStop(self):
+        # Only terminate the fire subprocess; Gazebo, ROS, and robots remain.
+        self._RequestStopFireParticles()
+
+    def StartFireParticles(self, fire_options):
+        """Launch the independent ROS1 fire process without blocking Qt."""
+        # finished() must complete before a new QProcess replaces the old one.
+        if self.m_procFire is not None:
+            QtWidgets.QMessageBox.warning(
+                self, 'World Option - Fire',
+                self._msg('화재가 이미 실행 중입니다. 종료된 뒤 다시 시작해 주세요.',
+                          'Fire is already running. Wait until it stops before restarting.'))
+            return False
+
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        script = os.path.join(base_dir, 'fire_particles.py')
+        sdf_file = os.path.join(base_dir, 'particle_template_grey.sdf')
+        if not os.path.isfile(script) or not os.path.isfile(sdf_file):
+            QtWidgets.QMessageBox.warning(
+                self, 'World Option - Fire',
+                self._msg('fire_particles.py 및 particle_template_grey.sdf를 '
+                          'main.py와 동일한 폴더에 놓아주세요.\n\n{}',
+                          'Put fire_particles.py and particle_template_grey.sdf '
+                          'in the same directory as main.py.\n\n{}').format(base_dir))
+            return False
+
+        # 원래 Start 클릭 시점을 보낸다: 모델 준비 시간이 스케줄에 포함된다.
+        start_unix_sec = time.time()
+        config = {'fires': fire_options, 'start_unix_sec': start_unix_sec}
+        process = QProcess(self)
+        process.setProgram(sys.executable)
+        process.setArguments([script])
+        process.setWorkingDirectory(base_dir)
+        environment = QProcessEnvironment.systemEnvironment()
+        environment.insert('FIRE_PARTICLES_CONFIG_JSON', json.dumps(config))
+        process.setProcessEnvironment(environment)
+        process.setProcessChannelMode(QProcess.MergedChannels)
+        process.readyReadStandardOutput.connect(self._OnFireProcessOutput)
+        process.finished.connect(self._OnFireProcessFinished)
+        process.errorOccurred.connect(self._OnFireProcessError)
+        process.started.connect(self._OnFireProcessStarted)
+        self._fire_log_tail = []
+        self._fire_stop_callbacks = []
+        self._fire_stop_requested = False
+        self.m_procFire = process
+        process.start()
+        print('[Fire] Starting {} locations (up to 300 total particle models).'.format(
+            len(fire_options)), flush=True)
+        return True
+
+    def _OnFireProcessStarted(self):
+        if self._fire_stop_requested and self.m_procFire is not None:
+            self.m_procFire.terminate()
+
+    def _OnFireProcessOutput(self):
+        process = self.m_procFire
+        if process is None:
+            return
+        output = bytes(process.readAllStandardOutput()).decode('utf-8', errors='replace')
+        if output:
+            print(output, end='' if output.endswith('\n') else '\n', flush=True)
+            self._fire_log_tail.extend(output.splitlines())
+            self._fire_log_tail = self._fire_log_tail[-24:]
+
+    def _OnFireProcessError(self, error):
+        if error == QProcess.FailedToStart:
+            self._fire_stop_requested = True  # The critical dialog below is sufficient.
+            QtWidgets.QMessageBox.critical(
+                self, 'World Option - Fire',
+                self._msg('화재 스크립트 프로세스 실행에 실패했습니다.',
+                          'Failed to start fire particle process.'))
+            self._OnFireProcessFinished(-1, QProcess.CrashExit)
+
+    def _OnFireProcessFinished(self, exit_code, exit_status):
+        process = self.m_procFire
+        if process is None:
+            return
+        self._OnFireProcessOutput()
+        print('[Fire] Process finished (exit_code={}).'.format(exit_code), flush=True)
+        intentional_stop = self._fire_stop_requested
+        callbacks = self._fire_stop_callbacks
+        self._fire_stop_callbacks = []
+        self._fire_stop_requested = False
+        self.m_procFire = None
+        process.deleteLater()
+        dlg = self.m_dlgWorldOptionFireEditor
+        if dlg is not None:
+            dlg.SetFireRunning(False)  # Re-enable Start after cleanup/expiry.
+        if exit_code != 0 and not intentional_stop:
+            QtWidgets.QMessageBox.warning(
+                self, 'World Option - Fire',
+                self._msg('화재 프로세스가 오류로 종료되었습니다.\n',
+                          'The fire process exited with an error.\n')
+                + '\n'.join(self._fire_log_tail[-8:]))
+        for callback in callbacks:
+            callback()
+
+    def _RequestStopFireParticles(self, callback=None):
+        """SIGTERM → particle delete_model completion → callback (nonblocking)."""
+        process = self.m_procFire
+        if process is None or process.state() == QProcess.NotRunning:
+            if callback is not None:
+                callback()
+            return
+        if callback is not None:
+            self._fire_stop_callbacks.append(callback)
+        if self._fire_stop_requested:
+            return
+        self._fire_stop_requested = True
+        print('[Fire] Requesting graceful cleanup before Gazebo shutdown...', flush=True)
+        # POSIX QProcess.terminate() delivers SIGTERM, handled in fire_particles.py.
+        # Do not call kill(): it skips the model deletion routine.
+        if process.state() == QProcess.Running:
+            process.terminate()
+        QTimer.singleShot(120000, lambda proc=process: self._OnFireCleanupTimeout(proc))
+
+    def _OnFireCleanupTimeout(self, process):
+        if self.m_procFire is not process or process.state() == QProcess.NotRunning:
+            return
+        QtWidgets.QMessageBox.warning(
+            self, 'World Option - Fire',
+            self._msg('화재 모델 정리가 120초를 초과했습니다. 강제 종료합니다. '
+                      '일부 모델이 Gazebo에 남을 수 있습니다.',
+                      'Fire cleanup exceeded 120 seconds. Force stopping; '
+                      'some models may remain in Gazebo.'))
+        process.kill()
 
     # 라디오 버튼 - ROS 선택
     def ROSRadioButtonItemSelected(self):
