@@ -75,6 +75,7 @@ source init.sh
 > | 4.2.2 | 탐사 스택 | 불필요 — 이미지·init.sh 가 이미 빌드 |
 > | 4.2.3 | YOLO | 선택 — 물건 찾기 태스크를 쓸 때만 |
 > | 4.3 / 4.4 | Ai-Bot / Stretch2 | 해당 로봇을 쓸 때 |
+> | 4.5 | I2I 폴더 표시용 Thunar | 선택 - 캡처/결과 폴더를 파일 관리자로 열 때만 |
 
 ### 4.1 Interbotix 설치
 - 필수패키지 설치 도중 Interbotix 설치 화면이 나오면 차례대로 y를 입력.
@@ -242,6 +243,33 @@ catkin_make -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 ```
 <img src="https://github.com/user-attachments/assets/c6d20058-19f3-45be-a686-f9b9df911ce4" width="50%" />
 <br><br>
+
+### 4.5 I2I 캡처/결과 폴더 표시용 Thunar 파일 관리자 (선택)
+
+- I2I Enhancement 창에서 **Show Capture Folder** 및 **Show Result Folder**를 체크하면 캡처 폴더와 화재 생성 결과 폴더를 그래픽 파일 관리자로 열 수 있습니다. Docker 컨테이너는 X11을 통해 Qt 창을 표시하더라도 파일 관리자나 데스크톱 D-Bus 세션이 설치되어 있지 않을 수 있습니다.
+- 아래 명령은 **호스트 Ubuntu 터미널이 아니라 Docker 컨테이너 내부**에서 실행하십시오. 프롬프트는 보통 `root@...` 형태입니다.
+```bash
+apt-get update
+apt-get install -y thunar dbus-x11 dbus-daemon xdg-utils
+```
+- 디렉터리를 열 때 Thunar를 기본 프로그램으로 등록합니다.
+```bash
+xdg-mime default thunar.desktop inode/directory
+```
+- Ubuntu 데스크톱에 파일 관리자 창이 표시되는지 테스트합니다.
+```bash
+mkdir -p /root/tesla/code/Multi-Agent-Simulator/captures
+dbus-run-session -- thunar /root/tesla/code/Multi-Agent-Simulator/captures
+```
+- Thunar 창이 나타나면 X11 화면 연결이 동작하는 것입니다. 프로그램에서 사용하는 폴더 경로는 **컨테이너 내부 경로**이며, 호스트 Ubuntu에서 같은 경로로 자동 접근할 수 있는 것은 아닙니다.
+- 기본 프로젝트 구성에서 사용하는 경로는 다음과 같습니다.
+  - 캡처 폴더: `/root/tesla/code/Multi-Agent-Simulator/captures`
+  - I2I 결과 폴더: `/root/tesla/code/Multi-Agent-Simulator/captures_I2I`
+- 설치한 패키지는 컨테이너를 중지했다가 다시 시작해도 유지되지만, 컨테이너를 삭제하고 새로 만들면 사라집니다. 이후 생성하는 Docker 이미지에도 포함하려면 `Dockerfile`의 `FROM` 다음에 아래 명령을 추가하고 이미지를 다시 빌드하십시오.
+```dockerfile
+RUN apt-get update && apt-get install -y --no-install-recommends thunar dbus-x11 dbus-daemon xdg-utils && rm -rf /var/lib/apt/lists/*
+```
+- 그래도 창이 열리지 않으면 위의 Display 오류 안내에서 `DISPLAY`, X11 소켓 마운트, 호스트 Ubuntu 터미널에서 실행하는 `xhost +` 설정을 다시 확인하십시오.
 
 ---
 # 사용 방법
