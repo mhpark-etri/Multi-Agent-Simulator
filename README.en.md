@@ -76,6 +76,7 @@ source init.sh
 > | 4.2.2 | Exploration stack | Not needed — already built by the image and `init.sh` |
 > | 4.2.3 | YOLO | Optional — only for the Find Object task |
 > | 4.3 / 4.4 | Ai-Bot / Stretch2 | Only if you use those robots |
+> | 4.5 | Thunar file manager for I2I folders | Optional - only for Show Capture Folder / Show Result Folder |
 
 ### 4.1 Interbotix installation
 - While the required packages are installed, the Interbotix installer appears. Answer `y` to each prompt.
@@ -247,6 +248,33 @@ catkin_make -DCATKIN_ENABLE_TESTING=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 ```
 <img src="https://github.com/user-attachments/assets/c6d20058-19f3-45be-a686-f9b9df911ce4" width="50%" />
 <br><br>
+
+### 4.5 Thunar file manager for I2I Capture/Result folders (optional)
+
+- In the I2I Enhancement dialog, **Show Capture Folder** and **Show Result Folder** can open the capture and generated result folders in a graphical file manager. A Docker container may display Qt windows through X11 without having a file manager or a desktop D-Bus session installed. Install Thunar inside the running container.
+- Run the commands below **inside the container**, not in the host Ubuntu terminal (the prompt usually looks like `root@...`):
+```bash
+apt-get update
+apt-get install -y thunar dbus-x11 dbus-daemon xdg-utils
+```
+- Register Thunar as the default application for directories:
+```bash
+xdg-mime default thunar.desktop inode/directory
+```
+- Test that Thunar can open a folder on the Ubuntu desktop:
+```bash
+mkdir -p /root/tesla/code/Multi-Agent-Simulator/captures
+dbus-run-session -- thunar /root/tesla/code/Multi-Agent-Simulator/captures
+```
+- If a Thunar window appears, the X11 display connection is working. Folder paths used by the application are paths **inside the container**; they are not automatically host paths.
+- With the default project layout, the folders are:
+  - Capture: `/root/tesla/code/Multi-Agent-Simulator/captures`
+  - I2I results: `/root/tesla/code/Multi-Agent-Simulator/captures_I2I`
+- These packages remain installed when the container is stopped and restarted, but are lost if the container is removed and recreated. To include them in future images, add this instruction after `FROM` in the `Dockerfile`, then rebuild the image:
+```dockerfile
+RUN apt-get update && apt-get install -y --no-install-recommends thunar dbus-x11 dbus-daemon xdg-utils && rm -rf /var/lib/apt/lists/*
+```
+- If the window still does not appear, review the display troubleshooting steps above, including `DISPLAY`, the X11 socket mount, and running `xhost +` from the host Ubuntu terminal.
 
 ---
 # Usage
