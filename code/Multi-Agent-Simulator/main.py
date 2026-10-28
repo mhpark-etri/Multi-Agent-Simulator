@@ -10,6 +10,7 @@ import signal
 import shutil
 import copy
 import random
+import re
 import subprocess
 from datetime import datetime  
 from PySide6 import QtWidgets
@@ -67,6 +68,7 @@ PATH_SOURCE_SMALL_HOUSE = _source_if_exists("/root/tesla/models/aws-robomaker-sm
 PATH_SOURCE_BOOK_STORE = _source_if_exists("/root/tesla/models/aws-robomaker-bookstore-world-ros1/install/setup.sh")
 PATH_SOURCE_UNI = _source_if_exists("/root/catkin_ws_ai_bot/devel/setup.bash")
 PATH_SOURCE_STRETCH2 = _source_if_exists("/root/catkin_ws_stretch2/devel/setup.bash")
+PATH_SOURCE_INTERBOTIX = _source_if_exists("/root/interbotix_ws/devel/setup.bash")
 MAX_MODEL_COUNT_ROBOT = 10  # Max robot model count
 MAX_MODEL_COUNT_PERSON = 3 # Max person model count
 PATH_SOURCE_JNP_SETUP = "source /root/catkin_ws_jnp/devel/setup.sh"
@@ -155,8 +157,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.m_dlgWorldOptionFireEditor = None
         self.m_procFire = None
         self._fire_log_tail = []
+        self._fire_log_history = []
+        self._fire_output_buffer = ''
         self._fire_stop_callbacks = []
         self._fire_stop_requested = False
+
+        # Fire Editor progress: startup/spawn/first ignition and graceful cleanup.
+        self._fire_progress_phase = 'idle'
+        self._fire_progress_value = 0
+        self._fire_progress_format = 'Ready'
+        self._fire_start_unix_sec = 0.0
+        self._fire_first_ignition_delay = 0.0
+        self._fire_spawn_total = 0
+        self._fire_spawn_done = 0
+        self._fire_models_ready = False
+        self._fire_cleanup_total = 0
+        self._fire_cleanup_done = 0
+        self._fire_cleanup_failed = False
+        self._fire_progress_timer = QTimer(self)
+        self._fire_progress_timer.setInterval(100)
+        self._fire_progress_timer.timeout.connect(self._TickFireProgress)
 
         # 소멸자
         atexit.register(self.CleanUp)
@@ -176,10 +196,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # Wolrd option
         self.ui.btnWorldOptionFire.clicked.connect(self.OpenWorldOptionFireDialog)
 
-        # World Info — 선택한 월드의 설명/출처/라이선스를 팝업으로 보여준다.
-        # ui_main.py 는 Qt Designer 가 다시 만들어내는 생성물이라 손대지 않고,
-        # Fire 버튼이 놓인 레이아웃에 코드로 버튼을 덧붙인다.
-        self.btnWorldInfo = QtWidgets.QPushButton(self.ui.btnWorldOptionFire.parent())
+        # World Info는 World Option에 그대로 유지한다.
+        # Fire 버튼은 I2I Enhancement로 옮겼으므로, 이전 Fire 버튼의
+        # 부모 대신 기존 World Option 레이아웃의 부모를 사용한다.
+        self.btnWorldInfo = QtWidgets.QPushButton(self.ui.horizontalLayout_30.parentWidget())
         self.btnWorldInfo.setObjectName('btnWorldInfo')
         self.btnWorldInfo.setText('World Info')
         self.btnWorldInfo.setStyleSheet(self.ui.btnWorldOptionFire.styleSheet())
@@ -305,21 +325,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.lstwRobotROSCollaborationTasks.setCurrentRow(0)
 
-        # ROS - Teleop - 현재는 Disable - 이유 : 어떤 모델은 되고 어떤 모델은 안되기 때문에 일단 전체 블럭
-        self.ui.btnROSTeleop.setDisabled(True)
-        self.ui.btnROSTeleop.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;  /* 기본 스타일 */
-                color: white;
-                border: none;
-                padding: 10px;
-                border-radius: 5px;
-            }
-            QPushButton:disabled {
-                background-color: #A9A9A9;  /* 비활성화 시 배경색 */
-                color: #808080;  /* 비활성화 시 텍스트 색 */
-            }
-        """)
+        # Enable Teleop after Gazebo starts; keep its original Designer styling.
+        self.ui.btnROSTeleop.setEnabled(False)
 
         # World
         self.SetWorld()
@@ -420,6 +427,15 @@ class MainWindow(QtWidgets.QMainWindow):
         cmdLine = PATH_SOURCE_STRETCH2
         f.write(cmdLine + CMD_COMMON_ENTER)
 
+        # Source Interbotix only if an Interbotix LoCoBot is selected.
+        if any(robot.type == ENUM_ROBOT_TYPE.INTERBOTIX for robot in lstRobots):
+            f.write(PATH_SOURCE_INTERBOTIX + CMD_COMMON_ENTER)
+            # Give a clear error if the ROS package is not installed or visible.
+            f.write('if ! rospack find interbotix_xslocobot_gazebo >/dev/null 2>&1; then\n')
+            f.write('  echo "[ERROR] interbotix_xslocobot_gazebo not found. Check /root/interbotix_ws/devel/setup.bash and the package installation." >&2\n')
+            f.write('  exit 1\n')
+            f.write('fi\n')
+
         f.write("roslaunch " + launchFile)
         f.close()   # ★ 원본 버그: 괄호 없으면 호출 안 됨 → 쓰기-열림 파일 실행 시 Text file busy
         # Executable 권한 설정
@@ -438,6 +454,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.disableRobotList()
                 self.m_exeSimulator = exeSimulator
                 self.ui.btnStartSimulator.setEnabled(False)
+                self.ui.btnROSTeleop.setEnabled(bool(self.m_simulator.robots))
                 self.m_simulator.launchFileName = launchFile
                 self.disableRobotList()
             else:
@@ -1191,6 +1208,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Gazebo 실행 성공.")
             self.m_exeSimulator = exeSimulator
             self.ui.btnStartSimulator.setEnabled(False)
+            self.ui.btnROSTeleop.setEnabled(bool(self.m_simulator.robots))
             self.m_simulator.launchFileName = PATH_ROS_COLLABORATION_TASK_LAUNCH_RELAY
             self.disableRobotList()
         else:
@@ -1725,6 +1743,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # ROS/Gazebo 전체 종료 전에 Fire 파티클부터 안전하게 삭제한다.
         self.ui.btnStopSimulator.setEnabled(False)
         self.ui.btnStartSimulator.setEnabled(False)
+        self.ui.btnROSTeleop.setEnabled(False)
         self._RequestStopFireParticles(self._StopSimulatorAfterFire)
 
     def _StopSimulatorAfterFire(self):
@@ -1753,6 +1772,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.m_startedJnp081 = False
         self.ui.btnStartSimulator.setEnabled(True)
         self.ui.btnStopSimulator.setEnabled(True)
+        self.ui.btnROSTeleop.setEnabled(False)
         self.enableRobotList()
         print('시뮬레이션 정리 완료 — 다시 Start 할 수 있습니다')
 
@@ -1776,6 +1796,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._RequestStopFireParticles(self._ExitAfterFire)
 
     def _ExitAfterFire(self):
+        # Fire Editor is a standalone modeless window, so close it explicitly
+        # when the application exits instead of relying on parent ownership.
+        dlg = self.m_dlgWorldOptionFireEditor
+        if dlg is not None:
+            dlg.SetFireRunning(False)
+            dlg.close()
         self._CleanupSimProcesses()
         QtWidgets.QApplication.quit()
 
@@ -1993,15 +2019,24 @@ class MainWindow(QtWidgets.QMainWindow):
             dlg.activateWindow()
             return
 
-        dlg = DialogWorldOptionFireEditor(self, self.m_fire_editor_options)
+        # Fire Editor is a separate top-level, non-modal window. It has no
+        # QWidget parent so minimizing/activating MainWindow does not control
+        # its visibility or input focus. MainWindow retains the Python
+        # reference and explicitly closes it during application shutdown.
+        dlg = DialogWorldOptionFireEditor(None, self.m_fire_editor_options)
+        dlg.setWindowFlags(dlg.windowFlags() | Qt.Window)
+        dlg.setWindowModality(Qt.NonModal)
+        dlg.setModal(False)
         dlg.setAttribute(Qt.WA_DeleteOnClose, True)
         self.m_dlgWorldOptionFireEditor = dlg
         dlg.startRequested.connect(self._OnFireEditorStart)
         dlg.stopRequested.connect(self._OnFireEditorStop)
         dlg.finished.connect(self._OnFireEditorClosed)
         dlg.SetFireRunning(self.m_procFire is not None)
+        dlg.LoadFireMessages(self._fire_log_history)
         if self._fire_stop_requested:
             dlg.SetFireStopping()
+        dlg.SetFireProgress(self._fire_progress_value, self._fire_progress_format)
         self._CenterDlg(dlg)
         dlg.show()
 
@@ -2024,6 +2059,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """Launch the independent ROS1 fire process without blocking Qt."""
         # finished() must complete before a new QProcess replaces the old one.
         if self.m_procFire is not None:
+            self._RecordFireLog('[Fire WARNING] A fire process is already running.')
             QtWidgets.QMessageBox.warning(
                 self, 'World Option - Fire',
                 self._msg('화재가 이미 실행 중입니다. 종료된 뒤 다시 시작해 주세요.',
@@ -2034,6 +2070,7 @@ class MainWindow(QtWidgets.QMainWindow):
         script = os.path.join(base_dir, 'fire_particles.py')
         sdf_file = os.path.join(base_dir, 'particle_template_grey.sdf')
         if not os.path.isfile(script) or not os.path.isfile(sdf_file):
+            self._RecordFireLog('[Fire ERROR] fire_particles.py or particle_template_grey.sdf is missing in {}.'.format(base_dir))
             QtWidgets.QMessageBox.warning(
                 self, 'World Option - Fire',
                 self._msg('fire_particles.py 및 particle_template_grey.sdf를 '
@@ -2045,6 +2082,22 @@ class MainWindow(QtWidgets.QMainWindow):
         # 원래 Start 클릭 시점을 보낸다: 모델 준비 시간이 스케줄에 포함된다.
         start_unix_sec = time.time()
         config = {'fires': fire_options, 'start_unix_sec': start_unix_sec}
+        self._fire_progress_phase = 'starting'
+        self._fire_progress_value = 0
+        self._fire_progress_format = 'Preparing fire... %p%'
+        self._fire_start_unix_sec = start_unix_sec
+        try:
+            delays = [max(0.0, float(item.get('ignition_start_sec', 0)))
+                      for item in fire_options]
+            self._fire_first_ignition_delay = min(delays) if delays else 0.0
+        except (TypeError, ValueError):
+            self._fire_first_ignition_delay = 0.0
+        self._fire_spawn_total = 0
+        self._fire_spawn_done = 0
+        self._fire_models_ready = False
+        self._fire_cleanup_total = 0
+        self._fire_cleanup_done = 0
+        self._fire_cleanup_failed = False
         process = QProcess(self)
         process.setProgram(sys.executable)
         process.setArguments([script])
@@ -2058,31 +2111,182 @@ class MainWindow(QtWidgets.QMainWindow):
         process.errorOccurred.connect(self._OnFireProcessError)
         process.started.connect(self._OnFireProcessStarted)
         self._fire_log_tail = []
+        self._fire_log_history = []
+        self._fire_output_buffer = ''
         self._fire_stop_callbacks = []
         self._fire_stop_requested = False
+        dlg = self.m_dlgWorldOptionFireEditor
+        if dlg is not None:
+            dlg.ClearFireMessages()
+            dlg.SetFireProgress(0, self._fire_progress_format)
         self.m_procFire = process
-        process.start()
+        self._SetFireProgress(0, 'Preparing fire... %p%')
+        self._fire_progress_timer.start()
+        self._RecordFireLog('[Fire] Start requested for {} fire source(s).'.format(len(fire_options)))
+        self._RecordFireLog('[Fire] Launching fire_particles.py; model setup and ignition are beginning.')
         print('[Fire] Starting {} locations (up to 300 total particle models).'.format(
             len(fire_options)), flush=True)
+        process.start()
         return True
 
+    def _SetFireProgress(self, value, text=None):
+        # Update the progress bar and retain its state if the dialog is closed.
+        self._fire_progress_value = max(0, min(100, int(value)))
+        if text is not None:
+            self._fire_progress_format = str(text)
+        dlg = self.m_dlgWorldOptionFireEditor
+        if dlg is not None:
+            dlg.SetFireProgress(self._fire_progress_value, self._fire_progress_format)
+
+    def _TickFireProgress(self):
+        # Advance the waiting phase between model setup and first ignition.
+        if self._fire_progress_phase != 'waiting_ignition' or self._fire_stop_requested:
+            return
+        delay = max(0.0, self._fire_first_ignition_delay)
+        elapsed = max(0.0, time.time() - self._fire_start_unix_sec)
+        if delay <= 0.0:
+            value = 98
+        else:
+            value = 80 + int(18 * min(1.0, elapsed / delay))
+        self._SetFireProgress(value, 'Waiting for ignition... %p%')
+
+    def _BeginFireCleanupProgress(self, text='Stopping fire and removing models... %p%'):
+        if self._fire_progress_phase != 'cleanup':
+            self._fire_progress_phase = 'cleanup'
+            self._fire_cleanup_total = 0
+            self._fire_cleanup_done = 0
+            self._SetFireProgress(0, text)
+
+    def _UpdateFireProgressFromLog(self, line):
+        # Map fire process lifecycle logs to progress-bar milestones.
+        text = str(line).strip()
+        if not text:
+            return
+
+        # A stop request owns the phase; late spawn messages must not switch it back.
+        if self._fire_progress_phase != 'cleanup':
+            if 'Waiting for Gazebo ROS services' in text:
+                self._SetFireProgress(0, 'Waiting for Gazebo... %p%')
+            if '[Spawn]' in text and 'spawning ' in text:
+                match = re.search(r'spawning\s+(\d+)\s*/', text)
+                if match:
+                    self._fire_spawn_total = int(match.group(1))
+                    self._fire_spawn_done = 0
+                    self._SetFireProgress(0, 'Creating models: 0/{} (%p%)'.format(
+                        self._fire_spawn_total))
+            elif '[Spawn] Created model ' in text:
+                if self._fire_spawn_total > 0:
+                    self._fire_spawn_done = min(self._fire_spawn_total,
+                                                self._fire_spawn_done + 1)
+                    value = int(75 * self._fire_spawn_done / self._fire_spawn_total)
+                    self._SetFireProgress(value, 'Creating models: {}/{} (%p%)'.format(
+                        self._fire_spawn_done, self._fire_spawn_total))
+            elif '[Spawn]' in text and ' completed' in text:
+                match = re.search(r'\[Spawn\]\s+(\d+)/(\d+)\s+completed', text)
+                if match:
+                    done, total = int(match.group(1)), int(match.group(2))
+                    self._fire_spawn_total = total
+                    self._fire_spawn_done = max(self._fire_spawn_done, done)
+                    value = int(75 * min(done, total) / max(total, 1))
+                    self._SetFireProgress(value, 'Creating models: {}/{} (%p%)'.format(
+                        done, total))
+
+            if '[Fire] All models ready.' in text:
+                self._fire_models_ready = True
+                self._fire_progress_phase = 'waiting_ignition'
+                self._SetFireProgress(max(80, self._fire_progress_value),
+                                      'Waiting for ignition... %p%')
+            elif ' ignition at (' in text:
+                self._fire_progress_phase = 'running'
+                self._SetFireProgress(100, 'Fire active')
+            elif 'All sources extinguished; removing particle models' in text:
+                self._BeginFireCleanupProgress('Extinguished; deleting models... %p%')
+            elif '[Cleanup]' in text:
+                self._BeginFireCleanupProgress()
+
+        if self._fire_progress_phase != 'cleanup':
+            return
+
+        if '[Cleanup FAILED]' in text or '[Cleanup WARNING]' in text:
+            self._fire_cleanup_failed = True
+        deleting = re.search(r'Deleting\s+(\d+)\s+models', text)
+        if deleting:
+            self._fire_cleanup_total = int(deleting.group(1))
+            self._fire_cleanup_done = 0
+            self._SetFireProgress(5, 'Deleting models: 0/{} (%p%)'.format(
+                self._fire_cleanup_total))
+            if self._fire_cleanup_total == 0:
+                self._SetFireProgress(98, 'Finalizing cleanup... %p%')
+            return
+
+        processed = re.search(r'(\d+)/(\d+)\s+processed', text)
+        if processed:
+            done, total = int(processed.group(1)), int(processed.group(2))
+            self._fire_cleanup_total = total
+            self._fire_cleanup_done = min(done, total)
+            value = 5 + int(90 * self._fire_cleanup_done / max(total, 1))
+            self._SetFireProgress(value, 'Deleting models: {}/{} (%p%)'.format(
+                self._fire_cleanup_done, total))
+            return
+
+        removed = re.search(r'Removed\s+(\d+)/(\d+)\s+models', text)
+        if removed:
+            done, total = int(removed.group(1)), int(removed.group(2))
+            if done < total:
+                self._fire_cleanup_failed = True
+                self._SetFireProgress(96, 'Cleanup finished with errors')
+            else:
+                self._SetFireProgress(98, 'Models deleted: {}/{} (%p%)'.format(done, total))
+            return
+
+        if 'No models belonging to this fire process remain' in text:
+            self._SetFireProgress(98, 'No models remain; finalizing... %p%')
+
+    def _RecordFireLog(self, message):
+        """Timestamp, retain, and display fire lifecycle/process messages."""
+        if message is None:
+            return
+        lines = str(message).splitlines()
+        if not lines and str(message):
+            lines = [str(message)]
+        for raw_line in lines:
+            if not raw_line:
+                continue
+            self._UpdateFireProgressFromLog(raw_line)
+            line = '[{}] {}'.format(datetime.now().strftime('%H:%M:%S'), raw_line)
+            self._fire_log_history.append(line)
+            self._fire_log_history = self._fire_log_history[-300:]
+            self._fire_log_tail.append(line)
+            self._fire_log_tail = self._fire_log_tail[-24:]
+            dlg = self.m_dlgWorldOptionFireEditor
+            if dlg is not None:
+                dlg.AppendFireMessage(line)
+
     def _OnFireProcessStarted(self):
-        if self._fire_stop_requested and self.m_procFire is not None:
-            self.m_procFire.terminate()
+        process = self.m_procFire
+        if process is not None:
+            self._RecordFireLog('[Fire] Process started (PID {}).'.format(process.processId()))
+        if self._fire_stop_requested and process is not None:
+            self._RecordFireLog('[Fire] Stop was requested during process startup.')
+            process.terminate()
 
     def _OnFireProcessOutput(self):
         process = self.m_procFire
         if process is None:
             return
         output = bytes(process.readAllStandardOutput()).decode('utf-8', errors='replace')
-        if output:
-            print(output, end='' if output.endswith('\n') else '\n', flush=True)
-            self._fire_log_tail.extend(output.splitlines())
-            self._fire_log_tail = self._fire_log_tail[-24:]
+        if not output:
+            return
+        print(output, end='' if output.endswith('\n') else '\n', flush=True)
+        self._fire_output_buffer += output
+        while '\n' in self._fire_output_buffer:
+            line, self._fire_output_buffer = self._fire_output_buffer.split('\n', 1)
+            self._RecordFireLog(line.rstrip('\r'))
 
     def _OnFireProcessError(self, error):
         if error == QProcess.FailedToStart:
             self._fire_stop_requested = True  # The critical dialog below is sufficient.
+            self._RecordFireLog('[Fire ERROR] Failed to start fire particle process.')
             QtWidgets.QMessageBox.critical(
                 self, 'World Option - Fire',
                 self._msg('화재 스크립트 프로세스 실행에 실패했습니다.',
@@ -2094,8 +2298,25 @@ class MainWindow(QtWidgets.QMainWindow):
         if process is None:
             return
         self._OnFireProcessOutput()
-        print('[Fire] Process finished (exit_code={}).'.format(exit_code), flush=True)
+        if self._fire_output_buffer:
+            self._RecordFireLog(self._fire_output_buffer.rstrip('\r'))
+            self._fire_output_buffer = ''
+        self._RecordFireLog('[Fire] Process finished (exit_code={}, status={}).'.format(
+            exit_code, exit_status))
         intentional_stop = self._fire_stop_requested
+        if intentional_stop:
+            self._RecordFireLog('[Fire] Stop and model cleanup finished.')
+        elif exit_code == 0:
+            self._RecordFireLog('[Fire] Fire session finished normally.')
+        self._fire_progress_timer.stop()
+        if self._fire_cleanup_failed:
+            # Do not show 100% when Gazebo model deletion was incomplete.
+            self._SetFireProgress(96, 'Cleanup incomplete - check Messages')
+        elif exit_code == 0:
+            self._SetFireProgress(100, 'Complete')
+        else:
+            self._SetFireProgress(100, 'Failed')
+        self._fire_progress_phase = 'complete'
         callbacks = self._fire_stop_callbacks
         self._fire_stop_callbacks = []
         self._fire_stop_requested = False
@@ -2125,6 +2346,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._fire_stop_requested:
             return
         self._fire_stop_requested = True
+        self._BeginFireCleanupProgress('Stopping fire... %p%')
+        self._SetFireProgress(0, 'Stopping fire... %p%')
+        self._RecordFireLog('[Fire] Stop requested. Waiting for active particles to stop and models to be removed...')
         print('[Fire] Requesting graceful cleanup before Gazebo shutdown...', flush=True)
         # POSIX QProcess.terminate() delivers SIGTERM, handled in fire_particles.py.
         # Do not call kill(): it skips the model deletion routine.
@@ -2135,6 +2359,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def _OnFireCleanupTimeout(self, process):
         if self.m_procFire is not process or process.state() == QProcess.NotRunning:
             return
+        self._fire_cleanup_failed = True
+        self._RecordFireLog('[Fire WARNING] Cleanup exceeded 120 seconds; forcing process termination may leave models in Gazebo.')
         QtWidgets.QMessageBox.warning(
             self, 'World Option - Fire',
             self._msg('화재 모델 정리가 120초를 초과했습니다. 강제 종료합니다. '
