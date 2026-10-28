@@ -322,6 +322,7 @@ def spawn_all_models(runtime, sources, spawn_sdf_file):
                     ok, error = False, str(exc)
                 if ok:
                     runtime.record_spawned(name)
+                    _log('[Spawn] Created model {}.'.format(name))
                 else:
                     failures.append((name, error))
                 if count % 20 == 0 or count == len(tasks):

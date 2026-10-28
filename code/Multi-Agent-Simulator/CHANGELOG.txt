@@ -1,0 +1,31 @@
+I2I Enhancement UI and progress update
+=====================================
+
+UI changes
+----------
+- Removed the obsolete Show Camera checkbox from the Option group.
+- Added a Capture group above Fire Generation.
+- Moved Capture Folder Path, Open, Capture FPS into Capture.
+- Added Show Capture Folder (checked by default).
+- Added Show Result Folder under Fire Generation (checked by default).
+- Added a Messages panel above the bottom action row; it retains the newest 300 lines.
+- Added a progress bar to the left of Stop.
+- Kept Start enabled only for the selected yellow sensor_msgs/Image topic.
+
+Runtime changes
+---------------
+- Capture and worker messages are streamed to the Messages panel.
+- Checked folder options open the capture and I2I result directories when capture starts.
+- Progress is indeterminate while continuous capture/processing is active.
+- After Stop, the bar tracks the remaining queued frames while the worker drains them.
+- Stop completes only after pending images have been attempted and the worker exits.
+- The capture thread waits for any in-flight ROS callback to finish writing its PNG before DRAIN is sent.
+- The worker emits machine-readable drain total/progress markers for the UI.
+
+Validation
+----------
+- Python syntax checks passed.
+- Qt Designer UI XML parsing passed.
+- Widget-name cross-check passed.
+- Worker drain test with a fake RTLightFire model processed four new images, wrote four -I2I images, and emitted progress from 1/4 through 4/4.
+- Actual PySide6/ROS/Gazebo/CUDA GUI integration was not run in this environment.

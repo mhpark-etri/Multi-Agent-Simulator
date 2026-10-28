@@ -17,15 +17,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox,
     QDialog, QFrame, QGroupBox, QHBoxLayout,
-    QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout,
+    QLabel, QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit,
+    QPushButton, QProgressBar, QSizePolicy, QSpacerItem, QVBoxLayout,
     QWidget)
 
 class Ui_DlgROSI2I(object):
     def setupUi(self, DlgROSI2I):
         if not DlgROSI2I.objectName():
             DlgROSI2I.setObjectName(u"DlgROSI2I")
-        DlgROSI2I.resize(728, 639)
+        DlgROSI2I.resize(780, 850)
         self.verticalLayout = QVBoxLayout(DlgROSI2I)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.frame = QFrame(DlgROSI2I)
@@ -185,37 +185,35 @@ class Ui_DlgROSI2I(object):
         self.verticalLayout_19 = QVBoxLayout()
         self.verticalLayout_19.setObjectName(u"verticalLayout_19")
         self.verticalLayout_19.setContentsMargins(-1, 15, -1, -1)
-        self.horizontalLayout_13 = QHBoxLayout()
-        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
-        self.frame_10 = QFrame(self.gbROSI2IOption)
-        self.frame_10.setObjectName(u"frame_10")
-        self.frame_10.setFrameShape(QFrame.StyledPanel)
-        self.frame_10.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_14 = QHBoxLayout(self.frame_10)
-        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
-        self.ckbROSI2IShowCamera = QCheckBox(self.frame_10)
-        self.ckbROSI2IShowCamera.setObjectName(u"ckbROSI2IShowCamera")
-
-        self.horizontalLayout_14.addWidget(self.ckbROSI2IShowCamera)
-
-
-        self.horizontalLayout_13.addWidget(self.frame_10)
-
-
-        self.verticalLayout_19.addLayout(self.horizontalLayout_13)
-
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.frame_2 = QFrame(self.gbROSI2IOption)
+        self.gbROSI2ICapture = QGroupBox(self.gbROSI2IOption)
+        self.gbROSI2ICapture.setObjectName(u"gbROSI2ICapture")
+        self.gbROSI2ICapture.setStyleSheet(u"QGroupBox#gbROSI2ICapture {\n"
+"    border: 1px solid darkgray;\n"
+"    background-color: #d4d4d4;\n"
+"    margin-top: 14px;\n"
+"    color: #ffffff;\n"
+"}\n"
+"QGroupBox#gbROSI2ICapture::title {\n"
+"    border: 1px solid white;\n"
+"    subcontrol-position: top left;\n"
+"    left: 8px;\n"
+"    background-color: gray;\n"
+"    padding: 4px 8px 4px 8px;\n"
+"    top: -14px;\n"
+"}")
+        self.verticalLayoutROSI2ICapture = QVBoxLayout(self.gbROSI2ICapture)
+        self.verticalLayoutROSI2ICapture.setObjectName(u"verticalLayoutROSI2ICapture")
+        self.verticalLayoutROSI2ICapture.setContentsMargins(-1, 18, -1, -1)
+        self.frame_2 = QFrame(self.gbROSI2ICapture)
         self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.StyledPanel)
+        self.frame_2.setFrameShape(QFrame.NoFrame)
         self.frame_2.setFrameShadow(QFrame.Raised)
         self.verticalLayout_2 = QVBoxLayout(self.frame_2)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.ckbROSI2ICapture = QCheckBox(self.frame_2)
-        self.ckbROSI2ICapture.setObjectName(u"ckbROSI2ICapture")
+        self.lbROSI2ICaptureFolderPath = QLabel(self.frame_2)
+        self.lbROSI2ICaptureFolderPath.setObjectName(u"lbROSI2ICaptureFolderPath")
 
-        self.verticalLayout_2.addWidget(self.ckbROSI2ICapture)
+        self.verticalLayout_2.addWidget(self.lbROSI2ICaptureFolderPath)
 
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
@@ -230,19 +228,80 @@ class Ui_DlgROSI2I(object):
 
         self.horizontalLayout_5.addWidget(self.leditROSI2ICapturePath)
 
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_5)
 
+        self.ckbROSI2IShowCaptureFolder = QCheckBox(self.frame_2)
+        self.ckbROSI2IShowCaptureFolder.setObjectName(u"ckbROSI2IShowCaptureFolder")
+        self.ckbROSI2IShowCaptureFolder.setChecked(True)
+        self.verticalLayout_2.addWidget(self.ckbROSI2IShowCaptureFolder)
 
-        self.horizontalLayout_3.addWidget(self.frame_2)
+        self.horizontalLayoutROSI2ICaptureFPS = QHBoxLayout()
+        self.horizontalLayoutROSI2ICaptureFPS.setObjectName(u"horizontalLayoutROSI2ICaptureFPS")
+        self.lbROSI2ICaptureFPS = QLabel(self.frame_2)
+        self.lbROSI2ICaptureFPS.setObjectName(u"lbROSI2ICaptureFPS")
 
+        self.horizontalLayoutROSI2ICaptureFPS.addWidget(self.lbROSI2ICaptureFPS)
 
-        self.verticalLayout_19.addLayout(self.horizontalLayout_3)
+        self.horizontalSpacerROSI2ICaptureFPS = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalLayoutROSI2ICaptureFPS.addItem(self.horizontalSpacerROSI2ICaptureFPS)
 
-        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.leditROSI2ICaptureFPS = QLineEdit(self.frame_2)
+        self.leditROSI2ICaptureFPS.setObjectName(u"leditROSI2ICaptureFPS")
+        self.leditROSI2ICaptureFPS.setMaximumSize(QSize(90, 16777215))
+        self.leditROSI2ICaptureFPS.setAlignment(Qt.AlignRight)
 
-        self.verticalLayout_19.addItem(self.verticalSpacer_2)
+        self.horizontalLayoutROSI2ICaptureFPS.addWidget(self.leditROSI2ICaptureFPS)
 
+        self.verticalLayout_2.addLayout(self.horizontalLayoutROSI2ICaptureFPS)
+
+        self.verticalLayoutROSI2ICapture.addWidget(self.frame_2)
+        self.verticalLayout_19.addWidget(self.gbROSI2ICapture)
+
+        self.gbROSI2IFireModule = QGroupBox(self.gbROSI2IOption)
+        self.gbROSI2IFireModule.setObjectName(u"gbROSI2IFireModule")
+        self.gbROSI2IFireModule.setStyleSheet(u"QGroupBox#gbROSI2IFireModule {\n"
+"    border: 1px solid darkgray;\n"
+"    background-color: #d4d4d4;\n"
+"    margin-top: 14px;\n"
+"    color: #ffffff;\n"
+"}\n"
+"QGroupBox#gbROSI2IFireModule::title {\n"
+"    border: 1px solid white;\n"
+"    subcontrol-position: top left;\n"
+"    left: 8px;\n"
+"    background-color: gray;\n"
+"    padding: 4px 8px 4px 8px;\n"
+"    top: -14px;\n"
+"}")
+        self.verticalLayoutROSI2IFireModule = QVBoxLayout(self.gbROSI2IFireModule)
+        self.verticalLayoutROSI2IFireModule.setObjectName(u"verticalLayoutROSI2IFireModule")
+        self.verticalLayoutROSI2IFireModule.setContentsMargins(-1, 18, -1, -1)
+        self.lbROSI2IFireModulePath = QLabel(self.gbROSI2IFireModule)
+        self.lbROSI2IFireModulePath.setObjectName(u"lbROSI2IFireModulePath")
+
+        self.verticalLayoutROSI2IFireModule.addWidget(self.lbROSI2IFireModulePath)
+
+        self.horizontalLayoutROSI2IFireModulePath = QHBoxLayout()
+        self.horizontalLayoutROSI2IFireModulePath.setObjectName(u"horizontalLayoutROSI2IFireModulePath")
+        self.btnROSI2IFireModulePathOpen = QPushButton(self.gbROSI2IFireModule)
+        self.btnROSI2IFireModulePathOpen.setObjectName(u"btnROSI2IFireModulePathOpen")
+
+        self.horizontalLayoutROSI2IFireModulePath.addWidget(self.btnROSI2IFireModulePathOpen)
+
+        self.leditROSI2IFireModulePath = QLineEdit(self.gbROSI2IFireModule)
+        self.leditROSI2IFireModulePath.setObjectName(u"leditROSI2IFireModulePath")
+        self.leditROSI2IFireModulePath.setReadOnly(True)
+
+        self.horizontalLayoutROSI2IFireModulePath.addWidget(self.leditROSI2IFireModulePath)
+
+        self.verticalLayoutROSI2IFireModule.addLayout(self.horizontalLayoutROSI2IFireModulePath)
+
+        self.ckbROSI2IShowResultFolder = QCheckBox(self.gbROSI2IFireModule)
+        self.ckbROSI2IShowResultFolder.setObjectName(u"ckbROSI2IShowResultFolder")
+        self.ckbROSI2IShowResultFolder.setChecked(True)
+        self.verticalLayoutROSI2IFireModule.addWidget(self.ckbROSI2IShowResultFolder)
+
+        self.verticalLayout_19.addWidget(self.gbROSI2IFireModule)
 
         self.verticalLayout_18.addLayout(self.verticalLayout_19)
 
@@ -305,14 +364,92 @@ class Ui_DlgROSI2I(object):
 
         self.verticalLayout.addWidget(self.frame)
 
+        self.gbROSI2IMessages = QGroupBox(DlgROSI2I)
+        self.gbROSI2IMessages.setObjectName(u"gbROSI2IMessages")
+        self.gbROSI2IMessages.setMinimumSize(QSize(0, 145))
+        self.gbROSI2IMessages.setStyleSheet(u"QGroupBox#gbROSI2IMessages {\n"
+"    border: 1px solid #aaaaaa;\n"
+"    margin-top: 16px;\n"
+"}\n"
+"QGroupBox#gbROSI2IMessages::title {\n"
+"    subcontrol-origin: margin;\n"
+"    subcontrol-position: top left;\n"
+"    left: 20px;\n"
+"    padding: 5px 19px;\n"
+"    background-color: #8b8b8b;\n"
+"    color: white;\n"
+"}\n"
+"QPlainTextEdit#pteROSI2IMessages {\n"
+"    background-color: #f4f4f4;\n"
+"    color: #222222;\n"
+"    border: 1px solid #929292;\n"
+"    font-family: monospace;\n"
+"    font-size: 9pt;\n"
+"}")
+        self.verticalLayoutROSI2IMessages = QVBoxLayout(self.gbROSI2IMessages)
+        self.verticalLayoutROSI2IMessages.setObjectName(u"verticalLayoutROSI2IMessages")
+        self.verticalLayoutROSI2IMessages.setContentsMargins(8, 20, 8, 8)
+        self.pteROSI2IMessages = QPlainTextEdit(self.gbROSI2IMessages)
+        self.pteROSI2IMessages.setObjectName(u"pteROSI2IMessages")
+        self.pteROSI2IMessages.setMinimumSize(QSize(0, 105))
+        self.pteROSI2IMessages.setReadOnly(True)
+        self.pteROSI2IMessages.setMaximumBlockCount(300)
+        self.pteROSI2IMessages.setPlaceholderText(QCoreApplication.translate("DlgROSI2I", u"Capture and I2I fire-generation messages will appear here.", None))
+        self.verticalLayoutROSI2IMessages.addWidget(self.pteROSI2IMessages)
+        self.verticalLayout.addWidget(self.gbROSI2IMessages)
+
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.prgROSI2IProgress = QProgressBar(DlgROSI2I)
+        self.prgROSI2IProgress.setObjectName(u"prgROSI2IProgress")
+        sizePolicyProgress = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicyProgress.setHorizontalStretch(1)
+        sizePolicyProgress.setVerticalStretch(0)
+        sizePolicyProgress.setHeightForWidth(self.prgROSI2IProgress.sizePolicy().hasHeightForWidth())
+        self.prgROSI2IProgress.setSizePolicy(sizePolicyProgress)
+        self.prgROSI2IProgress.setMinimumSize(QSize(120, 24))
+        self.prgROSI2IProgress.setMaximumSize(QSize(16777215, 24))
+        self.prgROSI2IProgress.setValue(0)
+        self.prgROSI2IProgress.setTextVisible(True)
+        self.prgROSI2IProgress.setFormat(u"Ready")
+        self.horizontalLayout_2.addWidget(self.prgROSI2IProgress, 1)
 
-        self.horizontalLayout_2.addItem(self.horizontalSpacer)
+        self.btnROSI2IStop = QPushButton(DlgROSI2I)
+        self.btnROSI2IStop.setObjectName(u"btnROSI2IStop")
+        self.btnROSI2IStop.setMinimumSize(QSize(87, 29))
+        self.btnROSI2IStop.setMaximumSize(QSize(87, 29))
+        self.btnROSI2IStop.setEnabled(False)
+        self.btnROSI2IStop.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.horizontalLayout_2.addWidget(self.btnROSI2IStop)
 
         self.btnROSI2IStart = QPushButton(DlgROSI2I)
         self.btnROSI2IStart.setObjectName(u"btnROSI2IStart")
+        self.btnROSI2IStart.setMinimumSize(QSize(87, 29))
+        self.btnROSI2IStart.setMaximumSize(QSize(87, 29))
         self.btnROSI2IStart.setStyleSheet(u"QPushButton {\n"
 "color: #333;\n"
 "border: 2px solid #555;\n"
@@ -357,10 +494,21 @@ class Ui_DlgROSI2I(object):
         self.label_4.setText(QCoreApplication.translate("DlgROSI2I", u"Name Space : ", None))
         self.lbROSI2INameSpace.setText("")
         self.gbROSI2IOption.setTitle(QCoreApplication.translate("DlgROSI2I", u"Option", None))
-        self.ckbROSI2IShowCamera.setText(QCoreApplication.translate("DlgROSI2I", u"Show Camera", None))
-        self.ckbROSI2ICapture.setText(QCoreApplication.translate("DlgROSI2I", u"Capture", None))
+        self.gbROSI2ICapture.setTitle(QCoreApplication.translate("DlgROSI2I", u"Capture", None))
+        self.ckbROSI2IShowCaptureFolder.setText(QCoreApplication.translate("DlgROSI2I", u"Show Capture Folder", None))
+        self.lbROSI2ICaptureFolderPath.setText(QCoreApplication.translate("DlgROSI2I", u"Capture Folder Path :", None))
         self.btnROSI2ICapturePathOpen.setText(QCoreApplication.translate("DlgROSI2I", u"Open", None))
+        self.lbROSI2ICaptureFPS.setText(QCoreApplication.translate("DlgROSI2I", u"Capture FPS :", None))
+        self.leditROSI2ICaptureFPS.setText(QCoreApplication.translate("DlgROSI2I", u"1", None))
+        self.gbROSI2IFireModule.setTitle(QCoreApplication.translate("DlgROSI2I", u"Fire Generation", None))
+        self.lbROSI2IFireModulePath.setText(QCoreApplication.translate("DlgROSI2I", u"Fire Generation Module Path :", None))
+        self.btnROSI2IFireModulePathOpen.setText(QCoreApplication.translate("DlgROSI2I", u"Open", None))
+        self.ckbROSI2IShowResultFolder.setText(QCoreApplication.translate("DlgROSI2I", u"Show Result Folder", None))
+        self.leditROSI2IFireModulePath.setText(QCoreApplication.translate("DlgROSI2I", u"/root/tesla/I2I_Simulator/light_fire_pkg", None))
         self.gbROSI2ITopicList.setTitle(QCoreApplication.translate("DlgROSI2I", u"Topic List", None))
+        self.gbROSI2IMessages.setTitle(QCoreApplication.translate("DlgROSI2I", u"Messages", None))
+        self.pteROSI2IMessages.setPlaceholderText(QCoreApplication.translate("DlgROSI2I", u"Capture and I2I fire-generation messages will appear here.", None))
+        self.btnROSI2IStop.setText(QCoreApplication.translate("DlgROSI2I", u"Stop", None))
         self.btnROSI2IStart.setText(QCoreApplication.translate("DlgROSI2I", u"Start", None))
     # retranslateUi
 
