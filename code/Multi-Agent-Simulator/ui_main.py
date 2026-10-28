@@ -361,33 +361,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_30 = QHBoxLayout()
         self.horizontalLayout_30.setSpacing(6)
         self.horizontalLayout_30.setObjectName(u"horizontalLayout_30")
-        self.btnWorldOptionFire = QPushButton(self.frame_6)
-        self.btnWorldOptionFire.setObjectName(u"btnWorldOptionFire")
-        self.btnWorldOptionFire.setEnabled(True)
-        self.btnWorldOptionFire.setStyleSheet(u"QPushButton {\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 4px;\n"
-"padding: 5px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}")
 
-        self.horizontalLayout_30.addWidget(self.btnWorldOptionFire)
 
 
         self.horizontalLayout_27.addLayout(self.horizontalLayout_30)
@@ -658,14 +632,19 @@ class Ui_MainWindow(object):
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.verticalLayout_8 = QVBoxLayout()
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.verticalLayout_8.setContentsMargins(8, 0, 0, 0)
         self.btnROSTeleop = QPushButton(self.gbRobotROSControl)
         self.btnROSTeleop.setObjectName(u"btnROSTeleop")
-        self.btnROSTeleop.setMinimumSize(QSize(94, 40))
+        self.btnROSTeleop.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.btnROSTeleop.setMinimumSize(QSize(114, 30))
+        self.btnROSTeleop.setMaximumSize(QSize(114, 30))
         self.btnROSTeleop.setStyleSheet(u"QPushButton {\n"
 "color: #333;\n"
 "border: 2px solid #555;\n"
 "border-radius: 4px;\n"
 "padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
 "background: qradialgradient(cx: 0.3, cy: -0.4,\n"
 "fx: 0.3, fy: -0.4,\n"
 "radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
@@ -684,7 +663,7 @@ class Ui_MainWindow(object):
 "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
 "}")
 
-        self.verticalLayout_8.addWidget(self.btnROSTeleop)
+        self.verticalLayout_8.addWidget(self.btnROSTeleop, 0, Qt.AlignLeft)
 
 
         self.verticalLayout_6.addLayout(self.verticalLayout_8)
@@ -977,11 +956,44 @@ class Ui_MainWindow(object):
         self.verticalLayout_16.setObjectName(u"verticalLayout_16")
         self.horizontalLayout_21 = QHBoxLayout()
         self.horizontalLayout_21.setObjectName(u"horizontalLayout_21")
+        self.btnWorldOptionFire = QPushButton(self.gbRobotROSI2IEnhancement)
+        self.btnWorldOptionFire.setObjectName(u"btnWorldOptionFire")
+        self.btnWorldOptionFire.setEnabled(True)
+        self.btnWorldOptionFire.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.btnWorldOptionFire.setMinimumSize(QSize(114, 30))
+        self.btnWorldOptionFire.setMaximumSize(QSize(114, 30))
+        self.btnWorldOptionFire.setStyleSheet(u"QPushButton {\n"
+"color: #333;\n"
+"border: 2px solid #555;\n"
+"border-radius: 4px;\n"
+"padding: 5px;\n"
+"margin-left: 10px;\n"
+"margin-right: 10px;\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+"min-width: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+"fx: 0.3, fy: -0.4,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+"fx: 0.4, fy: -0.1,\n"
+"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+"}")
+
+        self.horizontalLayout_21.addWidget(self.btnWorldOptionFire)
+
         self.btnRobotROSI2IStart = QPushButton(self.gbRobotROSI2IEnhancement)
         self.btnRobotROSI2IStart.setObjectName(u"btnRobotROSI2IStart")
-        sizePolicy2.setHeightForWidth(self.btnRobotROSI2IStart.sizePolicy().hasHeightForWidth())
-        self.btnRobotROSI2IStart.setSizePolicy(sizePolicy2)
-        self.btnRobotROSI2IStart.setMinimumSize(QSize(114, 0))
+        self.btnRobotROSI2IStart.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.btnRobotROSI2IStart.setMinimumSize(QSize(114, 30))
+        self.btnRobotROSI2IStart.setMaximumSize(QSize(114, 30))
         self.btnRobotROSI2IStart.setStyleSheet(u"QPushButton {\n"
 "color: #333;\n"
 "border: 2px solid #555;\n"
@@ -1462,7 +1474,7 @@ class Ui_MainWindow(object):
         self.label_6.setText("")
         self.label_8.setText("")
         self.gbRobotROSI2IEnhancement.setTitle(QCoreApplication.translate("MainWindow", u"I2I Enhancement", None))
-        self.btnRobotROSI2IStart.setText(QCoreApplication.translate("MainWindow", u"Setting", None))
+        self.btnRobotROSI2IStart.setText(QCoreApplication.translate("MainWindow", u"Capture", None))
         self.label_4.setText("")
         self.label_9.setText("")
         self.gbRobotROSDQN.setTitle(QCoreApplication.translate("MainWindow", u"Deep Q-Learning", None))

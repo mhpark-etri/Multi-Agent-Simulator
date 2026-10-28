@@ -1,0 +1,25 @@
+Apply these files to the existing Multi-Agent-Simulator project folder:
+  dlgROSI2I.py
+  dlgROSI2I.ui
+  dlgROSI2I_ui.py
+  ui_dlgROSI2I.py
+  i2i_fire_worker.py
+
+Keep dlgROSI2I_ui.py and ui_dlgROSI2I.py synchronized; runtime imports
+Ui_DlgROSI2I from dlgROSI2I_ui.py.
+
+UI behavior:
+- Start remains disabled until a yellow sensor_msgs/Image topic is selected.
+- Capture and Fire Generation settings are in separate group boxes.
+- Show Capture Folder and Show Result Folder are checked by default.
+- The checked folders are opened when capture starts.
+- Messages keeps the newest 300 lines.
+- Progress is busy while capture is continuous, then determinate while Stop drains
+  all remaining captured frames and waits for the worker to exit.
+
+The AI worker still uses the selected Fire Generation Module Path and the
+existing lightfire Conda Python. Set LIGHT_FIRE_PYTHON if the interpreter is
+not found automatically. LIGHT_FIRE_DEVICE may be cuda or cpu.
+
+Static and fake-worker tests passed. Please test the full dialog in the local
+PySide6 + ROS1 + cv_bridge + lightfire environment before production use.
