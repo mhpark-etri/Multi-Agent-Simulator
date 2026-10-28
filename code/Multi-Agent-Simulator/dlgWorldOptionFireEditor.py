@@ -24,6 +24,7 @@ class DialogWorldOptionFireEditor(QtWidgets.QDialog):
         self.m_fireOptions = []
         self._fire_running = False
         self._stop_emitted = False
+        self.SetFireProgress(0, 'Ready')
 
         self.ui.btnWorldOptionFireAdd.clicked.connect(lambda: self.AddFireItem())
         self.ui.btnWorldOptionFireDelete.clicked.connect(self.DeleteFireItem)
@@ -134,6 +135,34 @@ class DialogWorldOptionFireEditor(QtWidgets.QDialog):
             return
         self.startRequested.emit(self.m_fireOptions)
 
+    def ClearFireMessages(self):
+        """Clear the visible log when a new fire session starts."""
+        self.ui.pteWorldOptionFireMessages.clear()
+
+    def LoadFireMessages(self, messages):
+        """Restore recent messages when reopening the dialog."""
+        recent = list(messages)[-300:]
+        self.ui.pteWorldOptionFireMessages.setPlainText('\n'.join(recent))
+        scrollbar = self.ui.pteWorldOptionFireMessages.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+
+    def AppendFireMessage(self, message):
+        """Append a fire log line; QPlainTextEdit keeps only the newest 300 lines."""
+        text = str(message)
+        for line in text.splitlines():
+            if line:
+                self.ui.pteWorldOptionFireMessages.appendPlainText(line)
+        scrollbar = self.ui.pteWorldOptionFireMessages.verticalScrollBar()
+        scrollbar.setValue(scrollbar.maximum())
+
+    def SetFireProgress(self, value, text=None):
+        """Update the bottom progress bar; MainWindow owns progress semantics."""
+        bar = self.ui.prgWorldOptionFireProgress
+        bar.setRange(0, 100)
+        bar.setValue(max(0, min(100, int(value))))
+        if text is not None:
+            bar.setFormat(str(text))
+
     def SetFireRunning(self, running):
         """Reflect the actual MainWindow QProcess state in the controls."""
         self._fire_running = bool(running)
@@ -147,6 +176,7 @@ class DialogWorldOptionFireEditor(QtWidgets.QDialog):
         self._stop_emitted = True
         self.ui.btnWorldOptionFireStart.setEnabled(False)
         self.ui.btnWorldOptionFireStop.setEnabled(False)
+        self.SetFireProgress(0, 'Stopping fire... %p%')
 
     def RequestStop(self):
         """Request cleanup once; the parent handles SIGTERM and delete_model."""

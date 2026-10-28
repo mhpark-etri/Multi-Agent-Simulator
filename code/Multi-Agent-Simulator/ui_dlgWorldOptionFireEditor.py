@@ -7,8 +7,8 @@ from PySide6 import QtCore, QtWidgets
 class Ui_DlgWorldOptionFireEditor(object):
     def setupUi(self, DlgWorldOptionFireEditor):
         DlgWorldOptionFireEditor.setObjectName('DlgWorldOptionFireEditor')
-        DlgWorldOptionFireEditor.resize(568, 650)
-        DlgWorldOptionFireEditor.setMinimumSize(QtCore.QSize(530, 490))
+        DlgWorldOptionFireEditor.resize(620, 800)
+        DlgWorldOptionFireEditor.setMinimumSize(QtCore.QSize(550, 620))
 
         self.verticalLayoutWorldOptionFireEditor = QtWidgets.QVBoxLayout(DlgWorldOptionFireEditor)
         self.verticalLayoutWorldOptionFireEditor.setObjectName('verticalLayoutWorldOptionFireEditor')
@@ -90,24 +90,68 @@ QListWidget#lstwWorldOptionFireProperties::item:selected {
             setattr(self, name, button)
             self.horizontalLayoutWorldOptionFireSync.addWidget(button)
         self.verticalLayoutWorldOptionFireProperties.addLayout(self.horizontalLayoutWorldOptionFireSync)
-        self.verticalLayoutWorldOptionFireEditor.addWidget(self.gbWorldOptionFireProperties)
+        self.verticalLayoutWorldOptionFireEditor.addWidget(self.gbWorldOptionFireProperties, 5)
+
+
+        self.gbWorldOptionFireMessages = QtWidgets.QGroupBox(DlgWorldOptionFireEditor)
+        self.gbWorldOptionFireMessages.setObjectName('gbWorldOptionFireMessages')
+        self.gbWorldOptionFireMessages.setMinimumSize(QtCore.QSize(0, 145))
+        self.gbWorldOptionFireMessages.setStyleSheet('''
+QGroupBox#gbWorldOptionFireMessages {
+    border: 1px solid #aaaaaa;
+    margin-top: 16px;
+}
+QGroupBox#gbWorldOptionFireMessages::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    left: 20px;
+    padding: 5px 19px;
+    background-color: #8b8b8b;
+    color: white;
+}
+QPlainTextEdit#pteWorldOptionFireMessages {
+    background-color: #f4f4f4;
+    color: #222222;
+    border: 1px solid #929292;
+    font-family: monospace;
+    font-size: 9pt;
+}
+''')
+        self.verticalLayoutWorldOptionFireMessages = QtWidgets.QVBoxLayout(self.gbWorldOptionFireMessages)
+        self.verticalLayoutWorldOptionFireMessages.setObjectName('verticalLayoutWorldOptionFireMessages')
+        self.verticalLayoutWorldOptionFireMessages.setContentsMargins(8, 20, 8, 8)
+        self.pteWorldOptionFireMessages = QtWidgets.QPlainTextEdit(self.gbWorldOptionFireMessages)
+        self.pteWorldOptionFireMessages.setObjectName('pteWorldOptionFireMessages')
+        self.pteWorldOptionFireMessages.setMinimumSize(QtCore.QSize(0, 105))
+        self.pteWorldOptionFireMessages.setReadOnly(True)
+        self.pteWorldOptionFireMessages.setMaximumBlockCount(300)
+        self.verticalLayoutWorldOptionFireMessages.addWidget(self.pteWorldOptionFireMessages)
+        self.verticalLayoutWorldOptionFireEditor.addWidget(self.gbWorldOptionFireMessages, 2)
 
         self.horizontalLayoutWorldOptionFireBottom = QtWidgets.QHBoxLayout()
         self.horizontalLayoutWorldOptionFireBottom.setObjectName('horizontalLayoutWorldOptionFireBottom')
-        self.horizontalLayoutWorldOptionFireBottom.setSpacing(10)
+        self.horizontalLayoutWorldOptionFireBottom.setSpacing(7)
         self.horizontalLayoutWorldOptionFireBottom.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSpacerWorldOptionFireBottom = QtWidgets.QSpacerItem(
-            3, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayoutWorldOptionFireBottom.addItem(self.horizontalSpacerWorldOptionFireBottom)
+        self.prgWorldOptionFireProgress = QtWidgets.QProgressBar(DlgWorldOptionFireEditor)
+        self.prgWorldOptionFireProgress.setObjectName('prgWorldOptionFireProgress')
+        self.prgWorldOptionFireProgress.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        self.prgWorldOptionFireProgress.setMinimumSize(QtCore.QSize(120, 24))
+        self.prgWorldOptionFireProgress.setMaximumSize(QtCore.QSize(16777215, 24))
+        self.prgWorldOptionFireProgress.setValue(0)
+        self.prgWorldOptionFireProgress.setTextVisible(True)
+        self.prgWorldOptionFireProgress.setFormat('Ready')
+        self.horizontalLayoutWorldOptionFireBottom.addWidget(
+            self.prgWorldOptionFireProgress, 1)
         self.btnWorldOptionFireStop = QtWidgets.QPushButton(DlgWorldOptionFireEditor)
         self.btnWorldOptionFireStop.setObjectName('btnWorldOptionFireStop')
-        self.btnWorldOptionFireStop.setMinimumSize(QtCore.QSize(93, 43))
-        self.btnWorldOptionFireStop.setMaximumSize(QtCore.QSize(93, 16777215))
+        self.btnWorldOptionFireStop.setMinimumSize(QtCore.QSize(87, 29))
+        self.btnWorldOptionFireStop.setMaximumSize(QtCore.QSize(87, 29))
         self.horizontalLayoutWorldOptionFireBottom.addWidget(self.btnWorldOptionFireStop)
         self.btnWorldOptionFireStart = QtWidgets.QPushButton(DlgWorldOptionFireEditor)
         self.btnWorldOptionFireStart.setObjectName('btnWorldOptionFireStart')
-        self.btnWorldOptionFireStart.setMinimumSize(QtCore.QSize(93, 43))
-        self.btnWorldOptionFireStart.setMaximumSize(QtCore.QSize(93, 16777215))
+        self.btnWorldOptionFireStart.setMinimumSize(QtCore.QSize(87, 29))
+        self.btnWorldOptionFireStart.setMaximumSize(QtCore.QSize(87, 29))
         self.horizontalLayoutWorldOptionFireBottom.addWidget(self.btnWorldOptionFireStart)
         self.verticalLayoutWorldOptionFireEditor.addLayout(self.horizontalLayoutWorldOptionFireBottom)
 
@@ -118,6 +162,8 @@ QListWidget#lstwWorldOptionFireProperties::item:selected {
         _translate = QtCore.QCoreApplication.translate
         DlgWorldOptionFireEditor.setWindowTitle(_translate('DlgWorldOptionFireEditor', 'World Option - Fire'))
         self.gbWorldOptionFireProperties.setTitle(_translate('DlgWorldOptionFireEditor', 'Properties'))
+        self.gbWorldOptionFireMessages.setTitle(_translate('DlgWorldOptionFireEditor', 'Messages'))
+        self.pteWorldOptionFireMessages.setPlaceholderText(_translate('DlgWorldOptionFireEditor', 'Fire simulation messages will appear here.'))
         self.btnWorldOptionFireAdd.setText(_translate('DlgWorldOptionFireEditor', 'Add'))
         self.btnWorldOptionFireDelete.setText(_translate('DlgWorldOptionFireEditor', 'Delete'))
         self.lbWorldOptionFireSyncToSelectedItem.setText(_translate('DlgWorldOptionFireEditor', 'Sync to Selected Item'))

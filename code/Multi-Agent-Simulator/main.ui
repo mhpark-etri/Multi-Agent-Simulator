@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
@@ -642,40 +642,6 @@ QGroupBox::title {
                                  <property name="spacing">
                                   <number>6</number>
                                  </property>
-                                 <item>
-                                  <widget class="QPushButton" name="btnWorldOptionFire">
-                                   <property name="enabled">
-                                    <bool>true</bool>
-                                   </property>
-                                   <property name="styleSheet">
-                                    <string notr="true">QPushButton {
-color: #333;
-border: 2px solid #555;
-border-radius: 4px;
-padding: 5px;
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #888);
-min-width: 80px;
-}
-
-QPushButton:hover {
-background: qradialgradient(cx: 0.3, cy: -0.4,
-fx: 0.3, fy: -0.4,
-radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
-}
-
-QPushButton:pressed {
-background: qradialgradient(cx: 0.4, cy: -0.1,
-fx: 0.4, fy: -0.1,
-radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
-}</string>
-                                   </property>
-                                   <property name="text">
-                                    <string>Fire</string>
-                                   </property>
-                                  </widget>
-                                 </item>
                                 </layout>
                                </item>
                               </layout>
@@ -1132,12 +1098,36 @@ QGroupBox#gbRobotROSControl::title {
                    <layout class="QVBoxLayout" name="verticalLayout_6">
                     <item>
                      <layout class="QVBoxLayout" name="verticalLayout_8">
-                      <item>
+                     <property name="leftMargin">
+                      <number>8</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                      <item alignment="Qt::AlignLeft">
                        <widget class="QPushButton" name="btnROSTeleop">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
                         <property name="minimumSize">
                          <size>
-                          <width>94</width>
-                          <height>40</height>
+                          <width>114</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>114</width>
+                          <height>30</height>
                          </size>
                         </property>
                         <property name="styleSheet">
@@ -1146,6 +1136,8 @@ color: #333;
 border: 2px solid #555;
 border-radius: 4px;
 padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
 background: qradialgradient(cx: 0.3, cy: -0.4,
 fx: 0.3, fy: -0.4,
 radius: 1.35, stop: 0 #fff, stop: 1 #888);
@@ -1561,17 +1553,20 @@ QGroupBox#gbRobotROSI2IEnhancement::title {
                     <item>
                      <layout class="QHBoxLayout" name="horizontalLayout_21">
                       <item>
-                       <widget class="QPushButton" name="btnRobotROSI2IStart">
+                       <widget class="QPushButton" name="btnWorldOptionFire">
                         <property name="sizePolicy">
-                         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <property name="minimumSize">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="maximumSize">
                          <size>
                           <width>114</width>
-                          <height>0</height>
+                          <height>30</height>
                          </size>
                         </property>
                         <property name="styleSheet">
@@ -1601,7 +1596,64 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
 }</string>
                         </property>
                         <property name="text">
-                         <string>Setting</string>
+                         <string>Fire</string>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>114</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                       </widget>
+                      </item>
+                                <item>
+                       <widget class="QPushButton" name="btnRobotROSI2IStart">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>114</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>114</width>
+                          <height>30</height>
+                         </size>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">QPushButton {
+color: #333;
+border: 2px solid #555;
+border-radius: 4px;
+padding: 5px;
+margin-left: 10px;
+margin-right: 10px;
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #888);
+min-width: 80px;
+}
+
+QPushButton:hover {
+background: qradialgradient(cx: 0.3, cy: -0.4,
+fx: 0.3, fy: -0.4,
+radius: 1.35, stop: 0 #fff, stop: 1 #bbb);
+}
+
+QPushButton:pressed {
+background: qradialgradient(cx: 0.4, cy: -0.1,
+fx: 0.4, fy: -0.1,
+radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
+}</string>
+                        </property>
+                        <property name="text">
+                         <string>Capture</string>
                         </property>
                        </widget>
                       </item>
