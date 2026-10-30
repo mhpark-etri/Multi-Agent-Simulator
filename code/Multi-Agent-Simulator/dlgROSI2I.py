@@ -198,7 +198,6 @@ class DialogROSI2I(QtWidgets.QDialog):
         self._show_capture_folder = True
         self._show_result_folder = True
         self._drain_total = None
-        self._drain_done = 0
         self._worker_exit_code = None
         self._worker_out_buffer = ""
         self._worker_err_buffer = ""
@@ -487,7 +486,6 @@ class DialogROSI2I(QtWidgets.QDialog):
         self._stopping = False
         self._drain_sent = False
         self._drain_total = None
-        self._drain_done = 0
         self._worker_exit_code = None
         self._worker_out_buffer = ""
         self._worker_err_buffer = ""
@@ -552,7 +550,6 @@ class DialogROSI2I(QtWidgets.QDialog):
                     self._Log("[I2I WARNING] Invalid drain total: {}".format(line))
                     continue
                 self._drain_total = total
-                self._drain_done = 0
                 if total == 0:
                     self._SetProgress(100, 100, "No pending images")
                     self._Log("[I2I] No pending images remain to convert.")
@@ -565,7 +562,6 @@ class DialogROSI2I(QtWidgets.QDialog):
                 except (ValueError, IndexError):
                     self._Log("[I2I WARNING] Invalid drain progress: {}".format(line))
                     continue
-                self._drain_done = max(0, done)
                 if total > 0:
                     self._drain_total = max(total, self._drain_total or 0)
                     self._SetProgress(done, total, "Finishing images: %p%")
