@@ -3,20 +3,21 @@
 ## 제작 : 박태순                                     ## 
 ## 설명 : Navigation Dialog                         ##
 ######################################################
+import copy
 import os
+
+import yaml
 from PySide6 import QtWidgets
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtWidgets import QFileDialog, QMessageBox
-from ui_dlgROSNavigation import Ui_DlgROSNavigation
-import copy
-import yaml
 
+from ui_dlgROSNavigation import Ui_DlgROSNavigation
 from constant import *
 from simulator import *
 
-class DialogNavigation(
-    QtWidgets.QDialog):
+
+class DialogNavigation(QtWidgets.QDialog):
     # Init
     def __init__(self, rosInfo):
         super().__init__()
@@ -25,7 +26,6 @@ class DialogNavigation(
 
         self.m_orgRosInfo = rosInfo
         self.m_simulator = copy.deepcopy(rosInfo)
-        self.m_currentSimulatorIdx = 0
         # 기본 맵 저장 경로
         self.m_mapDefaultPath = ""
 
@@ -48,10 +48,8 @@ class DialogNavigation(
     # 로봇 정보를 이용해 로봇에 Navigation 정보를 입력한다
     def CreateSelectRobotPanel(self):
         # 1. 로봇 대수 별로 콤보박스 생성
-        robotCount = len(self.m_simulator.robots)
-        for i in range(0, robotCount):
-            name = self.m_simulator.robots[i].name
-            self.ui.cbROSNaviRobots.addItem(name)
+        for robot in self.m_simulator.robots:
+            self.ui.cbROSNaviRobots.addItem(robot.name)
 
         # 2. Option 설정
         self.m_currentSimulatorIdx = 0
@@ -91,7 +89,7 @@ class DialogNavigation(
         self.ui.ledtROSNaviRobotsPosX.setText(f"{posX:.1f}")
         self.ui.ledtROSNaviRobotsPosY.setText(f"{posY:.1f}")
         self.ui.ledtROSNaviRobotsPosZ.setText(f"{posZ:.1f}")
-    
+
     # X,Y,Z 값 변경
     def onRobotPosXChanged(self, text):
         if self.CheckIsNumber(text):
@@ -131,7 +129,7 @@ class DialogNavigation(
     # Navigation Map Open
     def OpenMap(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.ReadOnly 
+        options |= QFileDialog.ReadOnly
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Open File", self.m_mapDefaultPath, "YAML Files (*.yaml)", options=options
         )
@@ -151,12 +149,12 @@ class DialogNavigation(
             # 경로 입력
             self.ui.ledtROSNaviMapPath.setText(file_name)
             self.Savel_Map_Path(file_name)
-              
+
     # 세팅 정보 저장
     def Setting(self):
         # 맵 경로 획득
         mapPath = self.ui.ledtROSNaviMapPath.text()
-        if mapPath == "" :
+        if mapPath == "":
             msg = QMessageBox(self)
             msg.setIcon(QMessageBox.Warning)
             msg.setText("맵 파일을 먼저 선택해 주세요")
@@ -166,7 +164,7 @@ class DialogNavigation(
         self.m_orgRosInfo.ros_navigation_map_path = mapPath
 
         # 내부 시뮬레이터 정보를 main 정보에 저장
-        for i in range(0, len(self.m_simulator.robots)) :
+        for i in range(len(self.m_simulator.robots)):
             self.m_orgRosInfo.robots[i].startX = self.m_simulator.robots[i].startX
             self.m_orgRosInfo.robots[i].startY = self.m_simulator.robots[i].startY
             self.m_orgRosInfo.robots[i].startZ = self.m_simulator.robots[i].startZ
@@ -175,7 +173,7 @@ class DialogNavigation(
 
         # # 모델 리스트 획득
         # arrRobotsName = [self.ui.cbROSNaviRobots.itemText(index) for index in range(self.ui.cbROSNaviRobots.count())]
-        
+
         # # 무결성 체크
         # # Navigation 같은 제조사의 로봇들 끼리만 동작 하도록 하는 것을 기본 전제로 한다
         # robotLabel = self.ui.cbROSNaviRobots.currentText()
@@ -193,14 +191,13 @@ class DialogNavigation(
         #         # command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP_KEY
         #         command = command + CMD_ROS_COMMON_ROSLAUNCH + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_TURTLEBOT3_NAVIGATION + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_TURTLEBOT3_NAVIGATION_LAUNCH + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_MAP_FILE + CMD_COMMON_PARAM_INSERT + mapPath
         #         # os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
-            
+
 
         #     # Waffle
         #     elif self.m_simulator.robots[int(robotIdx)].type == ENUM_ROBOT_TYPE.TURTLEBOT3_WAFFLE:
         #         # 터틀봇 Waffle Slam 실행
         #         command = CMD_ROS_COMMON_EXPORT + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_MODEL + CMD_TURTLEBOT3_MODEL_WAFFLE + CMD_COMMON_SEMICOLON + CMD_COMMON_SPACE
-        #         # command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP + CMD_COMMON_SPACE + CMD_ROS_TURTLEBOT3_TELEOP_KEY
-        #         command = command + CMD_ROS_COMMON_ROSLAUNCH + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_TURTLEBOT3_NAVIGATION + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_TURTLEBOT3_NAVIGATION_LAUNCH + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_MAP_FILE + CMD_COMMON_PARAM_INSERT + mapPath
+        #         # command = command + CMD_ROS_COMMON_ROS_NAMESPACE + label + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSRUN + CMD_COMMON_SPACE + CMD_ROS_COMMON_ROSLAUNCH + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_TURTLEBOT3_NAVIGATION + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_TURTLEBOT3_NAVIGATION_LAUNCH + CMD_COMMON_SPACE + CMD_ROS_NAVIGATION_MAP_FILE + CMD_COMMON_PARAM_INSERT + mapPath
         #         # os.system(CMD_EXCUTE_CMD_OPEN + command + CMD_EXCUTE_CMD_CLOSE)
 
         # elif robotName == CMD_JETBOT_DEFAULT_NAME:
