@@ -93,9 +93,8 @@ class DialogTeleop(QtWidgets.QDialog):
         parts.append('result=$?')
         parts.append('printf "\\nTeleop finished (exit code: %s).\\n" "$result"')
         parts.append('read -r -p "Press Enter to close this terminal..." _')
-        command = '; '.join(parts)
         return ['gnome-terminal', '--title', 'Teleop - ' + robot_name,
-                '--', 'bash', '-c', command]
+                '--', 'bash', '-c', '; '.join(parts)]
 
     def StartTeleop(self):
         """Open an isolated console for the clicked robot; never block Qt."""
@@ -104,8 +103,8 @@ class DialogTeleop(QtWidgets.QDialog):
             return
         robot_name = str(button.property('teleopRobotName') or '')
         robot_type = str(button.property('teleopRobotType') or '')
-        script = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                              'robot_teleop_keyboard.py')
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        script = os.path.join(script_dir, 'robot_teleop_keyboard.py')
         if not os.path.isfile(script):
             QtWidgets.QMessageBox.warning(
                 self, 'ROS Teleop', 'Missing keyboard control script:\n' + script)
@@ -118,7 +117,7 @@ class DialogTeleop(QtWidgets.QDialog):
             return
         try:
             command = self.build_terminal_command(robot_name, robot_type, script)
-            subprocess.Popen(command, cwd=os.path.dirname(script))
+            subprocess.Popen(command, cwd=script_dir)
         except (OSError, ValueError) as exc:
             QtWidgets.QMessageBox.warning(
                 self, 'ROS Teleop', 'Could not open teleop terminal:\n' + str(exc))
