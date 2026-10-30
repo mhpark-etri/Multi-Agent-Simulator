@@ -11,9 +11,10 @@ Baseline(단독 주행) launch 에는 연결되지 않는다.
 해당 태스크 전용(nav/<TASK>/...) 키로 저장되고, 그 태스크가 실제 사용하는 로봇
 계열만 노출한다. 값 우선순위 = 태스크 전용 → 공통 → 기본값.
 """
-from PySide6 import QtWidgets, QtCore, QtGui
 import subprocess
 import threading
+
+from PySide6 import QtWidgets, QtCore, QtGui
 
 # ★ 설정 저장소 통일 (2026-08-10): 이전 버전은 자체 앱 이름("Multi-Agent-Simulator")
 #   저장소에 쓰는데 main.py 는 constant 의 "ROSSimulator" 저장소를 읽어
@@ -139,7 +140,7 @@ class DialogNavSettings(QtWidgets.QDialog):
     sigLiveDone = QtCore.Signal(str)     # 라이브 적용 결과 (작업 스레드 → UI 스레드)
 
     def __init__(self, parent=None, task_key=None):
-        super(DialogNavSettings, self).__init__(parent)
+        super().__init__(parent)
         self.m_settings = QtCore.QSettings(SETTING_COMPANY, SETTING_APP)
         _migrate_old_nav(self.m_settings)
         info = TASK_NAV.get(task_key) if task_key else None
@@ -378,15 +379,18 @@ def generate_nav_overrides(settings, path, task_key=None):
                 return str(v)
         v = settings.value('nav/planner_%s' % key)
         return str(v) if v is not None else '자동 (기본)'
+
+    def _add_global_planner(cls, selected):
+        if selected == '자동 (기본)':
+            return
+        gp = ('global_planner/GlobalPlanner' if selected == 'GlobalPlanner'
+              else 'navfn/NavfnROS')
+        for ns in CLASS_ROBOTS[cls]:
+            lines.append(f'  <param name="/{ns}/move_base/base_global_planner" value="{gp}"/>')
+            if selected == 'GlobalPlanner':
+                lines.append(f'  <param name="/{ns}/move_base/GlobalPlanner/allow_unknown" value="true"/>')
     if 'loco' in classes:
-        _lg = _pl('loco_global')
-        if _lg != '자동 (기본)':
-            gp = ('global_planner/GlobalPlanner' if _lg == 'GlobalPlanner'
-                  else 'navfn/NavfnROS')
-            for ns in CLASS_ROBOTS['loco']:
-                lines.append(f'  <param name="/{ns}/move_base/base_global_planner" value="{gp}"/>')
-                if _lg == 'GlobalPlanner':
-                    lines.append(f'  <param name="/{ns}/move_base/GlobalPlanner/allow_unknown" value="true"/>')
+        _add_global_planner('loco', _pl('loco_global'))
         _ll = _pl('loco_local')
         if _ll != '자동 (기본)':
             if _ll == 'DWA':
@@ -408,14 +412,7 @@ def generate_nav_overrides(settings, path, task_key=None):
                 for ns in CLASS_ROBOTS['loco']:
                     lines.append(f'  <param name="/{ns}/move_base/base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>')
     if 'tb3' in classes:
-        _tg = _pl('tb3_global')
-        if _tg != '자동 (기본)':
-            gp = ('global_planner/GlobalPlanner' if _tg == 'GlobalPlanner'
-                  else 'navfn/NavfnROS')
-            for ns in CLASS_ROBOTS['tb3']:
-                lines.append(f'  <param name="/{ns}/move_base/base_global_planner" value="{gp}"/>')
-                if _tg == 'GlobalPlanner':
-                    lines.append(f'  <param name="/{ns}/move_base/GlobalPlanner/allow_unknown" value="true"/>')
+        _add_global_planner('tb3', _pl('tb3_global'))
     if nav_check_value(settings, 'rotate', task):
         # 회전 리커버리 복원 (게이트 블록의 청소-전용 목록을 덮음)
         layers = {'loco': '[laser_layer, depth_layer]',
