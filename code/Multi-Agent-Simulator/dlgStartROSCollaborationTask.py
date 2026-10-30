@@ -23,13 +23,13 @@ import time
 import threading
 import json
 import sys
-from PySide6.QtCore import QThread, Signal, QSettings
+from PySide6.QtCore import Signal, QSettings
 
 from constant import *
 from simulator import *
 
-class DialogStartROSCollaborationTask(
-    QtWidgets.QDialog):
+
+class DialogStartROSCollaborationTask(QtWidgets.QDialog):
 
     # 릴레이 완료(백그라운드 스레드) → UI 스레드에서 버튼 복구용 시그널
     sigTaskDone = Signal()
@@ -370,9 +370,10 @@ class DialogStartROSCollaborationTask(
                       + CMD_ROS_JNP081_TASK_TOPIC + " std_msgs/String \"data: '" + data + "'\"")
 
             def _agents_running():
-                out = subprocess.run(['pgrep', '-f', 'jnp_0.8.1/scripts/jnp_[a]gent'],
-                                     stdout=subprocess.PIPE).stdout.decode().split()
-                return out
+                return subprocess.run(
+                    ['pgrep', '-f', 'jnp_0.8.1/scripts/jnp_[a]gent'],
+                    stdout=subprocess.PIPE
+                ).stdout.decode().split()
 
             robot_names = [rb.name for rb in self.m_simulator.robots]
 
@@ -521,4 +522,3 @@ class DialogStartROSCollaborationTask(
 
     def showModal(self):
         return super().exec_()
-    
