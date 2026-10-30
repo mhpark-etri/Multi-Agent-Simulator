@@ -97,7 +97,6 @@ class DialogJnpMonitor(QtWidgets.QDialog):
         self.m_clock_prev = None
         self.m_sim_t = None
         self.m_rtf = None
-        self.m_dissolved_group = None
         self._spawn_clock_watch()
         self.m_statTimer = QtCore.QTimer(self)
         self.m_statTimer.timeout.connect(self._update_stats)
@@ -276,9 +275,8 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             self._log(f"[진단] 합쳐진 이벤트 원문: {line!r}")
             for p in parts:
                 self._on_one_event(p)
-            self._refresh_agents()
-            return
-        self._on_one_event(line)
+        else:
+            self._on_one_event(line)
         self._refresh_agents()
 
     def _on_one_event(self, line):
@@ -301,6 +299,13 @@ class DialogJnpMonitor(QtWidgets.QDialog):
     def _dissolve_group(self):
         targets = [g for g, st in self.m_statuses.items()
                    if st.get('state') in ('success', 'failed')]
+        if not targets:
+            group = (self.m_status or {}).get('group')
+            if not group:
+                self._log("해제할 그룹이 없습니다 (coalition 미형성)" if self.m_ko
+                          else "no group to dissolve (no coalition formed)")
+                return
+            targets = [group]
         for group in targets:
             cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
                    + "; rostopic pub -1 " + CMD_ROS_JNP081_TASK_TOPIC
@@ -308,19 +313,6 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             QtCore.QProcess.startDetached("bash", ["-c", cmd])
             self._log(f"그룹 해제 명령 발행: {group}" if self.m_ko
                       else f"dissolve command published: {group}")
-        if targets:
-            return
-        group = (self.m_status or {}).get('group')
-        if not group:
-            self._log("해제할 그룹이 없습니다 (coalition 미형성)" if self.m_ko
-                      else "no group to dissolve (no coalition formed)")
-            return
-        cmd = ("source /opt/ros/noetic/setup.bash; " + PATH_SOURCE_JNP081_SETUP
-               + "; rostopic pub -1 " + CMD_ROS_JNP081_TASK_TOPIC
-               + " std_msgs/String \"data: 'dissolve:" + group + "'\"")
-        QtCore.QProcess.startDetached("bash", ["-c", cmd])
-        self._log(f"그룹 해제 명령 발행: {group}" if self.m_ko
-                  else f"dissolve command published: {group}")
 
     def _log(self, msg):
         stamp = datetime.datetime.now().strftime('%H:%M:%S')
@@ -401,7 +393,7 @@ class DialogJnpMonitor(QtWidgets.QDialog):
             root = (st.get('tree') or {}).get('name')
             clusters.setdefault(root or grp, []).append((grp, st))
         display = {}
-        for key, lst in clusters.items():
+        for lst in clusters.values():
             if len(lst) == 1 or not lst[0][1].get('tree'):
                 display.update(dict(lst))
                 continue
@@ -448,10 +440,6 @@ class DialogJnpMonitor(QtWidgets.QDialog):
                 it.moveBy(0, y_off - h_min)
             y_off += (h_max - h_min) + 60
         self.ui.gvJnpTree.setSceneRect(self.m_scene.itemsBoundingRect().adjusted(-20, -20, 20, 20))
-
-    def _leaf_count(self, node):
-        ch = node.get('children') or []
-        return max(1, sum(self._leaf_count(c) for c in ch)) if ch else 1
 
     def _layout_tree(self, node, x, depth):
         """재귀 배치: 리프 수 기반 좌표 계산 후 노드 상자·간선 그리기.
