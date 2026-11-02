@@ -9,6 +9,7 @@ GUI 프로세스 안에서 rospy 를 쓰면 마스터 재시작(Stop→Start) �
   robots json = [{"name": "locobot_0", "startX": 1.0, "startY": 4.0,
                   "moveToX": 1.0, "moveToY": -6.0}, ...]
 """
+
 import json
 import sys
 from taskRelay import TaskRelay
@@ -23,6 +24,7 @@ def main():
     if len(sys.argv) < 2:
         print("사용: relay_runner.py '<robots json>'")
         sys.exit(1)
+
     robots = []
     for d in json.loads(sys.argv[1]):
         r = _Robot()
@@ -34,6 +36,7 @@ def main():
         r.moveToY = d['moveToY']
         r.moveToZ = d.get('moveToZ', 0.0)
         robots.append(r)
+
     TaskRelay().StartTask(robots)
 
 
