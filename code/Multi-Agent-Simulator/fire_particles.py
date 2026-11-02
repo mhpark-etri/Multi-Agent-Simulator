@@ -428,11 +428,9 @@ class FireEmitter:
             max_frame_delay = max(max_frame_delay, frame_delay)
             dt = min(0.20, frame_delay)
             last_frame = now
-            all_ended = True
             for source in self.sources:
                 if source['_ended']:
                     continue
-                all_ended = False
                 since_click = now - start_monotonic
                 since_ignition = since_click - source['ignition_start_sec']
                 if since_ignition < 0:
@@ -473,7 +471,7 @@ class FireEmitter:
                 max_frame_delay = 0.0
                 log_at = now
 
-            if all_ended or all(src['_ended'] for src in self.sources):
+            if all(src['_ended'] for src in self.sources):
                 _log('[Fire] All sources extinguished; removing particle models.')
                 return
             self.runtime.stop_event.wait(1.0 / EMITTER_TICK_HZ)
