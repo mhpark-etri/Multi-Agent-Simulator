@@ -16,6 +16,7 @@
 from enum import Enum
 from dataclasses import dataclass
 
+
 ## CONST : Robot Thumb path & name ##
 CONST_LOCOBOT_PATH = "Resources/thumbnail/icon_thumb_robot_locobot.png"
 CONST_LOCOBOT_NAME = "LoCoBot"
@@ -36,6 +37,7 @@ CONST_HELLO_STRETCH2_NAME = "Stretch2"
 CONST_EXTENTION_WORLD = ".world"
 CONST_EXTENTION_MODEL = ".model"
 
+
 ## ENUM : World type : main category ##
 class ENUM_WORLD_CATEGORY_MAIN(Enum):
     HOUSE_CAFE = "HouseCafe"
@@ -47,6 +49,7 @@ class ENUM_WORLD_CATEGORY_MAIN(Enum):
     OTHERS = "Others"
     CUSTOM = "Custom"
     NONE = "None"
+
 
 ## ENUM : World type : sub category ##
 # 주석 처리된 맵들은 현재 동작하지 않는 맵
@@ -97,23 +100,26 @@ class ENUM_WORLD_CATEGORY_SUB(Enum):
     COLLABORATION_EMPTY = "collaboration_empty" # Relay/다목적용 외벽-only 월드 (RTF↑)
     NONE = "None"
 
+
 ## ENUM : World Type ##
 class ENUM_WORLD(Enum):
     GAZEBO_DEFAULT = 0                      ## Type : Gazebo Default World
     WAREHOUSE = 1                           ## Type : AWS Warehouse
-    HOSPITAL = 2                            ## Type : AWS Hospital 
+    HOSPITAL = 2                            ## Type : AWS Hospital
     SMALLHOUSE = 3                          ## Type : AWS Small House
     BOOK_STORE = 4                          ## Type : AWS Book Store
 
-## ENUM : Robot Type ##  
+
+## ENUM : Robot Type ##
 class ENUM_ROBOT_TYPE(Enum):
     LOCOBOT = 0                             ## Type : Locobot
-    TURTLEBOT3_BURGER = 1                   ## Type : Turtlebot3 Burger    
+    TURTLEBOT3_BURGER = 1                   ## Type : Turtlebot3 Burger
     TURTLEBOT3_WAFFLE = 2                   ## Type : Turtlebot3 Waffle
     JETBOT = 3                              ## Type : Jetbot
     INTERBOTIX = 4                          ## Type : Interbotix
     UNI050_BASE = 5                         ## Type : UNI050_BASE
     HELLO_ROBOT_STRETCH = 6                 ## Type : Hello Robot Stretch
+
 
 ## ENUM : ROS Type ##
 class ENUM_ROS_TYPE(Enum):
@@ -121,9 +127,11 @@ class ENUM_ROS_TYPE(Enum):
     SLAM = 1                                ## Type : Slam
     NAVIGATION = 2                          ## Type : Navigation
 
+
 ## ENUM : ROS Slam Method Type ##
 class ENUM_ROS_NAVIGATION_SLAM_METHOD(Enum):
     GMAPPING = 0                            ## Type : Gmapping
+
 
 ## ENUM : ROS Collaboration Task ##
 class ENUM_ROS_COLLABORATION_TASK_TYPE(Enum):
@@ -135,10 +143,12 @@ class ENUM_ROS_COLLABORATION_TASK_TYPE(Enum):
     SEARCH_FIND = "Distributed Search: Find Object (분산 탐색-물건 찾기)"
     SEARCH_MAKE_MAP = "Distributed Search: Mapping (분산 탐색-지도 제작)"
 
+
 ## Class : Thumbnail list
 class Thumb:
     thumbPath = ""
     thumbName = ""
+
 
 ## Class : Launch world
 class World:
@@ -148,6 +158,7 @@ class World:
     def __init__(self):
         self.categoryMain = ENUM_WORLD_CATEGORY_MAIN.HOUSE_CAFE
         self.arrCategorySubs = []
+
 
 class World_Sub:
     categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE                      ## WorldTypeSub
@@ -160,12 +171,14 @@ class World_Sub:
         self.thumbPath = ""
         self.robotStartXYZ = []
 
+
 ## Class : Simulator option
 class Option:
     ## Common
     camera = False                          ## Option : Use Camera
     arm = False                             ## Option : Locobot - Use Arm
     base = False                            ## Option : Locobot - Use base
+
 
 ## Class : Robot
 class Robot:
@@ -180,11 +193,13 @@ class Robot:
     moveToY = 0                             ## Robot : Collaboration Task Goal Position Y (Default 0)
     moveToZ = 0                             ## Robot : Collaboration Task Goal Position Z (Default 0, Fixed...)
 
+
 ## DataClass : ROS Collaboration task
 @dataclass
-class ROSCollaborationTask :
-    type : ENUM_ROS_COLLABORATION_TASK_TYPE
-    thumbPath : str
+class ROSCollaborationTask:
+    type: ENUM_ROS_COLLABORATION_TASK_TYPE
+    thumbPath: str
+
 
 ## Class : Worlds
 ## Class : Simulator
@@ -199,10 +214,11 @@ class Simulator:
     ros_navigation_map_path = ""                                ## 사용할 ROS Collaboration 에서 쓸 네비게이션 맵 파일 경로
     launchFileName = ""                                         ## 현재 실행중인 launchFile의 이름
     addedLunchFileNumber = 0                                    ## 실행 이후 추가된 launchFile의 번호
+
     def __init__(self):
         self.worldType = ENUM_WORLD.GAZEBO_DEFAULT
         self.worldFileType = ".world"
         self.categoryMain = ENUM_WORLD_CATEGORY_MAIN.HOUSE_CAFE
-        self.categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE 
+        self.categorySub = ENUM_WORLD_CATEGORY_SUB.CAFE
         self.robots = []
         self.ros = ENUM_ROS_TYPE.NONE
