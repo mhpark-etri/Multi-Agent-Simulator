@@ -12,6 +12,7 @@ Examples (started automatically by dlgROSTeleop.py):
     python3 robot_teleop_keyboard.py --robot tb3_burger_0 --model TURTLEBOT3_BURGER
     python3 robot_teleop_keyboard.py --robot locobot_0 --model INTERBOTIX
 """
+
 import argparse
 import os
 import re
@@ -21,6 +22,7 @@ import sys
 import termios
 import time
 import tty
+
 
 # Fixed conservative base-only speed. Arm/joint teleoperation is out of scope.
 LINEAR_SPEED = 0.20              # meters/sec
@@ -158,7 +160,7 @@ def keyboard_loop(rospy, twist_type, topic, robot_name,
             elif key in ('w', 'i'):
                 velocity = (LINEAR_SPEED, 0.0)
                 last_key_time = time.monotonic()
-            elif key in ('s', ',',):
+            elif key in ('s', ','):
                 velocity = (-LINEAR_SPEED, 0.0)
                 last_key_time = time.monotonic()
             elif key in ('a', 'j'):
