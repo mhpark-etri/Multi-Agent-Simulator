@@ -9,11 +9,11 @@ This worker deliberately has no ROS, Qt, or cv_bridge dependency.
 
 import argparse
 import os
-from pathlib import Path
 import select
 import sys
 import time
 import traceback
+from pathlib import Path
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".webp"}
 POLL_SECONDS = 0.20
@@ -82,10 +82,12 @@ def run_worker(input_dir, output_dir, package_dir, device="cuda"):
         # callback have finished saving. The pending count is therefore fixed.
         if drain_requested() and not draining:
             draining = True
-            pending_at_drain = [p for p in image_files(input_dir) if p.name not in processed]
-            drain_total = len(pending_at_drain)
+            drain_total = sum(
+                1 for p in image_files(input_dir) if p.name not in processed
+            )
             print("[I2I] DRAINING: finishing all queued fire images...", flush=True)
             print("I2I_DRAIN_TOTAL {}".format(drain_total), flush=True)
+
         # Sequential processing keeps temporal smoke tracking and fire shape.
         # Each scan observes new files; on-disk inputs are not held in RAM.
         pending = [p for p in image_files(input_dir) if p.name not in processed]
@@ -117,6 +119,7 @@ def run_worker(input_dir, output_dir, package_dir, device="cuda"):
             final_path = output_dir / "{}-I2I{}".format(
                 next_file.stem, next_file.suffix.lower()
             )
+
             # Atomic rename: consumers never see a half-written output image.
             partial_path = output_dir / ("." + final_path.stem + ".tmp" + final_path.suffix)
             try:
@@ -128,6 +131,7 @@ def run_worker(input_dir, output_dir, package_dir, device="cuda"):
                     partial_path.unlink(missing_ok=True)
                 except OSError:
                     pass
+
             completed += 1
             print("[I2I] DONE {} -> {}".format(next_file.name, final_path.name), flush=True)
         except Exception as exc:
@@ -142,6 +146,7 @@ def run_worker(input_dir, output_dir, package_dir, device="cuda"):
                 print("I2I_DRAIN_PROGRESS {} {}".format(drain_done, drain_total), flush=True)
 
     print("[I2I] STOPPED: converted={}, failed={}".format(completed, failed), flush=True)
+
     # Report failed conversions to the GUI rather than silently claiming success.
     return 1 if failed else 0
 
