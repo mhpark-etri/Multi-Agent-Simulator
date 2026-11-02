@@ -79,6 +79,8 @@ def _zones_for_leg(x1, y1, x2, y2):
         if hit(gx0, gy0, ZONE_R + 0.3):
             zs.add(g)
     return sorted(zs)
+
+
 _completed = {}            # goal 별 왕복(복귀) 완료 수 — 표시용
 _items_pub = None
 _goal_pos = {}
@@ -90,8 +92,6 @@ def robot_speed(name):
     if 'tb3' in name or 'burger' in name:
         return 0.2
     return 0.3
-
-
 
 
 def drive(robot, x, y, yaw=None):
@@ -144,8 +144,8 @@ def worker(robot, home, goals, remaining, my_goal, slot_idx):
                 sp = robot_speed(robot)
                 cands = [(g, p) for g, p in goals.items() if remaining[g] > 0]
                 if cands:
-                    gname, _p = min(cands, key=lambda it: (
-                        ((it[1][0] - hx) ** 2 + (it[1][1] - hy) ** 2) ** 0.5 / sp))
+                    gname = min(cands, key=lambda it: (
+                        ((it[1][0] - hx) ** 2 + (it[1][1] - hy) ** 2) ** 0.5 / sp))[0]
             if gname is None:
                 break
             gx, gy = goals[gname]
@@ -267,7 +267,7 @@ def main():
         while sum(caps.values()) < len(agents):
             caps[min(caps, key=lambda g: caps[g])] += 1
         cnt = {g: 0 for g in goals}
-        for e, a, g in sorted((eta[a][g], a, g) for a in agents for g in goals):
+        for _, a, g in sorted((eta[a][g], a, g) for a in agents for g in goals):
             if a not in assign and cnt[g] < caps[g]:
                 assign[a] = g
                 cnt[g] += 1
