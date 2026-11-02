@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 # 신규 [JnP-0.8.2 2026-10-14] JnP Monitor '미션 → 작업 분할 → 스킬 매칭' 패널의 순수 함수 검사(헤드리스, DialogJnpMonitor 인스턴스 없음).
 #   source <workspace>/devel/setup.bash && QT_QPA_PLATFORM=offscreen python3 code/Multi-Agent-Simulator/test_dlgJnpMonitor_html.py
+<<<<<<< HEAD
 # M1 회차·그룹·해체 결합, M2 능력 정보 3상태·후보 문구, M3 이스케이프 (검수 보고서 CODEX_REVIEW_MONITOR_20261014 의 반례를 회귀검사로)
+=======
+# M1 회차·그룹·해체 결합, M2 능력 정보 3상태·후보 문구, M3 이스케이프 (검수 보고서의 반례를 회귀검사로)
+>>>>>>> 6956f081de314fb82ca6f57e3935100941f8dd88
 # R2-M1a 수신 handler 의 회차별 상태·해체 최종성·늦은 계획 결합, R2-M1c 합친 트리의 node 소유 그룹 (ROUND2 보고서 §6 반례 포함)
 # R3-F1 run_id 없는 구버전 그룹의 회차 미식별 호환 모드, R3-F2 보관 상한에서 현재 계획 회차·종료 표식 보호 (ROUND3 §5 반례 포함)
 import copy

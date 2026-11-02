@@ -19,6 +19,7 @@ World 패널에서 고른 월드가 실제로 어느 파일을 쓰고, 어디서
 """
 
 import os
+
 from PySide6 import QtWidgets, QtCore
 
 
@@ -443,7 +444,7 @@ class DialogWorldInfo(QtWidgets.QDialog):
             state = '이 컴퓨터에 있음' if ko else 'present on this machine'
             state_style = 'color:#2e7d32;'
         else:
-            state = ('이 컴퓨터에 없음' if ko else 'not on this machine')
+            state = '이 컴퓨터에 없음' if ko else 'not on this machine'
             state_style = 'color:#c62828;'
 
         self._add(grid, '월드 파일' if ko else 'World file', info['path'], mono=True)
