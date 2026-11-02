@@ -141,15 +141,13 @@ class DialogWorldOptionFireEditor(QtWidgets.QDialog):
 
     def LoadFireMessages(self, messages):
         """Restore recent messages when reopening the dialog."""
-        recent = list(messages)[-300:]
-        self.ui.pteWorldOptionFireMessages.setPlainText('\n'.join(recent))
+        self.ui.pteWorldOptionFireMessages.setPlainText('\n'.join(list(messages)[-300:]))
         scrollbar = self.ui.pteWorldOptionFireMessages.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
 
     def AppendFireMessage(self, message):
         """Append a fire log line; QPlainTextEdit keeps only the newest 300 lines."""
-        text = str(message)
-        for line in text.splitlines():
+        for line in str(message).splitlines():
             if line:
                 self.ui.pteWorldOptionFireMessages.appendPlainText(line)
         scrollbar = self.ui.pteWorldOptionFireMessages.verticalScrollBar()
