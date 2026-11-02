@@ -37,7 +37,6 @@ import xml.etree.ElementTree as ET
 import tkinter as tk
 from tkinter import filedialog
 import time
-import atexit
 import rospy
 
 from constant import *
@@ -3613,4 +3612,3 @@ if __name__ == '__main__':
     window = MainWindow()
     window.show()
     app.exec()
-
