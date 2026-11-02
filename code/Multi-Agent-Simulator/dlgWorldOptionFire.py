@@ -3,19 +3,16 @@
 ## 제작 : 박태순                                     ## 
 ## 설명 : WorldOption Fire Dialog                    ##
 ######################################################
-import os
 from PySide6 import QtWidgets
 from PySide6.QtCore import QSettings, Qt, QProcess
-from PySide6.QtGui import QPixmap, QImage
-from PySide6.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLineEdit, QProgressDialog, QApplication
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QProgressDialog, QApplication
 from ui_dlgWorldOptionFire import Ui_DlgWorldOptionFire
 import subprocess
 
 from constant import *
 from simulator import *
 
-class DialogWorldOptionFire(
-    QtWidgets.QDialog):
+class DialogWorldOptionFire(QtWidgets.QDialog):
 
     DEFAULT_VALUE_PARTICLE_FOLDER = "/root/tesla/particle_emitter"
     DEFAULT_VALUE_SPAWN_PARTICLE_PATH = "/root/tesla/particle_emitter/spawn_particles.py"
@@ -60,23 +57,17 @@ class DialogWorldOptionFire(
     
     # Particle Count 변경
     def onWorldOptionFireParticleCountChanged(self, text):
-        if self.CheckIsNumber(text):
-            pass
-        else:
+        if not self.CheckIsNumber(text):
             self.ShowWarningMsg("You can only enter numbers.")
 
     # Groud Count 변경
     def onWorldOptionFireGroupCountChanged(self, text):
-        if self.CheckIsNumber(text):
-            pass
-        else:
+        if not self.CheckIsNumber(text):
             self.ShowWarningMsg("You can only enter numbers.")
 
     # Spread Scale 변경
     def onWorldOptionFireSpreadScaleChanged(self, text):
-        if self.CheckIsNumber(text):
-            pass
-        else:
+        if not self.CheckIsNumber(text):
             self.ShowWarningMsg("You can only enter numbers.")
 
     # 숫자인지 점검
@@ -139,7 +130,7 @@ class DialogWorldOptionFire(
 
     # 화재 시뮬레이팅 시작
     def StartFireSimulate(self):
-        spawnParticlePath =  self.ui.leditWorldOptionFireSpawnParticlesPath.text()
+        spawnParticlePath = self.ui.leditWorldOptionFireSpawnParticlesPath.text()
         particleEmitterPath = self.ui.leditWorldOptionFireParticleEmitterPath.text()
         sdfFilePath = self.ui.leditWorldOptionFireSDFFilePath.text()
         particleCount = self.ui.leditWorldOptionFireParticleCount.text()
@@ -218,21 +209,21 @@ class DialogWorldOptionFire(
             self.ui.leditWorldOptionFireSDFFilePath.setText(self.DEFAULT_VALUE_SDF_FILE_PATH)
 
         # 4. Particle Count
-        lastWorldOptionFireParticleCount= self.settings.value(SETTING_WORLD_OPTION_FIRE_PARTICLE_COUNT)
+        lastWorldOptionFireParticleCount = self.settings.value(SETTING_WORLD_OPTION_FIRE_PARTICLE_COUNT)
         if lastWorldOptionFireParticleCount is not None:
             self.ui.leditWorldOptionFireParticleCount.setText(lastWorldOptionFireParticleCount)
         else:
             self.ui.leditWorldOptionFireParticleCount.setText(self.DEFAULT_VALUE_PARTICLE_COUNT)
 
         # 5. Group Count
-        lastWorldOptionFireGroupCount= self.settings.value(SETTING_WORLD_OPTION_FIRE_GROUP_COUNT)
+        lastWorldOptionFireGroupCount = self.settings.value(SETTING_WORLD_OPTION_FIRE_GROUP_COUNT)
         if lastWorldOptionFireGroupCount is not None:
             self.ui.leditWorldOptionFireGroupCount.setText(lastWorldOptionFireGroupCount)
         else:
             self.ui.leditWorldOptionFireGroupCount.setText(self.DEFAULT_VALUE_GROUP_COUNT)
 
         # 6. Spread Scale
-        lastWorldOptionFireSpreadScale= self.settings.value(SETTING_WORLD_OPTION_FIRE_SPREAD_SCALE)
+        lastWorldOptionFireSpreadScale = self.settings.value(SETTING_WORLD_OPTION_FIRE_SPREAD_SCALE)
         if lastWorldOptionFireSpreadScale is not None:
             self.ui.leditWorldOptionFireSpreadScale.setText(lastWorldOptionFireSpreadScale)
         else:
@@ -272,4 +263,3 @@ class DialogWorldOptionFire(
 
     def showModal(self):
         return super().exec_()
-        
