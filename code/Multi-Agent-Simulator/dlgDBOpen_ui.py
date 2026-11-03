@@ -8,37 +8,41 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QHBoxLayout,
-    QLabel, QPushButton, QSizePolicy, QTextEdit,
-    QVBoxLayout, QWidget)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QSize
+from PySide6.QtWidgets import (
+    QFrame, QHBoxLayout, QLabel, QPushButton,
+    QSizePolicy, QTextEdit, QVBoxLayout
+)
+
 
 class Ui_DlgDBOpen(object):
     def setupUi(self, DlgDBOpen):
         if not DlgDBOpen.objectName():
             DlgDBOpen.setObjectName(u"DlgDBOpen")
+
         DlgDBOpen.resize(249, 127)
+
         self.horizontalLayout = QHBoxLayout(DlgDBOpen)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+
         self.frame = QFrame(DlgDBOpen)
         self.frame.setObjectName(u"frame")
         self.frame.setFrameShape(QFrame.NoFrame)
         self.frame.setFrameShadow(QFrame.Raised)
+
         self.verticalLayout_3 = QVBoxLayout(self.frame)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+
         self.verticalLayout_2 = QVBoxLayout()
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+
         self.frame_4 = QFrame(self.frame)
         self.frame_4.setObjectName(u"frame_4")
+
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -47,9 +51,11 @@ class Ui_DlgDBOpen(object):
         self.frame_4.setMinimumSize(QSize(0, 20))
         self.frame_4.setFrameShape(QFrame.NoFrame)
         self.frame_4.setFrameShadow(QFrame.Raised)
+
         self.horizontalLayout_7 = QHBoxLayout(self.frame_4)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
         self.horizontalLayout_7.setContentsMargins(0, 0, 0, 0)
+
         self.label = QLabel(self.frame_4)
         self.label.setObjectName(u"label")
         sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
@@ -62,15 +68,12 @@ class Ui_DlgDBOpen(object):
         self.dlgEdtDBID.setObjectName(u"dlgEdtDBID")
 
         self.horizontalLayout_7.addWidget(self.dlgEdtDBID)
-
-
         self.horizontalLayout_4.addWidget(self.frame_4)
-
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+
         self.frame_3 = QFrame(self.frame)
         self.frame_3.setObjectName(u"frame_3")
         sizePolicy.setHeightForWidth(self.frame_3.sizePolicy().hasHeightForWidth())
@@ -78,11 +81,14 @@ class Ui_DlgDBOpen(object):
         self.frame_3.setMinimumSize(QSize(0, 20))
         self.frame_3.setFrameShape(QFrame.NoFrame)
         self.frame_3.setFrameShadow(QFrame.Raised)
+
         self.horizontalLayout_6 = QHBoxLayout(self.frame_3)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
+
         self.label_2 = QLabel(self.frame_3)
         self.label_2.setObjectName(u"label_2")
+
         sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -96,17 +102,15 @@ class Ui_DlgDBOpen(object):
         self.dlgEdtDBPW.setObjectName(u"dlgEdtDBPW")
 
         self.horizontalLayout_6.addWidget(self.dlgEdtDBPW)
-
-
         self.horizontalLayout_3.addWidget(self.frame_3)
-
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+
         self.frame_2 = QFrame(self.frame)
         self.frame_2.setObjectName(u"frame_2")
+
         sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
@@ -115,9 +119,11 @@ class Ui_DlgDBOpen(object):
         self.frame_2.setMinimumSize(QSize(0, 0))
         self.frame_2.setFrameShape(QFrame.NoFrame)
         self.frame_2.setFrameShadow(QFrame.Raised)
+
         self.horizontalLayout_5 = QHBoxLayout(self.frame_2)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+
         self.dlgBtnDBOpen = QPushButton(self.frame_2)
         self.dlgBtnDBOpen.setObjectName(u"dlgBtnDBOpen")
 
@@ -127,19 +133,10 @@ class Ui_DlgDBOpen(object):
         self.dlgBtnDBClose.setObjectName(u"dlgBtnDBClose")
 
         self.horizontalLayout_5.addWidget(self.dlgBtnDBClose)
-
-
         self.horizontalLayout_2.addWidget(self.frame_2)
-
-
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
-
-
         self.verticalLayout_3.addLayout(self.verticalLayout_2)
-
-
         self.horizontalLayout.addWidget(self.frame)
-
 
         self.retranslateUi(DlgDBOpen)
 
@@ -147,10 +144,19 @@ class Ui_DlgDBOpen(object):
     # setupUi
 
     def retranslateUi(self, DlgDBOpen):
-        DlgDBOpen.setWindowTitle(QCoreApplication.translate("DlgDBOpen", u"DB \uc5f0\uacb0", None))
-        self.label.setText(QCoreApplication.translate("DlgDBOpen", u"ID : ", None))
-        self.label_2.setText(QCoreApplication.translate("DlgDBOpen", u"PW : ", None))
-        self.dlgBtnDBOpen.setText(QCoreApplication.translate("DlgDBOpen", u"\uc5f4\uae30", None))
-        self.dlgBtnDBClose.setText(QCoreApplication.translate("DlgDBOpen", u"\uc885\ub8cc", None))
+        DlgDBOpen.setWindowTitle(
+            QCoreApplication.translate("DlgDBOpen", u"DB \uc5f0\uacb0", None)
+        )
+        self.label.setText(
+            QCoreApplication.translate("DlgDBOpen", u"ID : ", None)
+        )
+        self.label_2.setText(
+            QCoreApplication.translate("DlgDBOpen", u"PW : ", None)
+        )
+        self.dlgBtnDBOpen.setText(
+            QCoreApplication.translate("DlgDBOpen", u"\uc5f4\uae30", None)
+        )
+        self.dlgBtnDBClose.setText(
+            QCoreApplication.translate("DlgDBOpen", u"\uc885\ub8cc", None)
+        )
     # retranslateUi
-
