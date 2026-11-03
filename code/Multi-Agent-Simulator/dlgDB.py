@@ -10,7 +10,7 @@ from PySide6 import QtWidgets
 from PySide6.QtWidgets import QTableWidgetItem
 from ui_dlgDB import Ui_DlgDB
 
-
+# Dialog main
 class DialogDB(QtWidgets.QDialog):
     # member
     m_db = None
