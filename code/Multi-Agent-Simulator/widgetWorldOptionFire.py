@@ -43,7 +43,10 @@ class WidgetWorldOptionFire(QtWidgets.QWidget):
         for field in self.IGNITION_FIELDS:
             editor = getattr(self.ui, 'leditWorldOptionFire' + field)
             slider = getattr(self.ui, 'vSliderWorldOptionFire' + field)
-            editor.setValidator(QtGui.QIntValidator(slider.minimum(), slider.maximum(), editor))
+
+            editor.setValidator(
+                QtGui.QIntValidator(slider.minimum(), slider.maximum(), editor)
+            )
             slider.valueChanged.connect(
                 lambda value, target=editor: target.setText(str(value)))
             editor.textChanged.connect(
@@ -52,7 +55,10 @@ class WidgetWorldOptionFire(QtWidgets.QWidget):
                 lambda name=field: self._NormalizeIgnitionValue(name))
 
     def eventFilter(self, watched, event):
-        if event.type() in (QtCore.QEvent.MouseButtonPress, QtCore.QEvent.FocusIn):
+        if event.type() in (
+            QtCore.QEvent.MouseButtonPress,
+            QtCore.QEvent.FocusIn
+        ):
             self.interacted.emit()
         return super().eventFilter(watched, event)
 
@@ -63,23 +69,27 @@ class WidgetWorldOptionFire(QtWidgets.QWidget):
     def _OnIgnitionTextChanged(self, field, text):
         if not text:
             return  # User can temporarily empty an editor while typing.
+
         slider = getattr(self.ui, 'vSliderWorldOptionFire' + field)
         try:
             value = int(text)
         except ValueError:
             return
+
         if slider.minimum() <= value <= slider.maximum():
             slider.setValue(value)
 
     def _NormalizeIgnitionValue(self, field):
         editor = getattr(self.ui, 'leditWorldOptionFire' + field)
         slider = getattr(self.ui, 'vSliderWorldOptionFire' + field)
+
         # The slider is the source of truth if the editor is left blank.
         editor.setText(str(slider.value()))
 
     def SetIgnitionValue(self, field, value):
         if field not in self.IGNITION_FIELDS:
             raise ValueError('Unknown ignition field: ' + str(field))
+
         slider = getattr(self.ui, 'vSliderWorldOptionFire' + field)
         value = max(slider.minimum(), min(slider.maximum(), int(value)))
         slider.setValue(value)
@@ -88,14 +98,17 @@ class WidgetWorldOptionFire(QtWidgets.QWidget):
     def GetIgnitionValue(self, field):
         if field not in self.IGNITION_FIELDS:
             raise ValueError('Unknown ignition field: ' + str(field))
+
         return getattr(self.ui, 'vSliderWorldOptionFire' + field).value()
 
     def GetFireData(self):
         """Return a ROS-independent fire-source configuration as a dict."""
         position = {}
+
         for axis in ('X', 'Y', 'Z'):
             text = getattr(self.ui, 'leditWorldOptionFirePos' + axis).text().strip()
             position[axis.lower()] = float(text)  # Invalid entries raise ValueError.
+
         return {
             'id': self.fire_id,
             'position': position,
@@ -109,10 +122,14 @@ class WidgetWorldOptionFire(QtWidgets.QWidget):
         """Populate a list row from configuration previously confirmed."""
         self.SetFireID(data.get('id', self.fire_id))
         coords = data.get('position', {})
+
         for axis in ('X', 'Y', 'Z'):
             key = axis.lower()
             if key in coords:
-                getattr(self.ui, 'leditWorldOptionFirePos' + axis).setText(str(coords[key]))
+                getattr(self.ui, 'leditWorldOptionFirePos' + axis).setText(
+                    str(coords[key])
+                )
+
         for key, field in (
             ('ignition_start_sec', 'IgnStart'),
             ('ignition_end_sec', 'IgnEnd'),
