@@ -1,13 +1,13 @@
-import rospy
-import actionlib
-from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
-import tf
-from nav_msgs.msg import Odometry
-from std_msgs.msg import String
-import threading
+import json
 import socket
 import time
-import json
+
+import rospy
+import actionlib
+import tf
+from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from nav_msgs.msg import Odometry
+from std_msgs.msg import String
 
 
 class TaskRelay:
@@ -59,7 +59,7 @@ class TaskRelay:
             if result:
                 rospy.loginfo("[" + agent + "] Goal reached successfully!")
                 print("[" + agent + "] Goal reached successfully!")
-            return result 
+            return result
 
     def callback1(self, data):
         self.x = data.pose.pose.position.x
@@ -79,7 +79,7 @@ class TaskRelay:
             message_str = "name:locobot_agent\nmove_base,move_it,6dof robot arm, lidar, realsense camera\nport:9001"
             self.pub.publish(message_str)
         else:
-            if not data.data.startswith("new_") and not data.data.startswith("/locobot_"): 
+            if not data.data.startswith("new_") and not data.data.startswith("/locobot_"):
                 counterpart = data.data
                 rospy.Subscriber(data.data + "/description", String, self.callback3)
                 pub2 = rospy.Publisher('new_agent_detected', String, queue_size=10)
@@ -95,17 +95,17 @@ class TaskRelay:
 
     def send_get_together(self):
         HOST = '127.0.0.1'
-        PORT = 9003 
+        PORT = 9003
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
             s.sendall(b'Hello, server')
             data = s.recv(1024)
-            received_data = json.loads(data.decode())
+            json.loads(data.decode())
             print(" === Start Go Together Task ===")
 
     def get_position(self):
         HOST = '127.0.0.1'
-        PORT = 9002 
+        PORT = 9002
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
             s.sendall(b'Hello, server')
@@ -116,7 +116,7 @@ class TaskRelay:
 
     def position_server(self):
         HOST = '127.0.0.1'
-        PORT = 9001 
+        PORT = 9001
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(None)
             s.bind((HOST, PORT))
@@ -124,7 +124,7 @@ class TaskRelay:
             print("Server started. Waiting for a connection...")
             while True:
                 try:
-                    conn, addr = s.accept()
+                    conn, _addr = s.accept()
                     with conn:
                         while True:
                             data = conn.recv(1024)
@@ -162,11 +162,13 @@ class TaskRelay:
     def StartTask(self, robots):
         import math
         from geometry_msgs.msg import PoseStamped
+
         # ★ 백그라운드 스레드에서 호출되므로 signal 핸들러 등록 불가(disable_signals)
         #   + 두 번째 실행에서 init_node 중복 호출이 되지 않게 가드
         if not rospy.core.is_initialized():
             rospy.init_node('locobot_agent', disable_signals=True)
         n = len(robots)
+
         # ── 체인 goal 전체를 먼저 계산 ──
         plans = []
         for i in range(n):
@@ -177,6 +179,7 @@ class TaskRelay:
                 nx, ny = float(nxt.startX), float(nxt.startY)
                 dx, dy = nx - cx, ny - cy
                 d = math.hypot(dx, dy) or 1.0
+
                 # 다음 로봇 0.9m 앞에서 정지 (로봇 반경+inflation 여유), 진행 방향을 바라봄
                 gx = nx - 0.9 * dx / d
                 gy = ny - 0.9 * dy / d
@@ -184,6 +187,7 @@ class TaskRelay:
             else:
                 gx, gy, th = float(cur.moveToX), float(cur.moveToY), 0.0
             plans.append((cur.name, gx, gy, th))
+
         # ── 계획 전체를 미리 발행 → RViz/Gazebo 에 4개 목표가 시작 즉시 표시됨 ──
         self._plan_pubs = []
         for name, gx, gy, th in plans:
@@ -199,7 +203,9 @@ class TaskRelay:
             ps.pose.orientation.z, ps.pose.orientation.w = q[2], q[3]
             pub.publish(ps)
             self._plan_pubs.append(pub)     # latch 유지를 위해 보관
+
         rospy.sleep(0.5)
+
         # ── 순차 주행 ──
         for i, (name, gx, gy, th) in enumerate(plans):
             tgt = robots[i + 1].name + " 위치 근처" if i < n - 1 else "최종 목표"
