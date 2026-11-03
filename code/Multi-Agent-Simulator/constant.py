@@ -5,49 +5,49 @@
 ######################################################
 
 ## Common ##
-CMD_COMMON_ENTER = "\n"                                                                                     # Enter
-CMD_COMMON_TAB = "\t"                                                                                       # Tab
-CMD_COMMON_SLASH = "/"                                                                                      # Slash
-CMD_COMMON_SPACE = " "                                                                                      # Space
-CMD_COMMON_SPACE_DOUBLE = "  "                                                                              # Space x 2
-CMD_COMMON_SPACE_FOUR = "    "                                                                              # Space x 4
-CMD_COMMON_SPACE_SIX = "      "                                                                             # Space x 6
-CMD_COMMON_SPACE_EIGHT = "        "                                                                         # Space x 8
-CMD_COMMON_SPACE_TEN = "          "                                                                         # Space x 10
-CMD_COMMON_SEMICOLON = ";"                                                                                  # Semicolon
-CMD_COMMON_PARAM_INSERT = ":="                                                                              # Parameter insert
-CMD_COMMON_DOUBLE_QUOTATION_MARKS = "\""                                                                    # Double quotation marks
-CMD_COMMON_OPEN_LAUNCH = "<launch>"                                                                         # Tag : Launch
-CMD_COMMON_CLOSE_LAUNCH = "</launch>"                                                                       # Tag : Launch closer
-CMD_COMMON_ARG = "arg"                                                                                      # Tag : arg
-CMD_COMMON_OPEN_ARG = "<arg"                                                                                # Tag : Argument
-CMD_COMMON_OPEN_BRACKET_WITH_QUOTE = "\"$("                                                                 # Tag : Bracket With "
-CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE = ")\""                                                                 # Tag : Bracket closer With "
-CMD_COMMON_OPEN_BRACKET = "$("                                                                              # Tag : Bracket
-CMD_COMMON_CLOSE_BRACKET = ")"                                                                              # Tag : Bracket closer
-CMD_COMMON_OPEN_PARAM = "<param"                                                                            # Tag : Parameter
-CMD_COMMON_CLOSE = ">"                                                                                      # Tag : Statement closer
-CMD_COMMON_CLOSE_TAG = "/>"                                                                                 # Tag : Tag closer
-CMD_COMMON_DEFAULT = "default="                                                                             # Value : default
-CMD_COMMON_NAME = "name="                                                                                   # Attribute : name
-CMD_COMMON_VALUE = "value="                                                                                 # Attribute : value
-CMD_COMMON_OPEN_GROUP = "<group"                                                                            # Tag : Group
-CMD_COMMON_CLOSE_GROUP = "</group>"                                                                         # Tag : Group closer
-CMD_COMMON_NS = "ns="                                                                                       # Attribute : ns
-CMD_COMMON_IF = "if="                                                                                       # Attribute : if    
-CMD_COMMON_FILE = "file="                                                                                   # Attribute : File    
-CMD_COMMON_OPEN_NODE = "<node"                                                                              # Tag : Node
-CMD_COMMON_CLOSE_NODE = "</node>"                                                                           # Tag : Node closer
-CMD_COMMON_PKG = "pkg="                                                                                     # Attribute : Package
-CMD_COMMON_TYPE = "type="                                                                                   # Attribute : Type
-CMD_COMMON_RESPAWN = "respawn="                                                                             # Attribute : Respawn
-CMD_COMMON_OUTPUT = "output="                                                                               # Attribute : OutPut
-CMD_COMMON_DOC = "doc="                                                                                     # Attribute : Documents
-CMD_COMMON_DEFAULT_POS = "\"0.0\""                                                                          # Attribute : Default Position
-CMD_COMMON_CLOSE_INCLUDE="</include>"                                                                       # Tag : Include Closer
-CMD_COMMON_TRUE = "true"                                                                                    # Word : true
-CMD_COMMON_FALSE = "false"                                                                                  # Word : false
-CMD_COMMON_UNDERBAR = "_"                                                                                   # _
+CMD_COMMON_ENTER = "\n"  # Enter
+CMD_COMMON_TAB = "\t"  # Tab
+CMD_COMMON_SLASH = "/"  # Slash
+CMD_COMMON_SPACE = " "  # Space
+CMD_COMMON_SPACE_DOUBLE = "  "  # Space x 2
+CMD_COMMON_SPACE_FOUR = "    "  # Space x 4
+CMD_COMMON_SPACE_SIX = "      "  # Space x 6
+CMD_COMMON_SPACE_EIGHT = "        "  # Space x 8
+CMD_COMMON_SPACE_TEN = "          "  # Space x 10
+CMD_COMMON_SEMICOLON = ";"  # Semicolon
+CMD_COMMON_PARAM_INSERT = ":="  # Parameter insert
+CMD_COMMON_DOUBLE_QUOTATION_MARKS = "\""  # Double quotation marks
+CMD_COMMON_OPEN_LAUNCH = "<launch>"  # Tag : Launch
+CMD_COMMON_CLOSE_LAUNCH = "</launch>"  # Tag : Launch closer
+CMD_COMMON_ARG = "arg"  # Tag : arg
+CMD_COMMON_OPEN_ARG = "<arg"  # Tag : Argument
+CMD_COMMON_OPEN_BRACKET_WITH_QUOTE = "\"$("  # Tag : Bracket With "
+CMD_COMMON_CLOSE_BRACKET_WITH_QUOTE = ")\""  # Tag : Bracket closer With "
+CMD_COMMON_OPEN_BRACKET = "$("  # Tag : Bracket
+CMD_COMMON_CLOSE_BRACKET = ")"  # Tag : Bracket closer
+CMD_COMMON_OPEN_PARAM = "<param"  # Tag : Parameter
+CMD_COMMON_CLOSE = ">"  # Tag : Statement closer
+CMD_COMMON_CLOSE_TAG = "/>"  # Tag : Tag closer
+CMD_COMMON_DEFAULT = "default="  # Value : default
+CMD_COMMON_NAME = "name="  # Attribute : name
+CMD_COMMON_VALUE = "value="  # Attribute : value
+CMD_COMMON_OPEN_GROUP = "<group"  # Tag : Group
+CMD_COMMON_CLOSE_GROUP = "</group>"  # Tag : Group closer
+CMD_COMMON_NS = "ns="  # Attribute : ns
+CMD_COMMON_IF = "if="  # Attribute : if    
+CMD_COMMON_FILE = "file="  # Attribute : File    
+CMD_COMMON_OPEN_NODE = "<node"  # Tag : Node
+CMD_COMMON_CLOSE_NODE = "</node>"  # Tag : Node closer
+CMD_COMMON_PKG = "pkg="  # Attribute : Package
+CMD_COMMON_TYPE = "type="  # Attribute : Type
+CMD_COMMON_RESPAWN = "respawn="  # Attribute : Respawn
+CMD_COMMON_OUTPUT = "output="  # Attribute : OutPut
+CMD_COMMON_DOC = "doc="  # Attribute : Documents
+CMD_COMMON_DEFAULT_POS = "\"0.0\""  # Attribute : Default Position
+CMD_COMMON_CLOSE_INCLUDE = "</include>"  # Tag : Include Closer
+CMD_COMMON_TRUE = "true"  # Word : true
+CMD_COMMON_FALSE = "false"  # Word : false
+CMD_COMMON_UNDERBAR = "_"  # _
 CMD_COMMON_X = "-x"
 CMD_COMMON_Y = "-y"
 CMD_COMMON_Z = "-z"
@@ -62,8 +62,8 @@ CMD_WORLD_ARG_WORLDNAME_WAREHOUSE = "<arg name=\"world_name\" value=\"$(find aws
 CMD_WORLD_ARG_WORLDNAME_HOSPITAL = "<arg name=\"world_name\" value=\"$(find aws_robomaker_hospital_world)/worlds/hospital.world\"/>"
 CMD_WORLD_ARG_WORLDNAME_SMALLHOUSE = "<arg name=\"world_name\" value=\"$(find aws_robomaker_small_house_world)/worlds/small_house.world\"/>"
 CMD_WORLD_ARG_WORLDNAME_BOOKSTORE = "<arg name=\"world_name\" value=\"$(find aws_robomaker_bookstore_world)/worlds/bookstore.world\"/>"
-CMD_WORLD_ARG_WORLDNAME_ARG_LEFT  = "<arg name=\"world_name\" value=\""
-CMD_WORLD_ARG_WORLDNAME_ARG_RIGHT  = ".world\"/>"
+CMD_WORLD_ARG_WORLDNAME_ARG_LEFT = "<arg name=\"world_name\" value=\""
+CMD_WORLD_ARG_WORLDNAME_ARG_RIGHT = ".world\"/>"
 CMD_WORLD_ARG_PAUSED = "<arg name=\"paused\" value=\"false\"/>"
 CMD_WORLD_ARG_USE_SIM_TIME = "<arg name=\"use_sim_time\" value=\"true\"/>"
 CMD_WORLD_ARG_GUI = "<arg name=\"gui\" value=\"true\"/>"
@@ -125,14 +125,14 @@ CMD_WORLD_PERSON_ACTOR_ARG_PLUGIN_IGNORE_OBSTACLES_CLOSE = "</ignore_obstacles>"
 CMD_WORLD_PERSON_ACTOR_ARG_PLUGIN_CLOSE = "</plugin>"
 CMD_WORLD_PERSON_ACTOR_ARG_NAME_CLOSE = "</actor>"
 CMD_WORLD_PERSON_ACTOR_EFFECT_SWATER = "<effect id=\"sweater-green-effect\">"
-CMD_WORLD_PERSON_ACTOR_EFFECT_JEAN= "<effect id=\"jeans-blue-effect\">"
-CMD_WORLD_PERSON_ACTOR_EFFECT_EMISSION= "<emission>"
+CMD_WORLD_PERSON_ACTOR_EFFECT_JEAN = "<effect id=\"jeans-blue-effect\">"
+CMD_WORLD_PERSON_ACTOR_EFFECT_EMISSION = "<emission>"
 CMD_WORLD_PERSON_ACTIR_EFFECT_EMISSION_COLOR_OPEN_LEFT = "<color sid=\"emission\">"
-CMD_WORLD_PERSON_ACTOR_EFFECT_AMBIENT= "<ambient>"
+CMD_WORLD_PERSON_ACTOR_EFFECT_AMBIENT = "<ambient>"
 CMD_WORLD_PERSON_ACTIR_EFFECT_AMBIENT_COLOR_OPEN_LEFT = "<color sid=\"ambient\">"
-CMD_WORLD_PERSON_ACTOR_EFFECT_DIFFUSE= "<diffuse>"
+CMD_WORLD_PERSON_ACTOR_EFFECT_DIFFUSE = "<diffuse>"
 CMD_WORLD_PERSON_ACTIR_EFFECT_DIFFUSE_COLOR_OPEN_LEFT = "<color sid=\"diffuse\">"
-CMD_WORLD_PERSON_ACTOR_EFFECT_SPECULAR= "<specular>"
+CMD_WORLD_PERSON_ACTOR_EFFECT_SPECULAR = "<specular>"
 CMD_WORLD_PERSON_ACTIR_EFFECT_SPECULAR_COLOR_OPEN_LEFT = "<color sid=\"specular\">"
 CMD_WORLD_PERSON_ACTIR_EFFECT_COLOR_CLOSE = "</color>"
 
@@ -168,7 +168,7 @@ CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_X = "_x_pos"
 CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Y = "_y_pos"
 CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_POSITION_Z = "_z_pos"
 CMD_TURTLEBOT3_BURGER_DEFAULT_NAME_YAW = "_yaw"
-CMD_TURTLEBOT3_MODEL_BURGER = "burger"                                                                      # Value : Burger
+CMD_TURTLEBOT3_MODEL_BURGER = "burger"  # Value : Burger
 
 ## Turtlebot3 - waffle ##
 CMD_TURTLEBOT3_WAFFLE_MODEL = "waffle_"
@@ -179,11 +179,11 @@ CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_X = "_x_pos"
 CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Y = "_y_pos"
 CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_POSITION_Z = "_z_pos"
 CMD_TURTLEBOT3_WAFFLE_DEFAULT_NAME_YAW = "_yaw"
-CMD_TURTLEBOT3_MODEL_WAFFLE = "waffle"                                                                      # Value : Waffle (default)
-CMD_TURTLEBOT3_MODEL_WAFFLE_PI = "waffle_pi"                                                                # Value : Waffle_PI
+CMD_TURTLEBOT3_MODEL_WAFFLE = "waffle"  # Value : Waffle (default)
+CMD_TURTLEBOT3_MODEL_WAFFLE_PI = "waffle_pi"  # Value : Waffle_PI
 
 ## Turtlebot3 - common
-CMD_TURTLEBOT3_MODEL = "\"model\""                                                                          # Value : Model
+CMD_TURTLEBOT3_MODEL = "\"model\""  # Value : Model
 # "Group 옵션들은 반고정 상태 이므로 모델명이 필요하지 않는 구문둘은 통으로 고정 하여 사용한다(아래를 보면 TF_PRFIX 등 통 고정이 아닌 문장들이 몇몇 있다)" ##
 CMD_TURTLEBOT3_OPEN_GROUP_PARAM_NAME_ROBOT_DESCRIPTION = "<param name=\"robot_description\" command=\"$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_"
 CMD_TURTLEBOT3_CLOSE_GROUP_PARAM_NAME_ROBOT_DESCRIPTION = ".urdf.xacro\" />"
@@ -249,7 +249,7 @@ CMD_INTERBOTIX_NODE_URDF_SPAWNER_MIDDLE = "\"\n\t  args=\"-urdf -model "
 CMD_INTERBOTIX_NODE_URDF_SPAWNER_CLOSE = " -param robot_description\"/>"
 
 ## uni
-CMD_UNI_MODEL_NAME = "uni_base" 
+CMD_UNI_MODEL_NAME = "uni_base"
 CMD_UNI_DEFAULT_NAME = "uni"
 CMD_UNI_DEFAULT_NAME_UNDERBAR = "uni_"
 CMD_UNI_COMMENT_START = "<!-- #### UNI050_BASE #### -->"
@@ -320,9 +320,9 @@ CMD_ROS_JNP_JNP_AGENT = "jnp_agent.py"
 CMD_ROS_JNP_JNP_AGENT_NS = "__ns:="
 CMD_ROS_JNP_JNP_AGENT_NS_DEFAULT = "etri"
 CMD_ROS_JNP_JNP_AGENT_NAME = "__name:="
-PATH_SOURCE_JNP081_SETUP = "source /root/catkin_ws_jnp081/devel/setup.sh"                                   # JnP 0.8.1 워크스페이스 (협업태스크 다이얼로그도 사용)
-CMD_ROS_JNP081_AGENT_XML_ARG = "none.xml"                                                                   # JnP 0.8.1: 필수 4번째 인수(설명 XML 파일). 없는 파일명이면 ~jnp_goal/~jnp_capability 파라미터 폴백
-CMD_ROS_JNP081_TASK_TOPIC = "/jnp_agent_join_event"                                                         # JnP 0.8.1: task(goal) 공지 발행 토픽 — 'task:<goal>:<payload>' 가 coalition 형성 트리거
+PATH_SOURCE_JNP081_SETUP = "source /root/catkin_ws_jnp081/devel/setup.sh"  # JnP 0.8.1 워크스페이스 (협업태스크 다이얼로그도 사용)
+CMD_ROS_JNP081_AGENT_XML_ARG = "none.xml"  # JnP 0.8.1: 필수 4번째 인수(설명 XML 파일). 없는 파일명이면 ~jnp_goal/~jnp_capability 파라미터 폴백
+CMD_ROS_JNP081_TASK_TOPIC = "/jnp_agent_join_event"  # JnP 0.8.1: task(goal) 공지 발행 토픽 — 'task:<goal>:<payload>' 가 coalition 형성 트리거
 
 ## Locobot
 CMD_ROS_LOCOBOT_SAMPLE_LOAD_PYROBOT_ENV = "load_pyrobot_env"
