@@ -1,21 +1,18 @@
 ######################################################
 ## Teslasystem Co.,Ltd.                             ##
-## 제작 : 박태순                                     ## 
+## 제작 : 박태순                                     ##
 ## 설명 : Robot Listview                            ##
 ######################################################
-import os
-import copy
 from PySide6 import QtWidgets, QtGui
-from PySide6.QtCore import Qt, QCoreApplication, QSize
-from PySide6.QtWidgets import QFrame, QLayout, QSizePolicy, QVBoxLayout, QHBoxLayout, QPushButton
 from ui_widgetRobotItem import Ui_WidgetRobotItem
 
 from constant import *
 from simulator import *
 
+
 class WidgetRobotItem(QtWidgets.QWidget):
     # Init
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(WidgetRobotItem, self).__init__(parent)
         self.ui = Ui_WidgetRobotItem()
         self.ui.setupUi(self)
@@ -31,40 +28,44 @@ class WidgetRobotItem(QtWidgets.QWidget):
         thumb = Thumb()
         thumb.thumbPath = CONST_LOCOBOT_PATH
         thumb.thumbName = CONST_LOCOBOT_NAME
-         # TEST : 1차 릴리즈 버전에서는 Locobot 제외
+        # TEST : 1차 릴리즈 버전에서는 Locobot 제외
         # self.lstThumbs.append(thumb)
+
         thumb = Thumb()
         thumb.thumbPath = CONST_TURTLEBOT3_BURGER_PATH
         thumb.thumbName = CONST_TURTLEBOT3_BUTGER_NAME
         self.lstThumbs.append(thumb)
+
         thumb = Thumb()
         thumb.thumbPath = CONST_TURTLEBOT3_WAFFLE_PATH
         thumb.thumbName = CONST_TURTLEBOT3_WAFFLE_NAME
         self.lstThumbs.append(thumb)
+
         # thumb.thumbPath = ":/thumbnail/Resources/thumbnail/icon_thumb_robot_jetbot.png"
         # thumb.thumbName = "Jetbot"
-        # self.lstThumbs.append(thumb)    
+        # self.lstThumbs.append(thumb)
+
         thumb = Thumb()
         thumb.thumbPath = CONST_INTERBOTIX_PATH
         thumb.thumbName = CONST_INTERBOTIX_NAME
-        self.lstThumbs.append(thumb)  
+        self.lstThumbs.append(thumb)
+
         thumb = Thumb()
         thumb.thumbPath = CONST_UNI_PATH
         thumb.thumbName = CONST_UNI_NAME
-        self.lstThumbs.append(thumb)  
+        self.lstThumbs.append(thumb)
+
         thumb = Thumb()
         thumb.thumbPath = CONST_HELLO_STRETCH2_PATH
         thumb.thumbName = CONST_HELLO_STRETCH2_NAME
-        self.lstThumbs.append(thumb)  
+        self.lstThumbs.append(thumb)
 
         # Set thumb image and robot name
-        pixmap = QtGui.QPixmap(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbPath))
-        self.ui.lbRobotThumb.setPixmap(pixmap)
-        self.ui.lbRobotName.setText(str(self.lstThumbs[self.m_nCurrentThumbIdx].thumbName))
+        self.SetThumbAndName()
 
     # 썸네일 이미지 변경 (협업 태스크 고정용)
     def ChageCurrentThumbIdxByName(self, robotName):
-        if robotName== CONST_LOCOBOT_NAME:
+        if robotName == CONST_LOCOBOT_NAME:
             pass
         elif robotName == CONST_TURTLEBOT3_BUTGER_NAME:
             self.m_nCurrentThumbIdx = 0
