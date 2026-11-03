@@ -10,9 +10,10 @@ from widgetStartROSCollaborationTaskItem_ui import Ui_WidgetStartROSCollaboratio
 from constant import *
 from simulator import *
 
+
 class WidgetStartROSCollaborationTaskItem(QtWidgets.QWidget):
     # Init
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super(WidgetStartROSCollaborationTaskItem, self).__init__(parent)
         self.ui = Ui_WidgetStartROSCollaborationTaskItem()
         self.ui.setupUi(self)
@@ -29,7 +30,6 @@ class WidgetStartROSCollaborationTaskItem(QtWidgets.QWidget):
     # 로봇 모델 정보를 리스트 아이템으로 입력
     def SetupListItem(self, modelType, modelName):
         lbThumb = ""
-        lbName = modelName
         if modelType == ENUM_ROBOT_TYPE.LOCOBOT:
             lbThumb = CONST_LOCOBOT_PATH
         elif modelType == ENUM_ROBOT_TYPE.TURTLEBOT3_BURGER:
@@ -49,14 +49,14 @@ class WidgetStartROSCollaborationTaskItem(QtWidgets.QWidget):
         pixmap = QtGui.QPixmap(str(lbThumb))
         # QLabel의 크기에 맞춰 QPixmap 조정
         scaled_pixmap = pixmap.scaled(
-        self.ui.lbWidgetStartROSCollaborationTaskItemThumbnail.size(),
-        QtCore.Qt.KeepAspectRatio,  # 이미지 비율 유지
-        QtCore.Qt.SmoothTransformation  # 부드럽게 스케일링
+            self.ui.lbWidgetStartROSCollaborationTaskItemThumbnail.size(),
+            QtCore.Qt.KeepAspectRatio,  # 이미지 비율 유지
+            QtCore.Qt.SmoothTransformation  # 부드럽게 스케일링
         )
 
         self.ui.lbWidgetStartROSCollaborationTaskItemThumbnail.setPixmap(scaled_pixmap)
-        self.ui.lbWidgetStartROSCollaborationTaskItemName.setText(str(lbName))
-            
+        self.ui.lbWidgetStartROSCollaborationTaskItemName.setText(str(modelName))
+
     # Position 값 입력
     def SetRobotPosXYZ(self, x, y, z):
         self.ui.leditWidgetStartROSCollaborationTaskItemPositionX.setText(x)
@@ -72,36 +72,30 @@ class WidgetStartROSCollaborationTaskItem(QtWidgets.QWidget):
     # Move to Position 값 변경 체크
     # X
     def onRobotMoveToXChanged(self, text):
-        if self.CheckIsNumber(text) == False:
+        if not self.CheckIsNumber(text):
             self.ShowWarningMsg("You can only enter numbers.")
-            
+
     # Y
     def onRobotMoveToYChanged(self, text):
-        if self.CheckIsNumber(text) == False:
+        if not self.CheckIsNumber(text):
             self.ShowWarningMsg("You can only enter numbers.")
+
     # Z
     def onRobotMoveToZChanged(self, text):
-        if self.CheckIsNumber(text) == False:
+        if not self.CheckIsNumber(text):
             self.ShowWarningMsg("You can only enter numbers.")
 
     # Move to Poisition X 값 획득
     def GetRobotMoveToX(self):
-        strX = self.ui.leditWidgetStartROSCollaborationTaskItemMoveToX.text()
-        fX = round(float(strX), 1) 
+        return round(float(self.ui.leditWidgetStartROSCollaborationTaskItemMoveToX.text()), 1)
 
-        return fX
-    
     # Move to Poisition Y 값 획득
     def GetRobotMoveToY(self):
-        strY = self.ui.leditWidgetStartROSCollaborationTaskItemMoveToY.text()
-        fY = round(float(strY), 1) 
-        return fY
-    
+        return round(float(self.ui.leditWidgetStartROSCollaborationTaskItemMoveToY.text()), 1)
+
     # Move to Poisition Z 값 획득
     def GetRobotMoveToZ(self):
-        strZ = self.ui.leditWidgetStartROSCollaborationTaskItemMoveToZ.text()
-        fZ = round(float(strZ), 1) 
-        return fZ
+        return round(float(self.ui.leditWidgetStartROSCollaborationTaskItemMoveToZ.text()), 1)
 
     # 숫자인지 점검
     def CheckIsNumber(self, text):
@@ -112,7 +106,7 @@ class WidgetStartROSCollaborationTaskItem(QtWidgets.QWidget):
         except ValueError:
             # 변환할 수 없으면 숫자가 아님
             return False
-        
+
     # 경고창 출력
     def ShowWarningMsg(self, msg):
         msg_box = QMessageBox(self)
