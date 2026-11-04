@@ -8,18 +8,13 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox,
-    QDialog, QFrame, QGroupBox, QHBoxLayout,
-    QLabel, QLineEdit, QListWidget, QListWidgetItem, QPlainTextEdit,
-    QPushButton, QProgressBar, QSizePolicy, QSpacerItem, QVBoxLayout,
-    QWidget)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QSize, Qt
+from PySide6.QtWidgets import (
+    QAbstractItemView, QCheckBox, QComboBox, QFrame, QGroupBox,
+    QHBoxLayout, QLabel, QLineEdit, QListWidget, QPlainTextEdit,
+    QPushButton, QProgressBar, QSizePolicy, QSpacerItem, QVBoxLayout
+)
+
 
 class Ui_DlgROSI2I(object):
     def setupUi(self, DlgROSI2I):
@@ -54,21 +49,23 @@ class Ui_DlgROSI2I(object):
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.gbROSI2IRobot = QGroupBox(self.frame_6)
         self.gbROSI2IRobot.setObjectName(u"gbROSI2IRobot")
-        self.gbROSI2IRobot.setStyleSheet(u"QGroupBox#gbROSI2IRobot {\n"
-"    border: 1px solid 	darkgray;\n"
-"    background-color: #cccccc;\n"
-"    margin-top: 15px;\n"
-"    color: white;\n"
-"}\n"
-"\n"
-"QGroupBox#gbROSI2IRobot::title {\n"
-"    border: 1px solid white;\n"
-"    subcontrol-position: top left;\n"
-"	left: 30px;\n"
-"    background-color: gray;\n"
-"    padding: 5px 30px 5px 30px;\n"
-"    top: -15px;\n"
-"}")
+        self.gbROSI2IRobot.setStyleSheet(
+            u"QGroupBox#gbROSI2IRobot {\n"
+            "    border: 1px solid 	darkgray;\n"
+            "    background-color: #cccccc;\n"
+            "    margin-top: 15px;\n"
+            "    color: white;\n"
+            "}\n"
+            "\n"
+            "QGroupBox#gbROSI2IRobot::title {\n"
+            "    border: 1px solid white;\n"
+            "    subcontrol-position: top left;\n"
+            "	left: 30px;\n"
+            "    background-color: gray;\n"
+            "    padding: 5px 30px 5px 30px;\n"
+            "    top: -15px;\n"
+            "}"
+        )
         self.verticalLayout_14 = QVBoxLayout(self.gbROSI2IRobot)
         self.verticalLayout_14.setObjectName(u"verticalLayout_14")
         self.verticalLayout_15 = QVBoxLayout()
@@ -98,9 +95,7 @@ class Ui_DlgROSI2I(object):
 
         self.horizontalLayout_10.addWidget(self.cbROSI2IName)
 
-
         self.horizontalLayout_9.addWidget(self.frame_7)
-
 
         self.verticalLayout_15.addLayout(self.horizontalLayout_9)
 
@@ -123,7 +118,6 @@ class Ui_DlgROSI2I(object):
         self.lbROSI2IRobotThumb.setAlignment(Qt.AlignCenter)
 
         self.verticalLayout_17.addWidget(self.lbROSI2IRobotThumb)
-
 
         self.verticalLayout_16.addWidget(self.frame_8)
 
@@ -148,38 +142,35 @@ class Ui_DlgROSI2I(object):
 
         self.horizontalLayout_12.addWidget(self.lbROSI2INameSpace)
 
-
         self.horizontalLayout_11.addWidget(self.frame_9)
-
 
         self.verticalLayout_16.addLayout(self.horizontalLayout_11)
 
-
         self.verticalLayout_15.addLayout(self.verticalLayout_16)
 
-
         self.verticalLayout_14.addLayout(self.verticalLayout_15)
-
 
         self.verticalLayout_13.addWidget(self.gbROSI2IRobot)
 
         self.gbROSI2IOption = QGroupBox(self.frame_6)
         self.gbROSI2IOption.setObjectName(u"gbROSI2IOption")
-        self.gbROSI2IOption.setStyleSheet(u"QGroupBox#gbROSI2IOption {\n"
-"    border: 1px solid 	darkgray;\n"
-"    background-color: #cccccc;\n"
-"    margin-top: 15px;\n"
-"    color: white;\n"
-"}\n"
-"\n"
-"QGroupBox#gbROSI2IOption::title {\n"
-"    border: 1px solid white;\n"
-"    subcontrol-position: top left;\n"
-"	left: 30px;\n"
-"    background-color: gray;\n"
-"    padding: 5px 30px 5px 30px;\n"
-"    top: -15px;\n"
-"}")
+        self.gbROSI2IOption.setStyleSheet(
+            u"QGroupBox#gbROSI2IOption {\n"
+            "    border: 1px solid 	darkgray;\n"
+            "    background-color: #cccccc;\n"
+            "    margin-top: 15px;\n"
+            "    color: white;\n"
+            "}\n"
+            "\n"
+            "QGroupBox#gbROSI2IOption::title {\n"
+            "    border: 1px solid white;\n"
+            "    subcontrol-position: top left;\n"
+            "	left: 30px;\n"
+            "    background-color: gray;\n"
+            "    padding: 5px 30px 5px 30px;\n"
+            "    top: -15px;\n"
+            "}"
+        )
         self.verticalLayout_18 = QVBoxLayout(self.gbROSI2IOption)
         self.verticalLayout_18.setObjectName(u"verticalLayout_18")
         self.verticalLayout_19 = QVBoxLayout()
@@ -187,20 +178,22 @@ class Ui_DlgROSI2I(object):
         self.verticalLayout_19.setContentsMargins(-1, 15, -1, -1)
         self.gbROSI2ICapture = QGroupBox(self.gbROSI2IOption)
         self.gbROSI2ICapture.setObjectName(u"gbROSI2ICapture")
-        self.gbROSI2ICapture.setStyleSheet(u"QGroupBox#gbROSI2ICapture {\n"
-"    border: 1px solid darkgray;\n"
-"    background-color: #d4d4d4;\n"
-"    margin-top: 14px;\n"
-"    color: #ffffff;\n"
-"}\n"
-"QGroupBox#gbROSI2ICapture::title {\n"
-"    border: 1px solid white;\n"
-"    subcontrol-position: top left;\n"
-"    left: 8px;\n"
-"    background-color: gray;\n"
-"    padding: 4px 8px 4px 8px;\n"
-"    top: -14px;\n"
-"}")
+        self.gbROSI2ICapture.setStyleSheet(
+            u"QGroupBox#gbROSI2ICapture {\n"
+            "    border: 1px solid darkgray;\n"
+            "    background-color: #d4d4d4;\n"
+            "    margin-top: 14px;\n"
+            "    color: #ffffff;\n"
+            "}\n"
+            "QGroupBox#gbROSI2ICapture::title {\n"
+            "    border: 1px solid white;\n"
+            "    subcontrol-position: top left;\n"
+            "    left: 8px;\n"
+            "    background-color: gray;\n"
+            "    padding: 4px 8px 4px 8px;\n"
+            "    top: -14px;\n"
+            "}"
+        )
         self.verticalLayoutROSI2ICapture = QVBoxLayout(self.gbROSI2ICapture)
         self.verticalLayoutROSI2ICapture.setObjectName(u"verticalLayoutROSI2ICapture")
         self.verticalLayoutROSI2ICapture.setContentsMargins(-1, 18, -1, -1)
@@ -259,20 +252,22 @@ class Ui_DlgROSI2I(object):
 
         self.gbROSI2IFireModule = QGroupBox(self.gbROSI2IOption)
         self.gbROSI2IFireModule.setObjectName(u"gbROSI2IFireModule")
-        self.gbROSI2IFireModule.setStyleSheet(u"QGroupBox#gbROSI2IFireModule {\n"
-"    border: 1px solid darkgray;\n"
-"    background-color: #d4d4d4;\n"
-"    margin-top: 14px;\n"
-"    color: #ffffff;\n"
-"}\n"
-"QGroupBox#gbROSI2IFireModule::title {\n"
-"    border: 1px solid white;\n"
-"    subcontrol-position: top left;\n"
-"    left: 8px;\n"
-"    background-color: gray;\n"
-"    padding: 4px 8px 4px 8px;\n"
-"    top: -14px;\n"
-"}")
+        self.gbROSI2IFireModule.setStyleSheet(
+            u"QGroupBox#gbROSI2IFireModule {\n"
+            "    border: 1px solid darkgray;\n"
+            "    background-color: #d4d4d4;\n"
+            "    margin-top: 14px;\n"
+            "    color: #ffffff;\n"
+            "}\n"
+            "QGroupBox#gbROSI2IFireModule::title {\n"
+            "    border: 1px solid white;\n"
+            "    subcontrol-position: top left;\n"
+            "    left: 8px;\n"
+            "    background-color: gray;\n"
+            "    padding: 4px 8px 4px 8px;\n"
+            "    top: -14px;\n"
+            "}"
+        )
         self.verticalLayoutROSI2IFireModule = QVBoxLayout(self.gbROSI2IFireModule)
         self.verticalLayoutROSI2IFireModule.setObjectName(u"verticalLayoutROSI2IFireModule")
         self.verticalLayoutROSI2IFireModule.setContentsMargins(-1, 18, -1, -1)
@@ -305,12 +300,9 @@ class Ui_DlgROSI2I(object):
 
         self.verticalLayout_18.addLayout(self.verticalLayout_19)
 
-
         self.verticalLayout_13.addWidget(self.gbROSI2IOption)
 
-
         self.horizontalLayout_15.addLayout(self.verticalLayout_13)
-
 
         self.horizontalLayout.addWidget(self.frame_6)
 
@@ -318,21 +310,23 @@ class Ui_DlgROSI2I(object):
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.gbROSI2ITopicList = QGroupBox(self.frame)
         self.gbROSI2ITopicList.setObjectName(u"gbROSI2ITopicList")
-        self.gbROSI2ITopicList.setStyleSheet(u"QGroupBox#gbROSI2ITopicList {\n"
-"    border: 1px solid 	darkgray;\n"
-"    background-color: #cccccc;\n"
-"    margin-top: 15px;\n"
-"    color: white;\n"
-"}\n"
-"\n"
-"QGroupBox#gbROSI2ITopicList::title {\n"
-"    border: 1px solid white;\n"
-"    subcontrol-position: top left;\n"
-"	left: 30px;\n"
-"    background-color: gray;\n"
-"    padding: 5px 30px 5px 30px;\n"
-"    top: -15px;\n"
-"}")
+        self.gbROSI2ITopicList.setStyleSheet(
+            u"QGroupBox#gbROSI2ITopicList {\n"
+            "    border: 1px solid 	darkgray;\n"
+            "    background-color: #cccccc;\n"
+            "    margin-top: 15px;\n"
+            "    color: white;\n"
+            "}\n"
+            "\n"
+            "QGroupBox#gbROSI2ITopicList::title {\n"
+            "    border: 1px solid white;\n"
+            "    subcontrol-position: top left;\n"
+            "	left: 30px;\n"
+            "    background-color: gray;\n"
+            "    padding: 5px 30px 5px 30px;\n"
+            "    top: -15px;\n"
+            "}"
+        )
         self.verticalLayout_5 = QVBoxLayout(self.gbROSI2ITopicList)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.verticalLayout_4 = QVBoxLayout()
@@ -349,43 +343,40 @@ class Ui_DlgROSI2I(object):
 
         self.verticalLayout_4.addWidget(self.lstwROSI2ITopicList)
 
-
         self.verticalLayout_5.addLayout(self.verticalLayout_4)
-
 
         self.verticalLayout_3.addWidget(self.gbROSI2ITopicList)
 
-
         self.horizontalLayout.addLayout(self.verticalLayout_3)
 
-
         self.verticalLayout_6.addLayout(self.horizontalLayout)
-
 
         self.verticalLayout.addWidget(self.frame)
 
         self.gbROSI2IMessages = QGroupBox(DlgROSI2I)
         self.gbROSI2IMessages.setObjectName(u"gbROSI2IMessages")
         self.gbROSI2IMessages.setMinimumSize(QSize(0, 145))
-        self.gbROSI2IMessages.setStyleSheet(u"QGroupBox#gbROSI2IMessages {\n"
-"    border: 1px solid #aaaaaa;\n"
-"    margin-top: 16px;\n"
-"}\n"
-"QGroupBox#gbROSI2IMessages::title {\n"
-"    subcontrol-origin: margin;\n"
-"    subcontrol-position: top left;\n"
-"    left: 20px;\n"
-"    padding: 5px 19px;\n"
-"    background-color: #8b8b8b;\n"
-"    color: white;\n"
-"}\n"
-"QPlainTextEdit#pteROSI2IMessages {\n"
-"    background-color: #f4f4f4;\n"
-"    color: #222222;\n"
-"    border: 1px solid #929292;\n"
-"    font-family: monospace;\n"
-"    font-size: 9pt;\n"
-"}")
+        self.gbROSI2IMessages.setStyleSheet(
+            u"QGroupBox#gbROSI2IMessages {\n"
+            "    border: 1px solid #aaaaaa;\n"
+            "    margin-top: 16px;\n"
+            "}\n"
+            "QGroupBox#gbROSI2IMessages::title {\n"
+            "    subcontrol-origin: margin;\n"
+            "    subcontrol-position: top left;\n"
+            "    left: 20px;\n"
+            "    padding: 5px 19px;\n"
+            "    background-color: #8b8b8b;\n"
+            "    color: white;\n"
+            "}\n"
+            "QPlainTextEdit#pteROSI2IMessages {\n"
+            "    background-color: #f4f4f4;\n"
+            "    color: #222222;\n"
+            "    border: 1px solid #929292;\n"
+            "    font-family: monospace;\n"
+            "    font-size: 9pt;\n"
+            "}"
+        )
         self.verticalLayoutROSI2IMessages = QVBoxLayout(self.gbROSI2IMessages)
         self.verticalLayoutROSI2IMessages.setObjectName(u"verticalLayoutROSI2IMessages")
         self.verticalLayoutROSI2IMessages.setContentsMargins(8, 20, 8, 8)
@@ -419,30 +410,32 @@ class Ui_DlgROSI2I(object):
         self.btnROSI2IStop.setMinimumSize(QSize(87, 29))
         self.btnROSI2IStop.setMaximumSize(QSize(87, 29))
         self.btnROSI2IStop.setEnabled(False)
-        self.btnROSI2IStop.setStyleSheet(u"QPushButton {\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 4px;\n"
-"padding: 5px;\n"
-"margin-left: 10px;\n"
-"margin-right: 10px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}")
+        self.btnROSI2IStop.setStyleSheet(
+            u"QPushButton {\n"
+            "color: #333;\n"
+            "border: 2px solid #555;\n"
+            "border-radius: 4px;\n"
+            "padding: 5px;\n"
+            "margin-left: 10px;\n"
+            "margin-right: 10px;\n"
+            "background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+            "fx: 0.3, fy: -0.4,\n"
+            "radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+            "min-width: 80px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover {\n"
+            "background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+            "fx: 0.3, fy: -0.4,\n"
+            "radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed {\n"
+            "background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+            "fx: 0.4, fy: -0.1,\n"
+            "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+            "}"
+        )
 
         self.horizontalLayout_2.addWidget(self.btnROSI2IStop)
 
@@ -450,36 +443,36 @@ class Ui_DlgROSI2I(object):
         self.btnROSI2IStart.setObjectName(u"btnROSI2IStart")
         self.btnROSI2IStart.setMinimumSize(QSize(87, 29))
         self.btnROSI2IStart.setMaximumSize(QSize(87, 29))
-        self.btnROSI2IStart.setStyleSheet(u"QPushButton {\n"
-"color: #333;\n"
-"border: 2px solid #555;\n"
-"border-radius: 4px;\n"
-"padding: 5px;\n"
-"margin-left: 10px;\n"
-"margin-right: 10px;\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
-"min-width: 80px;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"background: qradialgradient(cx: 0.3, cy: -0.4,\n"
-"fx: 0.3, fy: -0.4,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
-"}\n"
-"\n"
-"QPushButton:pressed {\n"
-"background: qradialgradient(cx: 0.4, cy: -0.1,\n"
-"fx: 0.4, fy: -0.1,\n"
-"radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
-"}")
+        self.btnROSI2IStart.setStyleSheet(
+            u"QPushButton {\n"
+            "color: #333;\n"
+            "border: 2px solid #555;\n"
+            "border-radius: 4px;\n"
+            "padding: 5px;\n"
+            "margin-left: 10px;\n"
+            "margin-right: 10px;\n"
+            "background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+            "fx: 0.3, fy: -0.4,\n"
+            "radius: 1.35, stop: 0 #fff, stop: 1 #888);\n"
+            "min-width: 80px;\n"
+            "}\n"
+            "\n"
+            "QPushButton:hover {\n"
+            "background: qradialgradient(cx: 0.3, cy: -0.4,\n"
+            "fx: 0.3, fy: -0.4,\n"
+            "radius: 1.35, stop: 0 #fff, stop: 1 #bbb);\n"
+            "}\n"
+            "\n"
+            "QPushButton:pressed {\n"
+            "background: qradialgradient(cx: 0.4, cy: -0.1,\n"
+            "fx: 0.4, fy: -0.1,\n"
+            "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);\n"
+            "}"
+        )
 
         self.horizontalLayout_2.addWidget(self.btnROSI2IStart)
 
-
         self.verticalLayout.addLayout(self.horizontalLayout_2)
-
 
         self.retranslateUi(DlgROSI2I)
 
@@ -511,4 +504,3 @@ class Ui_DlgROSI2I(object):
         self.btnROSI2IStop.setText(QCoreApplication.translate("DlgROSI2I", u"Stop", None))
         self.btnROSI2IStart.setText(QCoreApplication.translate("DlgROSI2I", u"Start", None))
     # retranslateUi
-
