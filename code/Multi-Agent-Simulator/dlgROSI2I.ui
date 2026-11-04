@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>DlgROSI2I</class>
  <widget class="QDialog" name="DlgROSI2I">
@@ -137,7 +137,7 @@ QGroupBox#gbROSI2IRobot::title {
                         </widget>
                        </item>
                        <item>
-                        <widget class="QComboBox" name="cbROSI2IName" />
+                        <widget class="QComboBox" name="cbROSI2IName"/>
                        </item>
                       </layout>
                      </widget>
@@ -170,7 +170,7 @@ QGroupBox#gbROSI2IRobot::title {
                           </size>
                          </property>
                          <property name="text">
-                          <string />
+                          <string/>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignCenter</set>
@@ -213,7 +213,7 @@ QGroupBox#gbROSI2IRobot::title {
                          <item>
                           <widget class="QLabel" name="lbROSI2INameSpace">
                            <property name="text">
-                            <string />
+                            <string/>
                            </property>
                           </widget>
                          </item>
@@ -263,6 +263,7 @@ QGroupBox#gbROSI2IOption::title {
     margin-top: 14px;
     color: #ffffff;
 }
+
 QGroupBox#gbROSI2ICapture::title {
     border: 1px solid white;
     subcontrol-position: top left;
@@ -384,6 +385,7 @@ QGroupBox#gbROSI2ICapture::title {
     margin-top: 14px;
     color: #ffffff;
 }
+
 QGroupBox#gbROSI2IFireModule::title {
     border: 1px solid white;
     subcontrol-position: top left;
@@ -522,6 +524,7 @@ QGroupBox#gbROSI2ITopicList::title {
     border: 1px solid #aaaaaa;
     margin-top: 16px;
 }
+
 QGroupBox#gbROSI2IMessages::title {
     subcontrol-origin: margin;
     subcontrol-position: top left;
@@ -530,6 +533,7 @@ QGroupBox#gbROSI2IMessages::title {
     background-color: #8b8b8b;
     color: white;
 }
+
 QPlainTextEdit#pteROSI2IMessages {
     background-color: #f4f4f4;
     color: #222222;
@@ -703,6 +707,6 @@ radius: 1.35, stop: 0 #fff, stop: 1 #ddd);
    </item>
   </layout>
  </widget>
- <resources />
- <connections />
+ <resources/>
+ <connections/>
 </ui>
