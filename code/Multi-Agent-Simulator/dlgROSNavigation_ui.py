@@ -8,17 +8,13 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+from PySide6.QtCore import QCoreApplication, QMetaObject, QRect, QSize, Qt
+from PySide6.QtWidgets import (
+    QComboBox, QFrame, QGroupBox, QHBoxLayout, QLabel, QLineEdit,
     QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+    QVBoxLayout, QWidget
+)
+
 
 class Ui_DlgROSNavigation(object):
     def setupUi(self, DlgROSNavigation):
@@ -80,20 +76,22 @@ class Ui_DlgROSNavigation(object):
         sizePolicy1.setHeightForWidth(self.gbCollaborationSettingModel.sizePolicy().hasHeightForWidth())
         self.gbCollaborationSettingModel.setSizePolicy(sizePolicy1)
         self.gbCollaborationSettingModel.setMinimumSize(QSize(0, 0))
-        self.gbCollaborationSettingModel.setStyleSheet(u"QGroupBox#gbCollaborationSettingModel {\n"
-"    border: 1px solid 	darkgray;\n"
-"    margin-top: 15px;\n"
-"	color:white\n"
-"}\n"
-"\n"
-"QGroupBox#gbCollaborationSettingModel::title {\n"
-"    subcontrol-position: top left;\n"
-"    border: 1px solid white;\n"
-"    background-color: gray;\n"
-"    padding: 5px 15px 5px 15px;\n"
-"    top: -15px;\n"
-"	left: 20px;\n"
-"}")
+        self.gbCollaborationSettingModel.setStyleSheet(
+            u"QGroupBox#gbCollaborationSettingModel {\n"
+            "    border: 1px solid 	darkgray;\n"
+            "    margin-top: 15px;\n"
+            "	color:white\n"
+            "}\n"
+            "\n"
+            "QGroupBox#gbCollaborationSettingModel::title {\n"
+            "    subcontrol-position: top left;\n"
+            "    border: 1px solid white;\n"
+            "    background-color: gray;\n"
+            "    padding: 5px 15px 5px 15px;\n"
+            "    top: -15px;\n"
+            "	left: 20px;\n"
+            "}"
+        )
         self.horizontalLayout_6 = QHBoxLayout(self.gbCollaborationSettingModel)
         self.horizontalLayout_6.setSpacing(0)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
@@ -115,9 +113,7 @@ class Ui_DlgROSNavigation(object):
 
         self.horizontalLayout_7.addWidget(self.cbROSNaviRobots)
 
-
         self.horizontalLayout_6.addWidget(self.frame_5)
-
 
         self.verticalLayout_7.addWidget(self.gbCollaborationSettingModel)
 
@@ -127,20 +123,22 @@ class Ui_DlgROSNavigation(object):
 
         self.gbCollaborationSettingOption = QGroupBox(self.frame_4)
         self.gbCollaborationSettingOption.setObjectName(u"gbCollaborationSettingOption")
-        self.gbCollaborationSettingOption.setStyleSheet(u"QGroupBox#gbCollaborationSettingOption {\n"
-"    border: 1px solid 	darkgray;\n"
-"    margin-top: 15px;\n"
-"	color:white\n"
-"}\n"
-"\n"
-"QGroupBox#gbCollaborationSettingOption::title {\n"
-"    subcontrol-position: top left;\n"
-"    border: 1px solid white;\n"
-"    background-color: gray;\n"
-"    padding: 5px 15px 5px 15px;\n"
-"    top: -15px;\n"
-"	left: 20px;\n"
-"}")
+        self.gbCollaborationSettingOption.setStyleSheet(
+            u"QGroupBox#gbCollaborationSettingOption {\n"
+            "    border: 1px solid 	darkgray;\n"
+            "    margin-top: 15px;\n"
+            "	color:white\n"
+            "}\n"
+            "\n"
+            "QGroupBox#gbCollaborationSettingOption::title {\n"
+            "    subcontrol-position: top left;\n"
+            "    border: 1px solid white;\n"
+            "    background-color: gray;\n"
+            "    padding: 5px 15px 5px 15px;\n"
+            "    top: -15px;\n"
+            "	left: 20px;\n"
+            "}"
+        )
         self.verticalLayout_8 = QVBoxLayout(self.gbCollaborationSettingOption)
         self.verticalLayout_8.setSpacing(0)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
@@ -161,7 +159,6 @@ class Ui_DlgROSNavigation(object):
 
         self.horizontalLayout_8.addWidget(self.ledtROSNaviRobotsPosX)
 
-
         self.verticalLayout_8.addWidget(self.frame_6)
 
         self.frame_7 = QFrame(self.gbCollaborationSettingOption)
@@ -179,7 +176,6 @@ class Ui_DlgROSNavigation(object):
         self.ledtROSNaviRobotsPosY.setObjectName(u"ledtROSNaviRobotsPosY")
 
         self.horizontalLayout_9.addWidget(self.ledtROSNaviRobotsPosY)
-
 
         self.verticalLayout_8.addWidget(self.frame_7)
 
@@ -199,13 +195,11 @@ class Ui_DlgROSNavigation(object):
 
         self.horizontalLayout_10.addWidget(self.ledtROSNaviRobotsPosZ)
 
-
         self.verticalLayout_8.addWidget(self.frame_8)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.verticalLayout_8.addItem(self.verticalSpacer)
-
 
         self.verticalLayout_7.addWidget(self.gbCollaborationSettingOption)
 
@@ -213,13 +207,11 @@ class Ui_DlgROSNavigation(object):
 
         self.verticalLayout_6.addLayout(self.verticalLayout_7)
 
-
         self.horizontalLayout_4.addWidget(self.frame_4)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         self.verticalLayout_5.addWidget(self.scrollArea)
-
 
         self.horizontalLayout.addLayout(self.verticalLayout_5)
 
@@ -257,9 +249,7 @@ class Ui_DlgROSNavigation(object):
 
         self.horizontalLayout.addLayout(self.verticalLayout_4)
 
-
         self.horizontalLayout_2.addLayout(self.horizontalLayout)
-
 
         self.verticalLayout_2.addWidget(self.frame_3)
 
@@ -298,18 +288,13 @@ class Ui_DlgROSNavigation(object):
 
         self.horizontalLayout_3.addWidget(self.btnROSNavigationStart)
 
-
         self.horizontalLayout_5.addLayout(self.horizontalLayout_3)
-
 
         self.verticalLayout_2.addWidget(self.frame_2)
 
-
         self.verticalLayout_3.addLayout(self.verticalLayout_2)
 
-
         self.verticalLayout.addWidget(self.frame)
-
 
         self.retranslateUi(DlgROSNavigation)
 
@@ -329,4 +314,3 @@ class Ui_DlgROSNavigation(object):
         self.btnROSNavigationCancel.setText(QCoreApplication.translate("DlgROSNavigation", u"Cancel", None))
         self.btnROSNavigationStart.setText(QCoreApplication.translate("DlgROSNavigation", u"OK", None))
     # retranslateUi
-
