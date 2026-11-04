@@ -8,16 +8,12 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
-    QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
-    QImage, QKeySequence, QLinearGradient, QPainter,
-    QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QGroupBox, QHBoxLayout, QLabel, QPushButton,
-    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+from PySide6.QtCore import QCoreApplication, QMetaObject, QSize, Qt
+from PySide6.QtWidgets import (
+    QComboBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
+    QPushButton, QSizePolicy, QSpacerItem, QVBoxLayout
+)
+
 
 class Ui_DlgROSSlam(object):
     def setupUi(self, DlgROSSlam):
@@ -96,7 +92,6 @@ class Ui_DlgROSSlam(object):
 
         self.horizontalLayout_2.addWidget(self.cbSlamRobot)
 
-
         self.verticalLayout_6.addWidget(self.frame_3)
 
         self.frame_4 = QFrame(self.groupBox_2)
@@ -105,7 +100,6 @@ class Ui_DlgROSSlam(object):
         self.frame_4.setFrameShadow(QFrame.Raised)
 
         self.verticalLayout_6.addWidget(self.frame_4)
-
 
         self.horizontalLayout.addWidget(self.groupBox_2)
 
@@ -135,7 +129,6 @@ class Ui_DlgROSSlam(object):
 
         self.horizontalLayout_6.addWidget(self.cbSlamMethod)
 
-
         self.verticalLayout_5.addWidget(self.frame_5)
 
         self.frame_6 = QFrame(self.groupBox)
@@ -145,14 +138,12 @@ class Ui_DlgROSSlam(object):
 
         self.verticalLayout_5.addWidget(self.frame_6)
 
-
         self.horizontalLayout.addWidget(self.groupBox)
 
         self.horizontalLayout.setStretch(0, 1)
         self.horizontalLayout.setStretch(1, 1)
 
         self.horizontalLayout_7.addLayout(self.horizontalLayout)
-
 
         self.verticalLayout_3.addWidget(self.frame_2)
 
@@ -197,18 +188,13 @@ class Ui_DlgROSSlam(object):
 
         self.horizontalLayout_3.addWidget(self.btnROSSlamStart)
 
-
         self.horizontalLayout_4.addLayout(self.horizontalLayout_3)
-
 
         self.verticalLayout_3.addWidget(self.frame)
 
-
         self.verticalLayout_2.addLayout(self.verticalLayout_3)
 
-
         self.verticalLayout.addWidget(self.fmain)
-
 
         self.retranslateUi(DlgROSSlam)
 
@@ -224,4 +210,3 @@ class Ui_DlgROSSlam(object):
         self.btnROSSlamSaveMap.setText(QCoreApplication.translate("DlgROSSlam", u"Save Map", None))
         self.btnROSSlamStart.setText(QCoreApplication.translate("DlgROSSlam", u"Slam", None))
     # retranslateUi
-
