@@ -1,13 +1,17 @@
-transformers==4.37.2
+# RTLightFire 의존성 (검증 환경: Python 3.10, CUDA 12.1)
+# 검증된 정확한 버전은 주석에 표기 — 다른 버전도 대체로 동작하나 diffusers>=0.30 필수(LCMScheduler)
+torch>=2.4            # 검증: 2.5.1+cu121
+torchvision
+diffusers>=0.30       # 검증: 0.36.0
+transformers>=4.40    # 검증: Grounding-DINO 지원 버전
 accelerate
-ftfy
-tensorboard
-Jinja2
-diffusers==0.22.0
-huggingface-hub==0.25.2
-einops
-
---extra-index-url https://download.pytorch.org/whl/cu118
-torch==2.2.1
-torchvision==0.17.1
-torchaudio==2.2.1
+safetensors
+opencv-python
+numpy
+pillow
+# --- SAM2 (패키지에 코드 내장: third_party/sam2 — 별도 설치 불필요) ---
+# sam2가 요구하는 추가 의존성:
+hydra-core>=1.3
+omegaconf
+iopath
+tqdm
