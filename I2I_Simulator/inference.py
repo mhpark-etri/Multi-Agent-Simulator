@@ -4,7 +4,7 @@
   폴더:  python inference.py <입력_폴더> <출력_폴더>          # 모델 1회 로드 후 연속 처리
          python inference.py in_dir/ out_dir/ --independent   # 서로 무관한 이미지들일 때
 
-  예: python inference.py /data2/captures/frame_0412.png /data2/results/frame_0412_fire.png
+  예: python inference.py /path/to/smoke.png /path/to/fire_out.png
       python inference.py /data2/captures/ /data2/results/    # 정렬 순서 = 스트림 순서로 처리
 
 폴더 모드 주의: 기본은 '연속 프레임 스트림'으로 간주해 추적·시간앵커 상태를 이어갑니다.
@@ -25,12 +25,13 @@ def reset_state(eng):
     eng.prev_lat = None; eng.key_ema = None; eng.cent_ema = None; eng.area_ema = None
     eng.prev_mask = None; eng.rejects = 0; eng.base_y = None; eng.base_conf = 0
     eng.soft_mask = None
+    eng.prev_gray = None; eng.ego_A = None; eng.ego_fail = 0   # 10-29 카메라 이동 보정 상태
 
 
 def main():
     ap = argparse.ArgumentParser(description="light_fire image-to-image")
     ap.add_argument("input", metavar="INPUT_PATH",
-                    help="입력 이미지 경로 또는 폴더 (예: /data2/captures/frame_0412.png, /data2/captures/)")
+                    help="입력 이미지 경로 또는 폴더 (예: /path/to/smoke.png, /data2/captures/)")
     ap.add_argument("output", nargs="?", default="out.png", metavar="OUTPUT_PATH",
                     help="출력 이미지 경로 또는 폴더 (기본 ./out.png)")
     ap.add_argument("--independent", action="store_true",
