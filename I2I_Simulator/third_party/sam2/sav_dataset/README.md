@@ -22,7 +22,6 @@ Visit [here](https://ai.meta.com/datasets/segment-anything-video-downloads/) to 
 
 ### Notebooks
 
-To load and visualize the SA-V training set annotations, refer to the example [sav_visualization_example.ipynb](./sav_visualization_example.ipynb) notebook.
 
 ### SA-V train
 
