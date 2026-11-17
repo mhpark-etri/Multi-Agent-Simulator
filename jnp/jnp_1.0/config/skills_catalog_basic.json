@@ -1,0 +1,173 @@
+{
+ "version": "v0.3-20261018-basic",
+ "source": {
+  "base": "LLM-TDM 스킬 카탈로그 형식(v0.2-20261006) — 기본 협업 태스크용 어휘만 담은 판",
+  "note": "[JnP-0.9.0 2026-10-18] v0.3: 스킬 서명의 <robot> 자리는 역할(role) 자리다(role_param). canonical v2 는 그 인자를 args 에서 빼 role 로 둔다. Trip 의 매개변수 goal 은 destination 으로 바꿨다(goal 은 단위 태스크의 목표에만 쓴다). description·aliases 는 스킬 설명(표 5-2)의 1차 항목, has_executor_wrapper 는 에이전트 실행기(execute) 분기가 있는 스킬. 나머지 실행 속성(exec_goal·requirement·node·optional·preassigned)은 0.8.2 와 같다: exec_goal(에이전트 execute() 가 해석하는 goal 문자열 템플릿, args 로 포맷), requirement(요구 능력), node(sequential/parallel 원자 종류), optional(실패해도 미션을 죽이지 않음), preassigned(에이전트에 배정하지 않는 상시 가상 서비스 — 표시용 agent /etri/<robot>). arg_keys 순서 = 위치 인자 순서, target_key = canonical id/goal 에 쓰는 대상 인수."
+ },
+ "actions": {
+  "GoTo": {
+   "signature": "GoTo <robot><target>",
+   "arg_keys": [
+    "robot",
+    "target"
+   ],
+   "target_key": "target",
+   "exec_goal": "nav:{target}",
+   "requirement": "lidar",
+   "node": "sequential",
+   "declared_by_any_robot": true,
+   "note": "target = 'x,y[,th]' (그대로 nav: goal 이 된다); robot 자리 = 역할",
+   "role_param": "robot",
+   "description": "Drive the base to a map pose (x,y[,yaw]).",
+   "aliases": [
+    "GoToLocation"
+   ],
+   "has_executor_wrapper": true
+  },
+  "Trip": {
+   "signature": "Trip <item><destination><target>",
+   "arg_keys": [
+    "item",
+    "destination",
+    "target"
+   ],
+   "target_key": "item",
+   "exec_goal": "trip:{target}@{destination}",
+   "requirement": "lidar",
+   "node": "parallel",
+   "declared_by_any_robot": true,
+   "description": "Carry one item from the base to a destination and come back (one round trip).",
+   "aliases": [
+    "CarryItem"
+   ],
+   "has_executor_wrapper": true,
+   "note": "item = 'G.itemK' (물품 1개 = 왕복 1회), destination = 목적지 이름(옛 매개변수 이름 goal), target = 'x,y'. robot 자리가 없다 = 풀(pool) 태스크: 자격 있는 유휴 로봇 아무나"
+  },
+  "WaitPass": {
+   "signature": "WaitPass <robot><prev>",
+   "arg_keys": [
+    "robot",
+    "prev"
+   ],
+   "target_key": "prev",
+   "exec_goal": "virtual:wait",
+   "requirement": "virtual",
+   "node": "sequential",
+   "declared_by_any_robot": false,
+   "note": "prev = 앞 로봇의 역할(통과를 기다릴 대상). 가상 task — 그룹의 위치 관찰자가 완료 처리",
+   "role_param": "robot",
+   "role_refs": [
+    "prev"
+   ],
+   "description": "Wait where you are until the previous robot has passed the bottleneck (virtual: completed by the group observer).",
+   "aliases": [],
+   "has_executor_wrapper": false
+  },
+  "Explore": {
+   "signature": "Explore <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "explore",
+   "requirement": "lidar",
+   "node": "parallel",
+   "optional": true,
+   "declared_by_any_robot": true,
+   "role_param": "robot",
+   "description": "Explore frontiers assigned by the group feeder until the area is covered.",
+   "aliases": [
+    "ExploreArea"
+   ],
+   "has_executor_wrapper": true
+  },
+  "Patrol": {
+   "signature": "Patrol <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "search",
+   "requirement": "lidar",
+   "node": "parallel",
+   "optional": true,
+   "declared_by_any_robot": true,
+   "role_param": "robot",
+   "description": "Patrol the way-points of this robot partition of a known map.",
+   "aliases": [
+    "SearchObject"
+   ],
+   "has_executor_wrapper": true
+  },
+  "Detect": {
+   "signature": "Detect <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "service:yolov8",
+   "requirement": "virtual",
+   "node": "parallel",
+   "preassigned": true,
+   "declared_by_any_robot": false,
+   "role_param": "robot",
+   "description": "Standing object-detection service on this robot camera (reports found objects).",
+   "aliases": [],
+   "has_executor_wrapper": false
+  },
+  "SendMap": {
+   "signature": "SendMap <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "publish:map",
+   "requirement": "virtual",
+   "node": "parallel",
+   "preassigned": true,
+   "declared_by_any_robot": false,
+   "role_param": "robot",
+   "description": "Standing service: publish this robot map for the merge host.",
+   "aliases": [],
+   "has_executor_wrapper": false
+  },
+  "MergeMaps": {
+   "signature": "MergeMaps <robot>",
+   "arg_keys": [
+    "robot"
+   ],
+   "target_key": "robot",
+   "exec_goal": "service:map_merge",
+   "requirement": "virtual",
+   "node": "parallel",
+   "preassigned": true,
+   "declared_by_any_robot": false,
+   "role_param": "robot",
+   "description": "Standing service on the host: merge all robot maps into /map.",
+   "aliases": [],
+   "has_executor_wrapper": false,
+   "shared_service": true,
+   "note": "호스트 한 대의 공유 서비스(모든 로봇의 지도를 /map 으로 병합). shared_service: 이 서비스가 붙은 역할은 skip 정책으로 건너뛸 수 없다."
+  }
+ },
+ "robot_declared_skills": [
+  "GoTo",
+  "Trip",
+  "Explore",
+  "Patrol"
+ ],
+ "notes": [
+  "virtual 요구 능력(WaitPass·Detect·SendMap·MergeMaps)은 어떤 에이전트도 못 받는다 — 그룹이 완료 처리하거나 상시 서비스로 표시만 한다(0.8.1 고정 빌더와 같음). 역할은 있다(그 역할의 로봇에 붙은 서비스).",
+  "canonical v2: required_skills 는 [skill] 하나뿐이고, 능력 태그(use_radar=True → radar)는 requirements 에 둔다. jnp_plan 이 원자 node 의 requirement 에 더한다.",
+  "역할(role)의 요구 = 그 역할을 가리키는 배정 대상 단위 태스크들의 스킬 합집합 + 요구 능력(카탈로그 requirement ∪ requirements) + 계획의 ROLE_REQUIRES. ROLE_PREFER 는 선택 시 선호(소프트).",
+  "노드 이름(relay1.<robot>, move.<robot>, make_maps.<robot> …)과 복합 node 의 묶음 규칙은 plans/README.md 의 '실행 변환 규칙' — 역할이 로봇에 묶인 뒤 이름을 만든다.",
+  "shared_service(MergeMaps)가 붙은 역할과 다른 역할이 참조하는 역할(WaitPass.prev)은 ~unassigned_policy=skip 으로 건너뛸 수 없다 — 선택 태스크뿐이어도 다른 로봇이 그 역할의 서비스·순서에 기댄다."
+ ],
+ "capabilities": [
+  "lidar",
+  "camera",
+  "radar",
+  "compute_x86",
+  "compute_arm"
+ ]
+}
